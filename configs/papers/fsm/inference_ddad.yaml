@@ -1,0 +1,19 @@
+wrapper:
+    recipe: wrapper|default
+arch:
+    model:
+        file: depth/FSMModel
+        checkpoint: /data/vidar/models/papers/final/FSM_MR_6cams_DDAD.ckpt
+    networks:
+        depth:
+            recipe: networks/focal_depth_res_net|fsm_ddad
+        pose:
+            recipe: networks/conv_pose_net|default
+evaluation:
+    depth:
+        recipe: evaluation/depth|ddad_resize
+datasets:
+    validation:
+        recipe: datasets/ddad|validation_6cams
+save:
+    recipe: save|depth_splitname

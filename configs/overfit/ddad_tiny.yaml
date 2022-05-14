@@ -1,0 +1,31 @@
+wrapper:
+    recipe: wrapper|default
+    max_epochs: 1
+arch:
+    model:
+        file: depth/SelfSupervisedModel
+    networks:
+        depth:
+            recipe: networks/mono_depth_res_net|default
+            depth_range: [0.1,100.0]
+        pose:
+            recipe: networks/pose_net|default
+    losses:
+        reprojection:
+            recipe: losses/reprojection|default
+        smoothness:
+            recipe: losses/smoothness|default
+evaluation:
+    depth:
+        recipe: evaluation/depth|ddad_resize
+optimizers:
+    depth:
+        recipe: optimizers|adam_20_05
+    pose:
+        recipe: optimizers|adam_20_05
+datasets:
+    train:
+        recipe: datasets/ddad_tiny|train_selfsup_front
+    validation:
+        recipe: datasets/ddad_tiny|validation_front
+

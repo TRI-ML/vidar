@@ -1,0 +1,5 @@
+default:
+    file: SmoothnessLoss
+    normalize: True
+    weight: 0.0001
+    gamma: 0.5
