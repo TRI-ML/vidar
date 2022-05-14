@@ -1,0 +1,9 @@
+default:
+    file: ReprojectionLoss
+    automasking: True
+    reprojection_reduce_op: min
+    jitter_identity_reprojection: 0.00001
+    photometric:
+        file: PhotometricLoss
+        weight: 1.0
+        alpha: 0.85

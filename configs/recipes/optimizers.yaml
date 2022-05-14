@@ -1,0 +1,7 @@
+adam_20_05:
+    name: Adam
+    lr: 0.0001
+    scheduler:
+        name: StepLR
+        step_size: 20
+        gamma: 0.5

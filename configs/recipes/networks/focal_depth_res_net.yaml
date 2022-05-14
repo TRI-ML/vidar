@@ -1,0 +1,12 @@
+fsm_ddad:
+    file: depth/FocalDepthResNet
+    encoder:
+        version: 18
+        pretrained: True
+        num_rgb_in: 1
+    decoder:
+        use_skips: True
+        activation: sigmoid
+        num_ch_out: 1
+    min_depth: 0.005
+    max_depth: 0.3
