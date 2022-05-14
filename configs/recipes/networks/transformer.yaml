@@ -1,0 +1,12 @@
+depthformer:
+    file: transformers/MatchModule
+    context_adjustment:
+        expansion_ratio: 4
+        feat_dim: 16
+        num_blocks: 8
+    channel_dim: 128
+    nheads: 8
+    num_attn_layers: 6
+    min_depth: 0.1
+    max_depth: 100.0
+    num_bins: 128

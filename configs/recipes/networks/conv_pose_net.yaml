@@ -1,0 +1,5 @@
+default:
+    file: pose/ConvPoseNet
+    version: 18
+    pretrained: True
+    num_rgb_in: 2

@@ -1,0 +1,20 @@
+wrapper:
+    recipe: wrapper|default
+arch:
+    model:
+        file: depth/SelfSupervisedModel
+        checkpoint: /data/vidar/models/papers/final/PackNet_MR_selfsup_KITTI.ckpt
+    networks:
+        depth:
+            recipe: networks/packnet|default
+            depth_range: [0.1,100.0]
+        pose:
+            recipe: networks/conv_pose_net|default
+evaluation:
+    depth:
+        recipe: evaluation/depth|kitti_resize
+datasets:
+    validation:
+        recipe: datasets/kitti|validation_mr
+save:
+    recipe: save|depth_splitname

@@ -1,0 +1,30 @@
+default_train:
+    name: [Generic]
+    path: [data/generic]
+    split: ['']
+    context: [-1,1]
+    cameras: [[0]]
+    labels: []
+    extension: [jpg]
+    repeat: [100]
+    augmentation:
+        jittering: [0.2, 0.2, 0.2, 0.05]
+        resize: [384, 640]
+    dataloader:
+        batch_size: 1
+        pin_memory: True
+        num_workers: 16
+default_validation:
+    name: [Generic]
+    path: [data/generic]
+    split: ['']
+    context: []
+    cameras: [[0]]
+    labels: []
+    extension: [jpg]
+    augmentation:
+        resize: [384, 640]
+    dataloader:
+        batch_size: 1
+        pin_memory: True
+        num_workers: 16

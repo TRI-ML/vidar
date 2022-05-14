@@ -1,0 +1,10 @@
+default:
+    file: depth/MonoDepthResNet
+    encoder:
+        version: 18
+        pretrained: True
+        num_rgb_in: 1
+    decoder:
+        use_skips: True
+        activation: sigmoid
+        num_ch_out: 1

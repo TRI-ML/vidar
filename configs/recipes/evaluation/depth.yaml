@@ -1,0 +1,21 @@
+kitti_resize:
+    crop: garg
+    min_depth: 0.0
+    max_depth: 80.0
+    scale_output: resize
+    median_scaling: True
+    post_process: True
+kitti_crop:
+    crop: garg
+    min_depth: 0.0
+    max_depth: 80.0
+    scale_output: top-center
+    median_scaling: True
+    post_process: True
+ddad_resize:
+    crop: ''
+    min_depth: 0.0
+    max_depth: 200.0
+    scale_output: resize
+    median_scaling: True
+    post_process: True

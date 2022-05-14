@@ -1,0 +1,16 @@
+tiny:
+    name: [VKITTI2]
+    path: [/data/vidar/VKITTI2_tiny]
+    split: ['']
+    augmentation:
+      resize: [192, 640]
+      resize_supervision: True
+    dataloader:
+      batch_size: 1
+      pin_memory: True
+      num_workers: 16
+    context: [-1,1]
+    labels: [depth,pose]
+    labels_context: [depth,pose]
+    cameras: [[0]]
+    depth_type: [zbuffer]
