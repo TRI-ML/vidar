@@ -1,0 +1,3 @@
+[submodule "externals/camviz"]
+	path = externals/camviz
+	url = git@github.com:TRI-ML/camviz.git
