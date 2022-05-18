@@ -87,15 +87,11 @@ RUN apt-get install -y \
     python-pygame
 
 # Install PyTorch3D
-# RUN pip install "git+https://github.com/facebookresearch/pytorch3d.git"
 RUN pip install pytorch3d
 
 # Install MMSegmentation
 RUN pip install mmcv-full -f https://download.openmmlab.com/mmcv/dist/cu113/torch1.10.0/index.html
 ENV PYTHONPATH="/workspace/vidar/externals/mmsegmentation:$PYTHONPATH"
-
-# Install LieTorch
-#RUN pip install git+https://github.com/princeton-vl/lietorch.git@91887c3be4fe72aefe4af1deb67f2ea9ce17a049
 
 # Install CuPY
 RUN pip install cupy
@@ -117,5 +113,3 @@ COPY . /workspace/${PROJECT}
 # Set environment variables
 ENV PYTHONPATH="/workspace/${PROJECT}:$PYTHONPATH"
 ENV PYTHONPATH="/workspace/${PROJECT}/externals/camviz:$PYTHONPATH"
-ENV PYTHONPATH="/workspace/${PROJECT}/externals/pixel_nerf/src:$PYTHONPATH"
-ENV PYTHONPATH="/workspace/vidar/externals/huggingface/transformers/src:$PYTHONPATH"

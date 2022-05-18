@@ -6,6 +6,7 @@ from vidar.arch.blocks.image.ViewSynthesis import ViewSynthesis
 from vidar.arch.models.BaseModel import BaseModel
 from vidar.arch.models.utils import make_rgb_scales, create_cameras
 from vidar.utils.data import get_from_dict
+from vidar.utils.config import cfg_has
 
 
 class SelfSupervisedModel(BaseModel, ABC):
@@ -21,15 +22,37 @@ class SelfSupervisedModel(BaseModel, ABC):
         super().__init__(cfg)
         self.view_synthesis = ViewSynthesis()
         self.set_attr(cfg.model, 'use_gt_pose', False)
+        self.set_attr(cfg.model, 'use_gt_intrinsics', True)
+
+        if not self.use_gt_intrinsics:
+            self.camera_model = cfg_has(cfg.networks.intrinsics, 'camera_model', 'UCM')
+            if self.camera_model == 'UCM':
+                from vidar.geometry.camera_ucm import UCMCamera
+                self.camera_class = UCMCamera
+            elif self.camera_model == 'EUCM':
+                from vidar.geometry.camera_eucm import EUCMCamera
+                self.camera_class = EUCMCamera
+            elif self.camera_model == 'DS':
+                from vidar.geometry.camera_ds import DSCamera
+                self.camera_class = DSCamera
+            else:
+                raise NotImplementedError('Invalid camera type')
 
     def forward(self, batch, epoch=0):
         """Model forward pass"""
 
         rgb = batch['rgb']
-        intrinsics = get_from_dict(batch, 'intrinsics')
+        if self.use_gt_intrinsics:
+            intrinsics = get_from_dict(batch, 'intrinsics')
+        else:
+            intrinsics = self.networks['intrinsics'](rgb=rgb[0])
+
         valid_mask = get_from_dict(batch, 'mask')
 
-        depth_output = self.networks['depth'](rgb=rgb[0], intrinsics=intrinsics[0])
+        if self.use_gt_intrinsics:
+            depth_output = self.networks['depth'](rgb=rgb[0], intrinsics=intrinsics[0])
+        else:
+            depth_output = self.networks['depth'](rgb=rgb[0])
         pred_depth = depth_output['depths']
 
         predictions = {
@@ -54,13 +77,34 @@ class SelfSupervisedModel(BaseModel, ABC):
         else:
             pose = None
 
-        cams = create_cameras(rgb[0], intrinsics[0], pose)
+        if not self.use_gt_intrinsics:
+            cams = {0: self.camera_class(I=intrinsics)}
+            for key in pose.keys():
+                cams[key] = self.camera_class(I=intrinsics, Tcw=pose[key])
+        else:
+            cams = create_cameras(rgb[0], intrinsics[0], pose)
 
         gt_depth = None if 'depth' not in batch else batch['depth'][0]
         loss, metrics = self.compute_loss_and_metrics(
             rgb, pred_depth, cams, gt_depth=gt_depth,
             logvar=pred_logvar, valid_mask=valid_mask
         )
+
+        if not self.use_gt_intrinsics:
+            if self.camera_model == 'UCM':
+                fx, fy, cx, cy, alpha = intrinsics[0].squeeze()
+                intrinsics_metrics = {'fx': fx, 'fy':fy, 'cx':cx, 'cy':cy, 'alpha':alpha}
+                metrics.update(intrinsics_metrics)
+            elif self.camera_model == 'EUCM':
+                fx, fy, cx, cy, alpha, beta = intrinsics[0].squeeze()
+                intrinsics_metrics = {'fx': fx, 'fy':fy, 'cx':cx, 'cy':cy, 'alpha':alpha, 'beta':beta}
+                metrics.update(intrinsics_metrics)
+            elif self.camera_model == 'DS':
+                fx, fy, cx, cy, xi, alpha = intrinsics[0].squeeze()
+                intrinsics_metrics = {'fx': fx, 'fy':fy, 'cx':cx, 'cy':cy, 'xi':xi, 'alpha':alpha}
+                metrics.update(intrinsics_metrics)
+            else:
+                raise NotImplementedError('Invalid camera type')
 
         return {
             'loss': loss,
