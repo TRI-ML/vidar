@@ -1,0 +1,74 @@
+wrapper:
+    recipe: wrapper|default
+    validate_first: False
+# wandb:
+#     recipe: wandb|default
+#     tags: [selfcalib,selfsup,euroc,ucm]
+# checkpoint:
+#     recipe: checkpoint|default
+#     dataset: [0]
+#     monitor: [depth|abs_rel_pp_gt(0)_0]
+#     mode: [min]
+arch:
+    model:
+        file: depth/SelfSupervisedModel
+        use_gt_intrinsics: False
+    networks:
+        depth:
+            recipe: networks/mono_depth_res_net|default
+            depth_range: [0.1,80.0]
+        pose:
+            recipe: networks/pose_net|default
+        intrinsics:
+            file: intrinsics/IntrinsicsNet
+            camera_model: 'UCM'
+            shape: [256, 384] # image shape
+    losses:
+        reprojection:
+            recipe: losses/reprojection|default
+        smoothness:
+            recipe: losses/smoothness|default
+evaluation:
+    depth:
+        recipe: evaluation/depth|kitti_resize
+optimizers:
+    depth:
+        recipe: optimizers|adam_20_05
+        lr: 0.0002
+    pose:
+        recipe: optimizers|adam_20_05
+        lr: 0.0002
+    intrinsics:
+        recipe: optimizers|adam_20_05
+        lr: 0.01
+datasets:
+    train:
+        name: [EUROC]
+        path: [/data/vidar/euroc/euroc_cam/cam0]
+        augmentation:
+            jittering: [0.2, 0.2, 0.2, 0.05]
+            resize: [256, 384]
+        dataloader:
+            batch_size: 16 #8
+            pin_memory: True
+            num_workers: 16
+        context: [-1, 1]
+        strides: [[49999872, 50000128]]
+        cameras: [[0]]
+        split: [euroc-train]
+        labels: []
+        repeat: [1]
+    validation:
+        name: [EUROC]
+        path: [/data/vidar/euroc/euroc_has_depth/V2_01_easy_has_depth/mav0/]
+        augmentation:
+            resize: [256, 384]
+        dataloader:
+            batch_size: 1
+            pin_memory: True
+            num_workers: 16
+        split: [euroc-val]
+        labels: [depth]
+        context: []
+        strides: [[0, 0]]
+        cameras: [[0]]
