@@ -5,8 +5,8 @@ import pickle
 from collections import OrderedDict
 
 import numpy as np
-from ouroboros.dgp.utils.camera import Camera
-from ouroboros.dgp.utils.pose import Pose
+from dgp.utils.camera import Camera
+from dgp.utils.pose import Pose
 
 from vidar.datasets.BaseDataset import BaseDataset
 from vidar.datasets.utils.misc import \
@@ -243,11 +243,11 @@ class OuroborosDataset(BaseDataset):
 
         # Choose which dataset to use
         if not self.virtual:
-            from ouroboros.dgp.datasets.synchronized_dataset import SynchronizedSceneDataset
+            from dgp.datasets.synchronized_dataset import SynchronizedSceneDataset
             dataset = SynchronizedSceneDataset
             extra_args = {}
         else:
-            from ouroboros.dgp.datasets.pd_dataset import ParallelDomainSceneDataset
+            from dgp.datasets.pd_dataset import ParallelDomainSceneDataset
             dataset = ParallelDomainSceneDataset
             extra_args = {
                 'use_virtual_camera_datums': False,
