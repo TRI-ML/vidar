@@ -1,3 +1,5 @@
+# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
+
 import re
 from collections import defaultdict
 import os
@@ -9,9 +11,6 @@ from vidar.utils.read import read_image
 from vidar.datasets.BaseDataset import BaseDataset
 from vidar.datasets.utils.misc import stack_sample
 
-########################################################################################################################
-#### FUNCTIONS
-########################################################################################################################
 
 def dummy_calibration(image):
     w, h = [float(d) for d in image.size]
@@ -19,19 +18,27 @@ def dummy_calibration(image):
                      [0.    , 1000. , h / 2. - 0.5],
                      [0.    , 0.    , 1.          ]])
 
+
 def get_idx(filename):
     return int(re.search(r'\d+', filename).group())
 
-########################################################################################################################
-#### DATASET
-########################################################################################################################
 
 class EUROCDataset(BaseDataset, ABC):
-    def __init__(self, 
-                split, 
-                strides=(1,),
-                spaceholder='{:19}',
-                **kwargs):
+    """
+    KITTI dataset class
+
+    Parameters
+    ----------
+    split : String
+        Split file
+    stride : Tuple
+        Which context strides to use
+    spaceholder : String
+        Space pattern on input images
+    data_transform : Function
+        Transformations applied to the sample
+    """
+    def __init__(self, split, strides=(1,), spaceholder='{:19}', **kwargs):
         super().__init__(**kwargs)
 
         self.split = split
@@ -48,10 +55,10 @@ class EUROCDataset(BaseDataset, ABC):
         for k, v in self.file_tree.items():
             file_set = set(self.file_tree[k])
             files = [fname for fname in sorted(v) if self._has_context(fname, file_set)]
-            # files = [fname for fname in sorted(v)]
             self.files.extend([[k, fname] for fname in files])
 
     def read_files(self, directory, ext=('.png', '.jpg', '.jpeg'), skip_empty=True):
+        """Read input images"""
         files = defaultdict(list)
         for entry in os.scandir(directory):
             relpath = os.path.relpath(entry.path, directory)
@@ -69,36 +76,37 @@ class EUROCDataset(BaseDataset, ABC):
         return len(self.files)
 
     def _change_idx(self, idx, filename):
+        """Prepare name strings according to index"""
         _, ext = os.path.splitext(os.path.basename(filename))
         return self.spaceholder.format(idx) + ext
 
     def _has_context(self, filename, file_set):
+        """Check if image has context"""
         context_paths = self._get_context_file_paths(filename, file_set)
         return len([f in file_set for f in context_paths]) >= len(self.context)
 
     def _get_context_file_paths(self, filename, file_set):
+        """Get file path for contexts"""
         fidx = get_idx(filename)
-        # a hacky way to deal with two different strides in euroc dataset
         idxs = [-self.backward_context, -self.forward_context, self.backward_context, self.forward_context]
         potential_files = [self._change_idx(fidx + i, filename) for i in idxs]
-        valid_paths = [fname for fname in potential_files if fname in file_set]
-        return valid_paths
+        return [fname for fname in potential_files if fname in file_set]
 
     def _read_rgb_context_files(self, session, filename):
+        """Read context images"""
         file_set = set(self.file_tree[session])
         context_paths = self._get_context_file_paths(filename, file_set)
-
         return [self._read_rgb_file(session, filename) for filename in context_paths]
 
     def _read_rgb_file(self, session, filename):
+        """Read target images"""
         gray_image = read_image(os.path.join(self.path, session, filename))
         gray_image_np = np.array(gray_image)
         rgb_image_np = np.stack([gray_image_np for _ in range(3)], axis=2)
-        rgb_image = Image.fromarray(rgb_image_np)
-        
-        return rgb_image
+        return Image.fromarray(rgb_image_np)
 
     def _read_npy_depth(self, session, depth_filename):
+        """Read depth from numpy file"""
         depth_file_path = os.path.join(self.path, session, '../../depth_maps', depth_filename)
         return np.load(depth_file_path)
 
@@ -107,11 +115,12 @@ class EUROCDataset(BaseDataset, ABC):
         return self._read_npy_depth(session, depth_filename)
 
     def _has_depth(self, session, depth_filename):
+        """Check if depth map exists"""
         depth_file_path = os.path.join(self.path, session, '../../depth_maps', depth_filename)
-
         return os.path.isfile(depth_file_path)
 
     def __getitem__(self, idx):
+        """Get dataset sample"""
 
         samples = []
 
@@ -143,13 +152,11 @@ class EUROCDataset(BaseDataset, ABC):
 
         return stack_sample(samples)
 
-########################################################################################################################
+
 if __name__ == "__main__":
-    # data_dir = '/data/vidar/euroc/euroc_has_depth/V1_01_easy_has_depth/mav0'
+
     data_dir = '/data/vidar/euroc/euroc_cam/cam0'
     euroc_dataset = EUROCDataset(path=data_dir, 
-                                # strides=[-249999872, 250000128],
-                                # context=[0, 0],
                                 strides=[49999872, 50000128],
                                 context=[-1,1],
                                 split='{:19}',

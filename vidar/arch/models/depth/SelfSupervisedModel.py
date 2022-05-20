@@ -26,9 +26,7 @@ class SelfSupervisedModel(BaseModel, ABC):
 
         if not self.use_gt_intrinsics:
             self.camera_model = cfg_has(cfg.networks.intrinsics, 'camera_model', 'UCM')
-            if self.camera_model == 'Pinhole':
-                raise NotImplementedError('Camera model {} is not implemented. Please choose from \{Pinhole,UCM, EUCM, DS\}.'.format(self.camera_model))
-            elif self.camera_model == 'UCM':
+            if self.camera_model == 'UCM':
                 from vidar.geometry.camera_ucm import UCMCamera
                 self.camera_class = UCMCamera
             elif self.camera_model == 'EUCM':
@@ -38,8 +36,7 @@ class SelfSupervisedModel(BaseModel, ABC):
                 from vidar.geometry.camera_ds import DSCamera
                 self.camera_class = DSCamera
             else:
-                raise NotImplementedError('Camera model {} is not implemented. Please choose from \{Pinhole,UCM, EUCM, DS\}.'.format(self.camera_model))
-
+                raise NotImplementedError('Invalid camera type')
 
     def forward(self, batch, epoch=0):
         """Model forward pass"""
@@ -94,9 +91,7 @@ class SelfSupervisedModel(BaseModel, ABC):
         )
 
         if not self.use_gt_intrinsics:
-            if self.camera_model == 'Pinhole':
-                raise NotImplementedError('Camera model {} is not implemented. Please choose from \{Pinhole,UCM, EUCM, DS\}.'.format(self.camera_model))
-            elif self.camera_model == 'UCM':
+            if self.camera_model == 'UCM':
                 fx, fy, cx, cy, alpha = intrinsics[0].squeeze()
                 intrinsics_metrics = {'fx': fx, 'fy':fy, 'cx':cx, 'cy':cy, 'alpha':alpha}
                 metrics.update(intrinsics_metrics)
@@ -109,7 +104,7 @@ class SelfSupervisedModel(BaseModel, ABC):
                 intrinsics_metrics = {'fx': fx, 'fy':fy, 'cx':cx, 'cy':cy, 'xi':xi, 'alpha':alpha}
                 metrics.update(intrinsics_metrics)
             else:
-                raise NotImplementedError('Camera model {} is not implemented. Please choose from \{Pinhole,UCM, EUCM, DS\}.'.format(self.camera_model))
+                raise NotImplementedError('Invalid camera type')
 
         return {
             'loss': loss,
