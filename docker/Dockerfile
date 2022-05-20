@@ -60,20 +60,10 @@ RUN pip install \
     ref==0.0.2.2 \
     positional-encodings==4.0.0 \
     einops==0.3.2 \
-    wget
-
-# Install Ouroboros (internal)
-WORKDIR /workspace
-ENV PYTHONPATH="/workspace/ouroboros:$PYTHONPATH"
-RUN echo "10.100.0.142 github.awsinternal.tri.global" >> /etc/hosts \
-  && git clone https://github.awsinternal.tri.global/vitor-guizilini/ouroboros.git \
-  && cd ouroboros \
-  && git checkout 38ad9b2e77bf479d862d47c3a34a4f3096ea01da \
-  && make build-proto
-
-# Install CLIP
-RUN pip install ftfy regex tqdm
-RUN pip install git+https://github.com/openai/CLIP.git
+    wget \
+    ftfy \
+    regex \
+    tqdm
 
 # Install CamViz dependencies
 RUN pip install \
@@ -89,10 +79,6 @@ RUN apt-get install -y \
 # Install PyTorch3D
 RUN pip install pytorch3d
 
-# Install MMSegmentation
-RUN pip install mmcv-full -f https://download.openmmlab.com/mmcv/dist/cu113/torch1.10.0/index.html
-ENV PYTHONPATH="/workspace/vidar/externals/mmsegmentation:$PYTHONPATH"
-
 # Install CuPY
 RUN pip install cupy
 
@@ -101,13 +87,16 @@ RUN pip install lpips wget scikit-image pyhocon dotmap path sacremoses filelock 
 RUN pip install 'git+https://github.com/katsura-jp/pytorch-cosine-annealing-with-warmup'
 RUN pip install torch-scatter -f https://data.pyg.org/whl/torch-1.10.0+cu113.html
 
+# Install DGP (dataset utils)
+WORKDIR /workspace
+RUN git clone https://github.com/TRI-ML/dgp.git
+ENV PYTHONPATH="/workspace/dgp:$PYTHONPATH"
+
 # Create workspace folder
 RUN mkdir -p /workspace/experiments
 RUN mkdir -p /workspace/${PROJECT}
 WORKDIR /workspace/${PROJECT}
-
 # Copy project to workspace folder
-WORKDIR /workspace/${PROJECT}
 COPY . /workspace/${PROJECT}
 
 # Set environment variables
