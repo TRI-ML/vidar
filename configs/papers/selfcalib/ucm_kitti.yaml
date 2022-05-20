@@ -1,14 +1,6 @@
 wrapper:
     recipe: wrapper|default
     validate_first: False
-wandb:
-    recipe: wandb|default
-    tags: [selfcalib,selfsup,kitti,ucm]
-checkpoint:
-    recipe: checkpoint|default
-    dataset: [0]
-    monitor: [depth|abs_rel_pp_gt(0)_0]
-    mode: [min]
 arch:
     model:
         file: depth/SelfSupervisedModel
@@ -22,7 +14,7 @@ arch:
         intrinsics:
             file: intrinsics/IntrinsicsNet
             camera_model: 'UCM'
-            shape: [192, 640] # image shape
+            shape: [192, 640]
     losses:
         reprojection:
             recipe: losses/reprojection|default
@@ -45,8 +37,7 @@ datasets:
     train:
         recipe: datasets/kitti|train_selfsup_mr
         dataloader:
-            batch_size: 8 #16
-            # num_workers: 0
+            batch_size: 8
     validation:
         recipe: datasets/kitti|validation_mr
         dataloader:
