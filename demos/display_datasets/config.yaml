@@ -20,8 +20,8 @@ datasets:
         split: [train]
         context: [-2,2]
         cameras: [[0,1]]
-        labels: [depth,pose,optical_flow,semantic]
-        labels_context: [depth,pose,optical_flow,semantic]
+        labels: [depth,pose,optical_flow]
+        labels_context: [depth,pose,optical_flow]
     ddad:
         name: [Ouroboros]
         path: [/data/vidar/DDAD_tiny/ddad_tiny.json]

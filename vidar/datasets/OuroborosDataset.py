@@ -435,7 +435,7 @@ class OuroborosDataset(BaseDataset):
                         for k, filename in enumerate(filename_context)]
                     sample['depth'].update(
                         {key: val for key, val in zip(
-                            self.context, [dsf[0] for dsf in depth_context])})
+                            self.context, [dsf for dsf in depth_context])})
 
 
             samples.append(sample)

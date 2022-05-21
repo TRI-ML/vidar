@@ -89,7 +89,7 @@ RUN pip install torch-scatter -f https://data.pyg.org/whl/torch-1.10.0+cu113.htm
 
 # Install DGP (dataset utils)
 WORKDIR /workspace
-RUN git clone https://github.com/TRI-ML/dgp.git
+RUN git clone https://github.com/VitorGuizilini-TRI/dgp.git
 ENV PYTHONPATH="/workspace/dgp:$PYTHONPATH"
 
 # Create workspace folder

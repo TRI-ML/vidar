@@ -7,7 +7,7 @@ from vidar.geometry.camera import Camera
 from vidar.utils.tensor import unnorm_pixel_grid
 
 
-class CameraNerf(Camera):
+class CameraFull(Camera):
     """Camera class with additional functionality"""
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -21,7 +21,7 @@ class CameraNerf(Camera):
         """Create cameras from a list"""
         K = torch.cat([cam.K for cam in cams], 0)
         Twc = torch.cat([cam.Twc.T for cam in cams], 0)
-        return CameraNerf(K=K, Twc=Twc, hw=cams[0].hw)
+        return CameraFull(K=K, Twc=Twc, hw=cams[0].hw)
 
     def switch(self):
         """Switch camera between conventions"""

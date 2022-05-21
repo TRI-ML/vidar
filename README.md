@@ -4,9 +4,12 @@
  <img align="right" src="/media/figs/tri-logo.png" width="25%"/>
 </a>
 
-[Installation](#installation) | [Configuration](#configuration) | [Datasets](#datasets) | [Visualizations](#visualization) | [Publications](#papers) | [License](#license)
+[Installation](#installation) | [Configuration](#configuration) | [Datasets](#datasets) | [Visualization](#visualization) | [Publications](#publications) | [License](#license)
 
-Official [PyTorch](https://pytorch.org/) repository for TRI's latest published depth estimation works. Our goal is to provide a clean environment to reproduce our results and facilitate further research in this field.
+Official [PyTorch](https://pytorch.org/) repository for TRI's latest published depth estimation works. 
+Our goal is to provide a clean environment to reproduce our results and facilitate further research in this field.
+This repository is an updated version of [PackNet-SfM](https://github.com/TRI-ML/packnet-sfm), our previous monocular depth estimation repository, featuring a different license. 
+
 
 ## Installation
 
@@ -30,7 +33,7 @@ To verify that the environment is set up correctly, you can run a simple overfit
 
 ```bash
 # Download a tiny subset of KITTI
-curl -s https://tri-ml-public.s3.amazonaws.com/github/packnet-sfm/datasets/KITTI_tiny.tar | tar xv -C /data/datasets/
+curl -s https://tri-ml-public.s3.amazonaws.com/github/vidar/datasets/KITTI_tiny.tar | tar xv -C /data/datasets/
 # Inside docker
 python3 scripts/run.py configs/overfit/kitti_tiny.yaml
 ```
@@ -533,5 +536,5 @@ Finally, we show that our approach leads to improvements in the downstream task 
 
 ## License
 
-This repository is released under the [MIT license](LICENSE.md).
+This repository is released under the [CC BY-NC 4.0](LICENSE.md) license.
 

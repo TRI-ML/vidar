@@ -2,7 +2,7 @@
 
 import torch
 
-from vidar.geometry.camera_nerf import CameraNerf
+from vidar.geometry.camera_full import CameraFull
 from vidar.utils.decorators import iterate1
 from vidar.utils.tensor import interpolate_image
 from vidar.utils.types import is_dict
@@ -99,13 +99,13 @@ def create_cameras(rgb, intrinsics, pose, zero_origin=True, scaled=None):
     """
     if pose is None:
         return None
-    cams = {key: CameraNerf(
+    cams = {key: CameraFull(
         K=intrinsics[key] if is_dict(intrinsics) else intrinsics,
         Twc=pose[key],
         hw=rgb[key] if is_dict(rgb) else rgb,
     ).scaled(scaled).to(pose[key].device) for key in pose.keys()}
     if zero_origin:
-        cams[0] = CameraNerf(
+        cams[0] = CameraFull(
             K=intrinsics[0] if is_dict(intrinsics) else intrinsics,
             hw=rgb[0] if is_dict(rgb) else rgb,
         ).scaled(scaled).to(rgb.device)
