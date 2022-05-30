@@ -33,7 +33,7 @@ To verify that the environment is set up correctly, you can run a simple overfit
 
 ```bash
 # Download a tiny subset of KITTI
-curl -s https://tri-ml-public.s3.amazonaws.com/github/vidar/datasets/KITTI_tiny.tar | tar xv -C /data/datasets/
+curl -s https://tri-ml-public.s3.amazonaws.com/github/vidar/datasets/KITTI_tiny.tar | tar xv -C ./data/datasets/
 # Inside docker
 python3 scripts/run.py configs/overfit/kitti_tiny.yaml
 ```
