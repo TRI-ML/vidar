@@ -30,6 +30,7 @@ DOCKER_OPTS := \
 			-v /mnt/fsx/tmp:/tmp \
 			-v /tmp/.X11-unix/X0:/tmp/.X11-unix/X0 \
 			-v /var/run/docker.sock:/var/run/docker.sock \
+			-v /data:/data \
 			-v ${PWD}:${WORKSPACE} \
 			-w ${WORKSPACE} \
 			--privileged \
