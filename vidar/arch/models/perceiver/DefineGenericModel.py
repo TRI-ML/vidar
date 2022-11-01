@@ -7,7 +7,7 @@ import numpy as np
 import torch
 
 from vidar.arch.models.BaseModel import BaseModel
-from vidar.arch.models.perceiver.HuggingModel import augment_canonical, create_virtual_cameras
+from vidar.arch.models.perceiver.DefineModel import augment_canonical, create_virtual_cameras
 from vidar.geometry.camera_nerf import CameraNerf
 from vidar.geometry.pose import Pose
 from vidar.utils.data import flatten
@@ -50,13 +50,13 @@ def parse_idx(all_idx, idxs):
     return new_idxs
 
 
-class HuggingGenericModel(BaseModel, ABC):
+class DefineGenericModel(BaseModel, ABC):
 
     def __init__(self, cfg):
         super().__init__(cfg)
 
-        from vidar.arch.networks.perceiver.HuggingNet import HuggingNet
-        self.networks['perceiver'] = HuggingNet(cfg.model.network)
+        from vidar.arch.networks.perceiver.DefineNet import DefineNet
+        self.networks['perceiver'] = DefineNet(cfg.model.network)
         self.weights = cfg.model.task_weights
         self.use_pose_noise = cfg.model.use_pose_noise
         self.use_virtual_cameras = cfg.model.use_virtual_cameras

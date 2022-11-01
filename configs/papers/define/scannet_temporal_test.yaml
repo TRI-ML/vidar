@@ -20,7 +20,7 @@ evaluation:
 arch:
     model:
         checkpoint: /data/vidar/models/scannet_full.ckpt
-        file: perceiver/HuggingGenericModel
+        file: perceiver/DefineGenericModel
         use_pose_noise: []
         use_virtual_cameras: []
         virtual_cameras_eval: False

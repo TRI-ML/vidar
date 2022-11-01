@@ -32,7 +32,7 @@ class DownSampleRGB(nn.Module):
         return x
 
 
-class HuggingNet(nn.Module):
+class DefineNet(nn.Module):
     def __init__(self, cfg):
         super().__init__()
 
