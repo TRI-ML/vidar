@@ -25,11 +25,11 @@ DOCKER_OPTS := \
 			-v ~/.aws:/root/.aws \
 			-v /root/.ssh:/root/.ssh \
 			-v ~/.cache:/root/.cache \
-			-v /mnt/fsx/:/data \
 			-v /dev/null:/dev/raw1394 \
 			-v /mnt/fsx/tmp:/tmp \
 			-v /tmp/.X11-unix/X0:/tmp/.X11-unix/X0 \
 			-v /var/run/docker.sock:/var/run/docker.sock \
+			-v /data:/data \
 			-v ${PWD}:${WORKSPACE} \
 			-w ${WORKSPACE} \
 			--privileged \
