@@ -82,6 +82,9 @@ RUN pip install pytorch3d
 # Install CuPY
 RUN pip install cupy
 
+# Install huggingface transformers
+RUN pip install transformers
+
 # Install extras (should be moved to top when stable)
 RUN pip install lpips wget scikit-image pyhocon dotmap path sacremoses filelock huggingface_hub
 RUN pip install 'git+https://github.com/katsura-jp/pytorch-cosine-annealing-with-warmup'
