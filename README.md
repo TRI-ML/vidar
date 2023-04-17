@@ -10,6 +10,14 @@ Official [PyTorch](https://pytorch.org/) repository for TRI's latest published d
 Our goal is to provide a clean environment to reproduce our results and facilitate further research in this field.
 This repository is an updated version of [PackNet-SfM](https://github.com/TRI-ML/packnet-sfm), our previous monocular depth estimation repository, featuring a different license. 
 
+## Models
+
+(Experimental) For convenient inference, we provide our models (currently, PackNet) model over torchhub without installation:
+```python
+import torch
+repo = "TRI-ML/vidar"
+packnet_model = torch.hub.load(repo, "PackNet", pretrained=True, trust_repo=True)
+```
 
 ## Installation
 
