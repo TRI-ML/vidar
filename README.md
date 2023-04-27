@@ -12,11 +12,27 @@ This repository is an updated version of [PackNet-SfM](https://github.com/TRI-ML
 
 ## Models
 
-(Experimental) For convenient inference, we provide our models (currently, PackNet) model over torchhub without installation:
+(Experimental) For convenient inference, we provide a growing list of our models (PackNet, DeFiNe) model over torchhub without installation.
+
+### PackNet
+PackNet is a self-supervised monocular depth estimation model, to load a model trained on KITTI and run inference on an RGB image:
 ```python
 import torch
-repo = "TRI-ML/vidar"
-packnet_model = torch.hub.load(repo, "PackNet", pretrained=True, trust_repo=True)
+packnet_model = torch.hub.load("TRI-ML/vidar", "PackNet", pretrained=True, trust_repo=True)
+rgb_image = # 13HW torch.tensor
+depth_pred = model(rgb_image)
+```
+
+### DeFiNe
+DeFiNe is a multi-view depth estimation model, to load a model trained on Scannet and run inference on multiple posed RGB images:
+```python
+import torch
+define_model = torch.hub.load("TRI-ML/vidar", "DeFiNe", pretrained=True, trust_repo=True)
+frames = {} 
+frames["rgb"] = # a list of frames as 13HW torch.tensors
+frames["intrinsics"] = # a list of 133 torch.tensor intrinsics matrices (one for each image)
+frames["pose"] = # a batch of 144 relative poses to reference frame (one will be identity)
+depth_preds = define_model(frames) # list of depths, one for each frame
 ```
 
 ## Installation
