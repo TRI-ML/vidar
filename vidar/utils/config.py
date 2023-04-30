@@ -14,6 +14,15 @@ from vidar.utils.networks import load_checkpoint
 from vidar.utils.types import is_dict, is_list, is_namespace
 
 
+RECIPE_DIR = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    os.pardir,
+    os.pardir,
+    'configs',
+    'recipes'
+)
+
+
 def cfg_has(*args):
     """
     Check if a key is in configuration
@@ -198,7 +207,7 @@ def recursive_recipe(cfg, super_key=None):
         if is_dict(cfg[key]):
             cfg[key] = recursive_recipe(cfg[key], super_key=key)
         elif key == 'recipe':
-            recipe = 'configs/recipes/' + cfg.pop(key)
+            recipe = os.path.join(RECIPE_DIR, cfg.pop(key))
             if '|' in recipe:
                 recipe, super_key = recipe.split('|')
             recipe = read_config(recipe + '.yaml')
