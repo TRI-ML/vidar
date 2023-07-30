@@ -1,10 +1,25 @@
+###############################################
 default:
     seed: 42
     min_epochs: 0
     max_epochs: 50
-    grad_scaler: False
+    find_unused_parameters: True
+    flip_lr_prob: 0.0
+    validate_flipped: False
+    validate_first: True
+    sync_batch_norm: True
+    clip_grad_value: 10.0
+    use_tf32: True
+###############################################
+default_flip:
+    seed: 42
+    min_epochs: 0
+    max_epochs: 50
     find_unused_parameters: True
     flip_lr_prob: 0.5
-    validate_first: True
     validate_flipped: True
+    validate_first: True
     sync_batch_norm: True
+    clip_grad_value: 10.0
+    use_tf32: True
+###############################################

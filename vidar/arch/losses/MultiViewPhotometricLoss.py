@@ -1,4 +1,4 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 from abc import ABC
 
@@ -14,6 +14,7 @@ from vidar.utils.tensor import match_scales
 
 def view_synthesis(ref_image, depth, ref_cam, cam,
                    mode='bilinear', padding_mode='zeros', align_corners=True):
+    """Grid sample for view synthesis"""
     assert depth.shape[1] == 1, 'Depth map should have C=1'
     # Reconstruct world points from target_camera
     world_points = cam.reconstruct(depth, frame='w')
@@ -25,20 +26,24 @@ def view_synthesis(ref_image, depth, ref_cam, cam,
 
 
 def gradient_x(image):
+    """ Calculates image gradient along x-axis"""
     return image[:, :, :, :-1] - image[:, :, :, 1:]
 
 
 def gradient_y(image):
+    """ Calculates image gradient along y-axis"""
     return image[:, :, :-1, :] - image[:, :, 1:, :]
 
 
 def inv_depths_normalize(inv_depths):
+    """ Normalizes inverse depth maps by their mean"""
     mean_inv_depths = [inv_depth.mean(2, True).mean(3, True) for inv_depth in inv_depths]
     return [inv_depth / mean_inv_depth.clamp(min=1e-6)
             for inv_depth, mean_inv_depth in zip(inv_depths, mean_inv_depths)]
 
 
 def calc_smoothness(inv_depths, images, num_scales):
+    """ Calculates smoothness loss for inverse depth maps"""
     inv_depths_norm = inv_depths_normalize(inv_depths)
     inv_depth_gradients_x = [gradient_x(d) for d in inv_depths_norm]
     inv_depth_gradients_y = [gradient_y(d) for d in inv_depths_norm]
@@ -152,16 +157,12 @@ class MultiViewPhotometricLoss(BaseLoss, ABC):
             assert self.photometric_reduce_op == 'min', \
                 'For automasking only the min photometric_reduce_op is supported.'
 
-########################################################################################################################
-
     @property
     def logs(self):
         """Returns class logs."""
         return {
             'num_scales': self.n,
         }
-
-########################################################################################################################
 
     def warp_ref_image(self, inv_depths, ref_image, K, ref_K, pose):
         """
@@ -202,8 +203,6 @@ class MultiViewPhotometricLoss(BaseLoss, ABC):
             padding_mode=self.padding_mode) for i in range(self.n)]
         # Return warped reference image
         return ref_warped
-
-########################################################################################################################
 
     def SSIM(self, x, y, kernel_size=3):
         """
@@ -289,8 +288,6 @@ class MultiViewPhotometricLoss(BaseLoss, ABC):
                                 for i in range(self.n)]) / self.n
         # Store and return reduced photometric loss
         return photometric_loss
-
-########################################################################################################################
 
     def calc_smoothness_loss(self, inv_depths, images):
         """

@@ -1,4 +1,4 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 import random
 
@@ -87,6 +87,8 @@ class FSMModel(BaseModel):
         norm_focal = []
         self.focal = None if len(norm_focal) == 0 else CameraNormalizer(focal=norm_focal)
 
+        # Camera pairs for stereo context
+
         pairs = [
             [0, 1], [1, 0],
             [0, 2], [2, 0],
@@ -127,7 +129,7 @@ class FSMModel(BaseModel):
                 for i in range(pose_vec.shape[1])]
 
     def depth_net_flipping(self, batch, flip):
-
+        """Run depth network with flipped inputs"""
         # Which keys are being passed to the depth network
         batch_input = {key: batch[key] for key in filter_dict(batch, self._input_keys)}
         if self.focal is not None:
@@ -144,6 +146,7 @@ class FSMModel(BaseModel):
         return output
 
     def forward2(self, batch, return_logs=False, force_flip=False):
+        """Auxiliary forward function"""
         # Generate inverse depth predictions
         depth_output = self.compute_depth_net(batch, force_flip=force_flip)
         # Generate pose predictions if available
@@ -158,24 +161,34 @@ class FSMModel(BaseModel):
         }
 
     def forward(self, batch, return_logs=False, progress=0.0, **kwargs):
+        """Forward pass of the model, given a batch dictionary"""
 
+        # Set target and context keys
+
+        tgt = ( 0, 0)
+        bwd = (-1, 0)
+        fwd = (+1, 0)
+
+        # Update batch
         new_batch = {}
-        new_batch['rgb'] = batch['rgb'][0]
+        new_batch['rgb'] = batch['rgb'][tgt]
         if self.training:
-            new_batch['rgb_context'] = [batch['rgb'][1], batch['rgb'][-1]]
-            new_batch['pose'] = batch['pose'][0]
-            new_batch['pose_context'] = [batch['pose'][1], batch['pose'][-1]]
-        new_batch['intrinsics'] = batch['intrinsics'][0]
+            new_batch['rgb_context'] = [batch['rgb'][fwd], batch['rgb'][bwd]]
+            new_batch['pose'] = batch['pose'][tgt]
+            new_batch['pose_context'] = [batch['pose'][fwd], batch['pose'][bwd]]
+        new_batch['intrinsics'] = batch['intrinsics'][tgt]
         new_batch['filename'] = batch['filename']
         batch = new_batch
 
+        # If training, parse batch infomration
         if self.training:
-            batch['rgb'] = batch['rgb'][0]
+            batch['rgb'] = batch['rgb'][tgt]
             batch['rgb_context'] = [b[0] for b in batch['rgb_context']]
-            batch['pose'] = batch['pose'][0]
+            batch['pose'] = batch['pose'][tgt]
             batch['pose_context'] = [b[0] for b in batch['pose_context']]
-            batch['intrinsics'] = batch['intrinsics'][0]
+            batch['intrinsics'] = batch['intrinsics'][tgt]
 
+        # Estimate depth from networks
         if self.networks['depth'] is not None:
             output_self_sup = self.forward2(batch)
             depth = inv2depth(output_self_sup['inv_depths'])
@@ -183,11 +196,12 @@ class FSMModel(BaseModel):
             output_self_sup = {}
             depth = batch['depth']
 
+        # IF not training, return predictionso nly 
         if not self.training:
             output_new = {
                 'predictions': {
                     'depth': {
-                        0: [1. / d for d in output_self_sup['inv_depths']]
+                        (0, 0): [1. / d for d in output_self_sup['inv_depths']]
                     }
                 }
             }
@@ -208,6 +222,7 @@ class FSMModel(BaseModel):
         for i in range(len(pose_context)):
             pose_context[i] = pose_context[i].mat
 
+        # Split batch information
         rgb_i, rgb_context_i = split_batch(rgb), split_batch(rgb_context)
         pose_i, pose_context_i = split_batch(pose), split_batch(pose_context)
         intrinsics_i, inv_depth_i = split_batch(intrinsics), depth2inv(split_batch(depth))
@@ -218,6 +233,7 @@ class FSMModel(BaseModel):
 
         n_tgt = len(rgb_i)
 
+        # Generate masks for monocular context
         mono_coords = [coords_from_motion(
             cam_context_i[tgt], inv2depth(inv_depth_i[tgt]), cam_i[tgt])
             for tgt in range(n_tgt)]
@@ -232,8 +248,6 @@ class FSMModel(BaseModel):
                 for i in range(len(mono_masks[tgt])):
                     for j in range(len(mono_masks[tgt][i])):
                         for k in range(len(mono_masks[tgt][i][j])):
-                            # write_image('debug/camera_%d/mask_%d_%d_%d.png' % (tgt, i, j, k),
-                            #             mono_masks[tgt][i][j][k])
                             resized_mask = torch.nn.functional.interpolate(
                                 masks[tgt], mono_masks[tgt][i][j][k].shape[1:], mode='nearest').squeeze(0).bool()
                             mono_masks[tgt][i][j][k] *= resized_mask.to(mono_masks[tgt][i][j][k].device)
@@ -245,6 +259,8 @@ class FSMModel(BaseModel):
         mono = []
         outputs = []
 
+        # Calculate multi-camera losses
+        
         for tgt in range(n_tgt):
             output = self.multicam_loss(
                 rgb_i[tgt], rgb_context_i[tgt], inv_depth_i[tgt],

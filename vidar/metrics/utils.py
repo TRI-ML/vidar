@@ -1,4 +1,4 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 import torch
 
@@ -15,7 +15,7 @@ def scale_output(pred, gt, scale_fn):
         Predicted depth maps [B,1,w,h]
     gt : torch.tensor
         Ground-truth depth maps [B,1,H,W]
-    scale_fn : String
+    scale_fn : str
         How to scale output to GT resolution
             Resize: Nearest neighbors interpolation
             top-center: Pad the top of the image and left-right corners with zeros
@@ -32,7 +32,7 @@ def scale_output(pred, gt, scale_fn):
         return pred
     elif scale_fn == 'resize':
         # Resize depth map to GT resolution
-        return interpolate_image(pred, gt.shape, mode='bilinear', align_corners=True)
+        return interpolate_image(pred, gt.shape, mode='bilinear')
     else:
         # Create empty depth map with GT resolution
         pred_uncropped = torch.zeros(gt.shape, dtype=pred.dtype, device=pred.device)
@@ -47,21 +47,7 @@ def scale_output(pred, gt, scale_fn):
 
 
 def create_crop_mask(crop, gt):
-    """
-    Create crop mask for evaluation
-
-    Parameters
-    ----------
-    crop : String
-        Type of crop
-    gt : torch.Tensor
-        Ground-truth depth map (for dimensions)
-
-    Returns
-    -------
-    crop_mask: torch.Tensor
-        Mask for evaluation
-    """
+    """Create mask for cropping groundtruth depth map"""
     # Return None if mask is not required
     if crop in ('', None):
         return None

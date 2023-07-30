@@ -1,5 +1,6 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
+import argparse
 import importlib
 import os
 from argparse import Namespace
@@ -11,25 +12,11 @@ from vidar.utils.data import make_list, num_trainable_params
 from vidar.utils.distributed import print0
 from vidar.utils.logging import pcolor
 from vidar.utils.networks import load_checkpoint
-from vidar.utils.types import is_dict, is_list, is_namespace
+from vidar.utils.types import is_dict, is_list, is_namespace, is_module_dict
 
 
 def cfg_has(*args):
-    """
-    Check if a key is in configuration
-
-    Parameters
-    ----------
-    args : Tuple (Config, String, Value)
-        Inputs:
-            length 2 = configuration/name,
-            length 3 = configuration/name/default
-
-    Returns
-    -------
-    Flag : Bool or Value
-        True/False if key is in configuration, key value/default if default is provided
-    """
+    """Check if key is in configuration"""
     if len(args) == 2:
         cfg, name = args
         if not is_list(name):
@@ -45,20 +32,7 @@ def cfg_has(*args):
 
 
 def cfg_add_to_dict(dic, cfg, key, i=None):
-    """
-    Add configuration key to dictionary
-
-    Parameters
-    ----------
-    dic : Dict
-        Input dictionary
-    cfg : Config
-        Input configuration
-    key : String
-        Input key
-    i : Int
-        Optional list index
-    """
+    """Add configuration key to dictionary"""
     if cfg_has(cfg, key):
         dic[key] = cfg.__dict__[key] if i is None \
             else cfg.__dict__[key][0] if len(cfg.__dict__[key]) == 1 \
@@ -66,19 +40,7 @@ def cfg_add_to_dict(dic, cfg, key, i=None):
 
 
 def cfg_from_dict(dic):
-    """
-    Create configuration from dictionary
-
-    Parameters
-    ----------
-    dic : Dict
-        Input dictionary
-
-    Returns
-    -------
-    cfg : Config
-        Output configuration
-    """
+    """Generate configuration from dictionary"""
     for key, val in dic.items():
         if is_dict(val):
             dic[key] = cfg_from_dict(val)
@@ -86,38 +48,14 @@ def cfg_from_dict(dic):
 
 
 def update_cfg(cfg):
-    """
-    Update configuration with hard-coded information
-
-    Parameters
-    ----------
-    cfg : Config
-        Input configuration
-
-    Returns
-    -------
-    cfg : Config
-        Updated configuration
-    """
+    """Update configuration with new information"""
     if not torch.cuda.is_available():
         cfg.setup.grad_scaler = False
     return cfg
 
 
 def to_namespace(data):
-    """
-    Convert dictionary to namespace
-
-    Parameters
-    ----------
-    data : Dict or Config
-        Input dictionary
-
-    Returns
-    -------
-    cfg : Config
-        Output configuration
-    """
+    """Convert to namespace"""
     for key in data.keys():
         if is_dict(data[key]):
             data[key] = to_namespace(data[key])
@@ -125,49 +63,23 @@ def to_namespace(data):
 
 
 def merge_dict(default, config):
-    """
-    Merge two dictionaries
-
-    Parameters
-    ----------
-    default : Dict
-        Dictionary with default values
-    config : Dict
-        Dictionary with values to update
-
-    Returns
-    -------
-    cfg : Dict
-        Updated dictionary
-    """
+    """Merge two dictionaries"""
     if is_namespace(default):
-        default = default.__dict__
+        default = default.dict
+    if is_namespace(config):
+        config = config.dict
     for key in config.keys():
         if key not in default.keys():
             default[key] = {}
-        if not is_dict(config[key]):
-            default[key] = config[key]
-        else:
+        if is_namespace(config[key]) or is_dict(config[key]):
             default[key] = merge_dict(default[key], config[key])
+        else:
+            default[key] = config[key]
     return default
 
 
 def update_from_kwargs(cfg, **kwargs):
-    """
-    Update configuration based on keyword arguments
-
-    Parameters
-    ----------
-    cfg : Config
-        Input configuration
-    kwargs : Dict
-        Keyword arguments
-
-    Returns
-    -------
-    cfg : Config
-        Updated configuration
-    """
+    """Update configuration from kwargs"""
     if kwargs is not None:
         for key, val in kwargs.items():
             key_split = key.split('.')
@@ -179,25 +91,11 @@ def update_from_kwargs(cfg, **kwargs):
 
 
 def recursive_recipe(cfg, super_key=None):
-    """
-    Add recipe parameters to configuration
-
-    Parameters
-    ----------
-    cfg : Config
-        Input configuration
-    super_key : String
-        Which recipe entry to use
-
-    Returns
-    -------
-    cfg : Config
-        Updated configuration
-    """
+    """Create configuration from recipe recursively"""
     for key in list(cfg.keys()):
         if is_dict(cfg[key]):
             cfg[key] = recursive_recipe(cfg[key], super_key=key)
-        elif key == 'recipe':
+        elif key.startswith('recipe'):
             recipe = 'configs/recipes/' + cfg.pop(key)
             if '|' in recipe:
                 recipe, super_key = recipe.split('|')
@@ -212,21 +110,6 @@ def recursive_recipe(cfg, super_key=None):
 
 
 def read_config(path, **kwargs):
-    """
-    Create configuration from file
-
-    Parameters
-    ----------
-    path : String
-        Configuration path
-    kwargs : Dict
-        Keyword arguments to update configuration
-
-    Returns
-    -------
-    cfg : Config
-        Output configuration
-    """
     """Read configuration from file"""
     with open(path) as cfg:
         config = yaml.load(cfg, Loader=yaml.FullLoader)
@@ -238,42 +121,11 @@ def read_config(path, **kwargs):
 
 
 def is_recursive(val):
-    """
-    Check if configuration entry is recursive
-
-    Parameters
-    ----------
-    val : Config
-        Input Configuration
-
-    Returns
-    -------
-    Flag : Bool
-        True/False if is recursive or not
-    """
+    """Check if configuration entry is recursive"""
     return 'file' in val.__dict__.keys()
 
 
 def get_folder_name(path, mode, root='vidar/arch'):
-    """
-    Get folder and name from configuration path
-
-    Parameters
-    ----------
-    path : String
-        Input path
-    mode : String
-        Which mode to use (e.g., models, networks, losses)
-    root : String
-        Which folder to use
-
-    Returns
-    -------
-    folder : String
-        Output folder
-    name : String
-        Output name
-    """
     """Get folder and name from configuration path"""
     folder, name = os.path.dirname(path), os.path.basename(path)
     folder = os.path.join(root, mode, folder)
@@ -282,45 +134,33 @@ def get_folder_name(path, mode, root='vidar/arch'):
     return folder, name
 
 
-def recursive_assignment(model, cfg, mode, verbose=True):
-    """
-    Recursively assign information from a configuration
-
-    Parameters
-    ----------
-    model : torch.nn.Module
-        Which network we are using
-    cfg : Config
-        Input Configuration
-    mode : String
-        Which mode we are using (e.g., models, networks, losses)
-    verbose : Bool
-        Print information on screen
-    """
+def recursive_assignment(model, cfg, mode, n=10, verbose=True):
+    """Recursively assign information from a configuration"""
     font = {'color': 'yellow', 'attrs': ('dark',)}
+    nested = is_module_dict(model)
     for key, val in cfg.__dict__.items():
         cls = cfg.__dict__[key]
         if is_namespace(cls):
             if is_recursive(val):
                 folder, name = get_folder_name(val.file, mode)
-                getattr(model, mode)[key] = load_class(name, folder)(cls)
+                if nested:
+                    model[key] = load_class(name, folder)(cls)
+                    model_key = model[key]
+                else:
+                    getattr(model, mode)[key] = load_class(name, folder)(cls)
+                    model_key = getattr(model, mode)[key]
                 if verbose:
-                    string = '######### {}'.format(getattr(model, mode)[key].__class__.__name__)
-                    num_params = num_trainable_params(getattr(model, mode)[key])
+                    string = '#' * n + ' {}'.format(model_key.__class__.__name__)
+                    num_params = num_trainable_params(model_key)
                     if num_params > 0:
                         string += f' ({num_params:,} parameters)'
                     print0(pcolor(string, **font))
                 if cfg_has(val, 'checkpoint'):
-                    model_attr = getattr(model, mode)[key]
-                    load_checkpoint(model_attr, val.checkpoint, strict=False, verbose=verbose, prefix=key)
-                recursive_assignment(getattr(model, mode)[key], cls, mode, verbose=verbose)
-            if key == 'blocks':
-                for key2, val2 in cfg.__dict__[key].__dict__.items():
-                    cls2 = cfg.__dict__[key].__dict__[key2]
-                    if is_recursive(val2):
-                        folder, name = get_folder_name(val2.file, 'blocks')
-                        model.blocks[key2] = load_class(name, folder)(cls2)
-                        recursive_assignment(model.blocks[key2], cls2, 'blocks', verbose=verbose)
+                    load_checkpoint(model_key, val.checkpoint, strict=False, verbose=verbose, prefix=key)
+                recursive_assignment(model_key, cls, mode, n=n+5, verbose=verbose)
+            elif nested:
+                model[key] = torch.nn.ModuleDict()
+                recursive_assignment(model[key], cls, mode, n=n, verbose=verbose)
 
 
 def load_class(filename, paths, concat=True, methodname=None):
@@ -330,13 +170,13 @@ def load_class(filename, paths, concat=True, methodname=None):
 
     Parameters
     ----------
-    filename : String
+    filename : str
         Name of the file we are searching for
-    paths : String or list[String]
+    paths : str or list of str
         Folders in which the file will be searched
-    concat : Bol
+    concat : bool
         Flag to concatenate filename to each path during the search
-    methodname : String or list[String]
+    methodname : str or list of str
         Method name (If None, use filename
                      If it's a string, use it as the methodname
                      If it's a list, use the first methodname found)
@@ -366,103 +206,71 @@ def load_class(filename, paths, concat=True, methodname=None):
 
 
 def get_from_cfg_list(cfg, key, idx):
-    """
-    Get configuration value from a list
-
-    Parameters
-    ----------
-    cfg : Config
-        Input configuration
-    key : String
-        Input configuration key
-    idx : Int
-        List index
-
-    Returns
-    -------
-    data : Value
-        Key value at that index if it's a list, otherwise return the key value directly
-    """
+    """Get configuration entry from list"""
     if key not in cfg.__dict__.keys():
         return None
     data = cfg.__dict__[key]
     return data if not is_list(data) else data[idx] if len(data) > 1 else data[0]
 
 
-def dataset_prefix(cfg, idx):
-    """
-    Create dataset prefix based on configuration information
-
-    Parameters
-    ----------
-    cfg : Config
-        Input configuration
-    idx : Int
-        Input index for information retrieval
-
-    Returns
-    -------
-    prefix : String
-        Dataset prefix
-    """
+def dataset_prefix(cfg, idx=0):
+    """Creates dataset prefix from configuration"""
     # Dataset path is always available
     # prefix = cfg.name[idx]
     prefix = '{}'.format(os.path.splitext(get_from_cfg_list(cfg, 'path', idx).split('/')[-1])[0])
     # If split is available
-    val = get_from_cfg_list(cfg, 'split', idx)
+    val = cfg.has('split', None)
     if val is not None:
         prefix += '-{}'.format(os.path.splitext(os.path.basename(val))[0])
     # If input depth type is available
-    val = get_from_cfg_list(cfg, 'input_depth_type', idx)
+    val = cfg.has('input_depth_type', None)
     if val is not None and val not in [None, '']:
         prefix += '-+{}'.format(val)
     # If depth type is available
-    val = get_from_cfg_list(cfg, 'depth_type', idx)
+    val = cfg.has('depth_type', None)
     if val is not None and val not in [None, '']:
         prefix += '-{}'.format(val)
     # If there is camera information
-    val = get_from_cfg_list(cfg, 'cameras', idx)
+    val = cfg.has('cameras', None)
     if val is not None and is_list(val) and len(val) > 0:
         prefix += '-cam{}'.format(val[0])
+    if cfg.has('evaluation') and cfg.evaluation.has('suffix'):
+        prefix += '-{}'.format(cfg.evaluation.suffix)
     # Return prefix
     return prefix
 
 
 class Config(Namespace):
-    """
-    Configuration class for passing arguments between other classes
+    """Configuration class, used to store and access parameters"""
 
-    Parameters
-    ----------
-    kwargs: Dict
-        Arguments to create configuration
-    """
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     @staticmethod
     def from_file(file):
-        """Read configuration from file"""
         return read_config(file)
 
     @property
     def dict(self):
-        """Return configuration as dictionary"""
         return self.__dict__
 
     def keys(self):
-        """Return dictionary keys of configuration"""
         return self.dict.keys()
 
     def items(self):
-        """Return dictionary items of configuration"""
         return self.dict.items()
 
     def values(self):
-        """Return dictionary values of configuration"""
         return self.dict.values()
 
     def has(self, *args):
-        """Check if configuration has certain parameters"""
         return cfg_has(self, *args)
 
+    def get(self, key, default):
+        return self.dict[key] if key in self.keys() else default
+
+    def pop(self, key, default):
+        return self.get(key, default)
+
+    def __getitem__(self, key):
+        return self.dict[key]

@@ -1,11 +1,11 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 import torch.nn as nn
 import torchvision.models as models
 
 
 class ResNetEncoder(nn.Module):
-    """Creates a ResNet encoder with different parameters"""
+    """Wrapper for ResNet encoder with different architectures"""
     def __init__(self, name):
         super().__init__()
         if name == 'densenet121':
@@ -36,6 +36,7 @@ class ResNetEncoder(nn.Module):
             raise NotImplementedError('Not supported encoder: {}'.format(name))
 
     def forward(self, x):
+        """Forward pass of the ResNetEncoder"""
         features, skips = [x], [x]
         for key, val in self.base_model._modules.items():
             if not any(x in key for x in ['fc', 'avgpool']):

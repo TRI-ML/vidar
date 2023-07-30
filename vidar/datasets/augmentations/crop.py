@@ -1,4 +1,4 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 from copy import deepcopy
 
@@ -15,10 +15,10 @@ def crop_pil(image, borders):
 
     Parameters
     ----------
-    image : PIL Image
+    image : PIL.Image
         Input image
-    borders : Tuple
-        Borders used for cropping (left, top, right, lower)
+    borders : tuple (left, top, right, lower)
+        Borders used for cropping
 
     Returns
     -------
@@ -29,15 +29,16 @@ def crop_pil(image, borders):
 
 
 @iterate1
-def crop_npy(depth, borders):
+@iterate1
+def crop_npy(data, borders):
     """
     Crop a numpy depth map
 
     Parameters
     ----------
-    depth : np.Array
+    data : np.array
         Input numpy array
-    borders : Tuple
+    borders : tuple
         Borders used for cropping
 
     Returns
@@ -46,7 +47,7 @@ def crop_npy(depth, borders):
         Cropped numpy array
     """
     # Return if depth value is None
-    return depth[borders[1]:borders[3], borders[0]:borders[2]]
+    return data[borders[1]:borders[3], borders[0]:borders[2]]
 
 
 @iterate1
@@ -56,14 +57,14 @@ def crop_intrinsics(intrinsics, borders):
 
     Parameters
     ----------
-    intrinsics : np.Array
-        Original intrinsics matrix [3,3]
-    borders : Tuple
+    intrinsics : np.array [3,3]
+        Original intrinsics matrix
+    borders : tuple
         Borders used for cropping
     Returns
     -------
-    intrinsics : np.Array
-        Cropped intrinsics matrix [3,3]
+    intrinsics : np.array [3,3]
+        Cropped intrinsics matrix
     """
     intrinsics = np.copy(intrinsics)
     intrinsics[0, 2] -= borders[0]
@@ -73,25 +74,25 @@ def crop_intrinsics(intrinsics, borders):
 
 def crop_sample_input(sample, borders):
     """
-    Crops the input information of a sample
+    Crops the input information of a sample (i.e. that go to the networks)
 
     Parameters
     ----------
-    sample : Dict
-        Dictionary with sample values
-    borders : Tuple
+    sample : dict
+        Dictionary with sample values (output from a dataset's __getitem__ method)
+    borders : tuple
         Borders used for cropping
 
     Returns
     -------
-    sample : Dict
+    sample : dict
         Cropped sample
     """
     # Intrinsics
     for key in keys_with(sample, 'intrinsics', without='raw'):
         # Create copy of full intrinsics
-        if f'raw_{key}' not in sample.keys():
-            sample[f'raw_{key}'] = deepcopy(sample[key])
+        # if f'{key}_raw' not in sample.keys():
+        #     sample[f'{key}_raw'] = deepcopy(sample[key])
         sample[key] = crop_intrinsics(sample[key], borders)
     # RGB
     for key in keys_with(sample, 'rgb', without='raw'):
@@ -108,21 +109,23 @@ def crop_sample_input(sample, borders):
 
 def crop_sample_supervision(sample, borders):
     """
-    Crops the output information of a sample
+    Crops the output information of a sample (i.e. ground-truth supervision)
 
     Parameters
     ----------
-    sample : Dict
-        Dictionary with sample values
-    borders : Tuple
+    sample : dict
+        Dictionary with sample values (output from a dataset's __getitem__ method)
+    borders : tuple
         Borders used for cropping
 
     Returns
     -------
-    sample : Dict
+    sample : dict
         Cropped sample
     """
     for key in keys_with(sample, 'depth', without='input_depth'):
+        sample[key] = crop_npy(sample[key], borders)
+    for key in keys_with(sample, 'normals'):
         sample[key] = crop_npy(sample[key], borders)
     for key in keys_with(sample, 'optical_flow'):
         sample[key] = crop_npy(sample[key], borders)
@@ -138,14 +141,14 @@ def crop_sample(sample, borders):
 
     Parameters
     ----------
-    sample : Dict
-        Dictionary with sample values
-    borders : Tuple
+    sample : dict
+        Dictionary with sample values (output from a dataset's __getitem__ method)
+    borders : tuple
         Borders used for cropping
 
     Returns
     -------
-    sample : Dict
+    sample : dict
         Cropped sample
     """
     # Crop input information

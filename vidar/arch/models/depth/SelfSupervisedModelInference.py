@@ -5,7 +5,7 @@ from vidar.arch.models.BaseModel import BaseModel
 
 class SelfSupervisedModelInference(BaseModel, ABC):
     """
-    Self-supervised depth estimation model
+    Self-supervised depth estimation model, focusing on inference for torchhub.
 
     Parameters
     ----------
@@ -14,16 +14,12 @@ class SelfSupervisedModelInference(BaseModel, ABC):
     """
     def __init__(self, cfg):
         super().__init__(cfg)
-        #self.view_synthesis = ViewSynthesis()
         self.set_attr(cfg.model, 'use_gt_pose', False)
         self.set_attr(cfg.model, 'use_gt_intrinsics', True)
 
     #def forward(self, batch, epoch=0):
     def forward(self, input_rgb, epoch=0):
         """Model forward pass"""
-
-        #rgb = batch['rgb']
-        #rgb = 
   
         depth_output = self.networks['depth'](rgb=input_rgb)
         pred_depth = depth_output['depths']

@@ -1,9 +1,9 @@
 wrapper:
-    recipe: wrapper|default
+    recipe: wrapper|default_flip
 arch:
     model:
         file: depth/DepthFormerModel
-        checkpoint: /data/vidar/models/papers/final/DepthFormer_MR_selfsup_KITTI.ckpt
+        checkpoint: /data/models/papers/DepthFormer_MR_selfsup_KITTI.ckpt
         warp_context: [-1,1]
         match_context: [-1]
         motion_masking: True
@@ -11,21 +11,22 @@ arch:
         freeze_teacher_and_pose: 40
     networks:
         transformer:
-            recipe: networks/transformer|depthformer
+            recipe: networks/match_module|depthformer
         mono_depth:
-            recipe: networks/mono_depth_res_net|default
+            recipe: networks/mono_depth_net|resnet18
             depth_range: [0.1,100.0]
         multi_depth:
-            recipe: networks/multi_depth_res_net|depthformer
+            recipe: networks/multi_depth_net|resnet18_kitti
         pose:
-            recipe: networks/pose_net|default
+            recipe: networks/pose_net|resnet18
 evaluation:
     depth:
         recipe: evaluation/depth|kitti_resize
 datasets:
     validation:
-        recipe: datasets/kitti|validation_mr
-        labels: [depth,pose]
+        recipe: datasets/kitti_tiny|val_velodyne_MR
+        labels: [depth,pose,intrinsics]
+        labels_context: [pose,intrinsics]
         context: [-1,1]
 save:
     recipe: save|depth_splitname

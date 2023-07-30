@@ -1,4 +1,4 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 from collections import OrderedDict
 from copy import deepcopy
@@ -14,17 +14,24 @@ from vidar.utils.types import is_dict, is_tensor, is_seq, is_namespace
 from vidar.utils.viz import viz_depth, viz_inv_depth, viz_normals, viz_optical_flow, viz_camera
 
 
+def ctx_str(ctx):
+    replaces = [[' ', ''], ['(', ''], [')', ''], [',', '_']]
+    ctx = str(ctx)
+    for replace in replaces:
+        ctx = ctx.replace(replace[0], replace[1])
+    return ctx
+
+
 class WandbLogger:
-    """
-    Wandb logger class to monitor training
+    """Wandb manager class. 
 
     Parameters
     ----------
     cfg : Config
-        Configuration with parameters
-    verbose : Bool
-        Print information on screen if enabled
-    """
+        Configuration file with logger parameters
+    verbose : bool, optional
+        True if information is displayed on screen, by default False
+    """    
     def __init__(self, cfg, verbose=False):
         super().__init__()
 
@@ -59,11 +66,11 @@ class WandbLogger:
 
     @staticmethod
     def finish():
-        """Finish wandb session"""
+        """Finishes the current run"""
         wandb.finish()
 
     def print(self):
-        """Print information on screen"""
+        """Print logger information"""
 
         font_base = {'color': 'red', 'attrs': ('bold', 'dark')}
         font_name = {'color': 'red', 'attrs': ('bold',)}
@@ -130,19 +137,18 @@ class WandbLogger:
             self._metrics.clear()
 
     def log_images(self, batch, output, prefix, ontology=None):
-        """
-        Log images depending on its nature
+        """Log images in wandb dashboard
 
         Parameters
         ----------
-        batch : Dict
-            Dictionary containing batch information
-        output : Dict
-            Dictionary containing output information
-        prefix : String
-            Prefix string for the log name
-        ontology : Dict
-            Dictionary with ontology information
+        batch : dict
+            Input batch
+        output : _type_
+            Output information
+        prefix : str
+            Prefix for the logged information
+        ontology : dict, optional
+            Ontology information, by default None
         """
         for data, suffix in zip([batch, output['predictions']], ['-gt', '-pred']):
             for key in data.keys():
@@ -155,7 +161,7 @@ class WandbLogger:
                 elif key.startswith('inv_depth'):
                     self._metrics.update(log_inv_depth(
                         key, prefix + suffix, data, only_first=self.only_first))
-                elif 'normals' in key:
+                elif key.startswith('normals'):
                     self._metrics.update(log_normals(
                         key, prefix + suffix, data, only_first=self.only_first))
                 elif key.startswith('stddev'):
@@ -164,39 +170,28 @@ class WandbLogger:
                 elif key.startswith('logvar'):
                     self._metrics.update(log_logvar(
                         key, prefix + suffix, data, only_first=self.only_first))
-                elif 'optical_flow' in key:
+                elif key.startswith('optical_flow') or \
+                        key.startswith('bwd_optical_flow') or key.startswith('fwd_optical_flow'):
                     self._metrics.update(log_optical_flow(
                         key, prefix + suffix, data, only_first=self.only_first))
-                elif 'mask' in key or 'valid' in key:
-                    self._metrics.update(log_rgb(
-                        key, prefix, data, only_first=self.only_first))
-                # elif 'camera' in key:
-                #     self._metrics.update(log_camera(
-                #         key, prefix + suffix, data, only_first=self.only_first))
-                # elif 'uncertainty' in key:
-                #     self._metrics.update(log_uncertainty(key, prefix, data))
-                # elif 'semantic' in key and ontology is not None:
-                #     self._metrics.update(log_semantic(key, prefix, data, ontology=ontology))
-                # if 'scene_flow' in key:
-                #     self._metrics.update(log_scene_flow(key, prefix_idx, data))
-                # elif 'score' in key:
-                #     # Log score as image heatmap
-                #     self._metrics.update(log_keypoint_score(key, prefix, data))
+                elif key.startswith('mask') or key.startswith('valid'):
+                    self._metrics.update(log_mask(
+                        key, prefix + suffix, data, only_first=self.only_first))
 
     def log_data(self, mode, batch, output, dataset, prefix, ontology=None):
         """Helper function used to log images"""
-        idx = batch['idx'][0]
         num_logs = self.num_logs[mode]
-        if num_logs > 0:
-            interval = (len(dataset) // world_size() // num_logs) * world_size()
+        if num_logs == 0:
+            return
+        interval = (len(dataset) // world_size() // num_logs) * world_size()
+        for idx in batch['idx']:
             if interval == 0 or (idx % interval == 0 and idx < interval * num_logs):
                 prefix = '{}-{}-{}'.format(mode, prefix, batch['idx'][0].item())
-                # batch, output = prepare_logging(batch, output)
                 self.log_images(batch, output, prefix, ontology=ontology)
 
 
 def recursive_convert_config(cfg):
-    """Convert configuration to dictionary recursively"""
+    """Converts a config to a dictionary"""
     cfg = cfg.__dict__
     for key, val in cfg.items():
         if is_namespace(val):
@@ -227,15 +222,35 @@ def log_sequence(key, prefix, data, i, only_first, fn):
                 for idx, list_val in enumerate(dict_val):
                     if list_val.dim() == 5:
                         for j in range(list_val.shape[1]):
-                            log.update(fn('%s(%s_%d)_%d' % (key, str(ctx), j, idx), prefix, list_val[:, j], i))
+                            log.update(fn('%s_(%s_%d)_%d' % (
+                                key, ctx_str(ctx), j, idx), prefix, list_val[:, j], i))
                     else:
-                        log.update(fn('%s(%s)_%d' % (key, str(ctx), idx), prefix, list_val, i))
+                        log.update(fn('%s_(%s)_%d' % (key, ctx_str(ctx), idx), prefix, list_val, i))
+            elif is_dict(dict_val):
+                for ctx2, dict_val2 in dict_val.items():
+                    if is_seq(dict_val2):
+                        if only_first:
+                            dict_val2 = dict_val2[:1]
+                        for idx, list_val in enumerate(dict_val2):
+                            if list_val.dim() == 5:
+                                for j in range(list_val.shape[1]):
+                                    log.update(fn('%s_(%s_%s_%d)_%d' % (
+                                        key, ctx_str(ctx), ctx_str(ctx2), j, idx), prefix, list_val[:, j], i))
+                            else:
+                                log.update(fn('%s_(%s)_(%s)_%d' % (
+                                    key, ctx_str(ctx), ctx_str(ctx2), idx), prefix, list_val, i))
+                    else:
+                        if dict_val2.dim() == 5:
+                            for j in range(dict_val2.shape[1]):
+                                log.update(fn('%s_(%s_%s_%d)' % (key, ctx_str(ctx), ctx_str(ctx2), j), prefix, dict_val2[:, j], i))
+                        else:
+                            log.update(fn('%s_(%s)_(%s)' % (key, ctx_str(ctx), ctx_str(ctx2)), prefix, dict_val2, i))
             else:
                 if dict_val.dim() == 5:
                     for j in range(dict_val.shape[1]):
-                        log.update(fn('%s(%s_%d)' % (key, str(ctx), j), prefix, dict_val[:, j], i))
+                        log.update(fn('%s_(%s_%d)' % (key, ctx_str(ctx), j), prefix, dict_val[:, j], i))
                 else:
-                    log.update(fn('%s(%s)' % (key, str(ctx)), prefix, dict_val, i))
+                    log.update(fn('%s_(%s)' % (key, ctx_str(ctx)), prefix, dict_val, i))
     elif is_seq(data):
         if only_first:
             data = data[:1]
@@ -252,6 +267,14 @@ def log_rgb(key, prefix, batch, i=0, only_first=None):
     if is_seq(rgb) or is_dict(rgb):
         return log_sequence(key, prefix, rgb, i, only_first, log_rgb)
     return prep_image(key, prefix, rgb[i].clamp(min=0.0, max=1.0))
+
+
+def log_mask(key, prefix, batch, i=0, only_first=None):
+    """Log RGB image"""
+    mask = batch[key] if is_dict(batch) else batch
+    if is_seq(mask) or is_dict(mask):
+        return log_sequence(key, prefix, mask, i, only_first, log_mask)
+    return prep_image(key, prefix, mask[i].float().clamp(min=0.0, max=1.0))
 
 
 def log_depth(key, prefix, batch, i=0, only_first=None):
@@ -308,4 +331,3 @@ def log_camera(key, prefix, batch, i=0, only_first=None):
     if is_seq(camera) or is_dict(camera):
         return log_sequence(key, prefix, camera, i, only_first, log_camera)
     return prep_image(key, prefix, viz_camera(camera[i]))
-

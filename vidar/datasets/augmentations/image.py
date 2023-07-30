@@ -1,4 +1,4 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 import random
 
@@ -15,12 +15,12 @@ def random_colorjitter(parameters):
 
     Parameters
     ----------
-    parameters : Tuple
-        Color jittering parameters (brightness, contrast, saturation, hue, color)
+    parameters : tuple (brightness, contrast, saturation, hue, color)
+        Color jittering parameters
 
     Returns
     -------
-    transform : torchvision.Transform
+    transform : torch.vision.Transform
         Color jitter transformation with fixed parameters
     """
     # Get and unpack values
@@ -65,13 +65,13 @@ def colorjitter_sample(samples, parameters, background=None, prob=1.0):
 
     Parameters
     ----------
-    samples : Dict
+    samples : dict
         Input sample
     parameters : tuple (brightness, contrast, saturation, hue, color)
         Color jittering parameters
-    background: None or String
+    background: None or str
         Which background color should be use
-    prob : Float
+    prob : float
         Jittering probability
 
     Returns
@@ -111,23 +111,6 @@ def colorjitter_sample(samples, parameters, background=None, prob=1.0):
 
 @iterate1
 def normalize_sample(sample, mean, std):
-    """
-    Normalize sample
-
-    Parameters
-    ----------
-    sample : Dict
-        Input sample dictionary
-    mean : torch.Tensor
-        Normalization mean [B,3]
-    std : torch.Tensor
-        Normalization standard deviation [B,3]
-
-    Returns
-    -------
-    sample : Dict
-        Normalized sample
-    """
     # Get mean and std values in the right shape
     mean = torch.tensor(mean).reshape(3, 1, 1)
     std = torch.tensor(std).reshape(3, 1, 1)

@@ -2,13 +2,9 @@ from functools import lru_cache
 import torch
 import torch.nn as nn
 
-from vidar.geometry.camera_utils import invert_intrinsics, scale_intrinsics
 from vidar.geometry.pose import Pose
-from vidar.geometry.pose_utils import invert_pose
-from vidar.utils.tensor import pixel_grid, same_shape, cat_channel_ones, norm_pixel_grid, interpolate, interleave
-from vidar.utils.types import is_tensor, is_seq
+from vidar.utils.tensor import pixel_grid
 
-########################################################################################################################
 
 class EUCMCamera(nn.Module):
     """
@@ -47,8 +43,6 @@ class EUCMCamera(nn.Module):
         self.Tcw = self.Tcw.to(*args, **kwargs)
         return self
 
-########################################################################################################################
-
     @property
     def fx(self):
         """Focal length in x"""
@@ -84,8 +78,6 @@ class EUCMCamera(nn.Module):
     def Twc(self):
         """World -> Camera pose transformation (inverse of Tcw)"""
         return self.Tcw.inverse()
-
-########################################################################################################################
 
     def reconstruct(self, depth, frame='w'):
         """

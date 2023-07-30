@@ -1,4 +1,4 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 import copy
 from functools import partial
@@ -58,10 +58,10 @@ class Transformer(nn.Module):
         self.norm = nn.LayerNorm(self.hidden_dim)
 
         self.grid_sample = partial(
-            grid_sample, padding_mode='zeros', mode='bilinear', align_corners=True)
+            grid_sample, padding_mode='zeros', mode='bilinear')
 
         self.grid_sample_nearest = partial(
-            grid_sample, padding_mode='zeros', mode='nearest', align_corners=True)
+            grid_sample, padding_mode='zeros', mode='nearest')
 
     def _alternating_attn(self, feat1, feat2,
                           cam=None, min_depth=None, max_depth=None, num_bins=None):
@@ -166,6 +166,7 @@ class MultiheadAttentionRelative(nn.MultiheadAttention):
             add_bias_kv=False, add_zero_attn=False, kdim=None, vdim=None)
 
     def forward(self, query, key, value):
+        """Network forward pass for attention calculation and feature reorganization"""
 
         w2, bsz2, embed_dim2 = key.size()
         w, bsz, embed_dim = query.size()

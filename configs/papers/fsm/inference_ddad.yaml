@@ -1,12 +1,13 @@
 wrapper:
-    recipe: wrapper|default
+    recipe: wrapper|default_flip
+    max_epochs: 1
 arch:
     model:
         file: depth/FSMModel
-        checkpoint: /data/vidar/models/papers/final/FSM_MR_6cams_DDAD.ckpt
+        checkpoint: /data/models/papers/FSM_MR_6cams_DDAD.ckpt
     networks:
         depth:
-            recipe: networks/focal_depth_res_net|fsm_ddad
+            recipe: networks/focal_mono_depth_net|fsm_ddad_resnet18
         pose:
             recipe: networks/conv_pose_net|default
 evaluation:
@@ -14,6 +15,6 @@ evaluation:
         recipe: evaluation/depth|ddad_resize
 datasets:
     validation:
-        recipe: datasets/ddad|validation_6cams
+        recipe: datasets/ddad_tiny|val_6cams
 save:
     recipe: save|depth_splitname

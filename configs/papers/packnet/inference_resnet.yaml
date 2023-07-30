@@ -1,20 +1,20 @@
 wrapper:
-    recipe: wrapper|default
+    recipe: wrapper|default_flip
 arch:
     model:
         file: depth/SelfSupervisedModel
-        checkpoint: /data/vidar/models/papers/final/ResNet18_MR_selfsup_KITTI.ckpt
+        checkpoint: /data/models/papers/ResNet18_MR_selfsup_KITTI.ckpt
     networks:
         depth:
-            recipe: networks/mono_depth_res_net|default
+            recipe: networks/mono_depth_net|resnet18
             depth_range: [0.1,100.0]
         pose:
-            recipe: networks/pose_net|default
+            recipe: networks/pose_net|resnet18
 evaluation:
     depth:
         recipe: evaluation/depth|kitti_resize
 datasets:
     validation:
-        recipe: datasets/kitti|validation_mr
+        recipe: datasets/kitti_tiny|val_velodyne_MR
 save:
     recipe: save|depth_splitname

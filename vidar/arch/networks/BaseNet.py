@@ -1,4 +1,4 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 import torch
 import torch.nn as nn
@@ -8,13 +8,13 @@ from vidar.utils.config import cfg_has
 
 
 class BaseNet(nn.Module):
-    """Base network class, that all other networks inherit"""
-    def __init__(self, cfg):
+    """Base network class for all networks."""
+    def __init__(self, cfg=None):
         super().__init__()
         self.networks = torch.nn.ModuleDict()
         self.blocks = torch.nn.ModuleDict()
 
-        if cfg_has(cfg, 'depth_range'):
+        if cfg is not None and cfg.has('depth_range'):
             self.to_depth = SigmoidToInvDepth(
                 cfg.depth_range[0], cfg.depth_range[1], return_depth=True)
         else:
@@ -24,11 +24,10 @@ class BaseNet(nn.Module):
         raise NotImplementedError('Forward unimplemented is unimplemented!')
 
     def set_attr(self, cfg, key, default):
-        """Set a network attribute"""
         self.__setattr__(key, cfg_has(cfg, key, default))
 
     def train(self, mode=True):
-        """Set all networks and blocks to train or val"""
+        """Modified training mode to set all submodules to train mode."""
         super().train(mode=mode)
         for key, val in self.networks.items():
             val.train(mode=mode)
@@ -36,10 +35,11 @@ class BaseNet(nn.Module):
             val.train(mode=mode)
 
     def eval(self):
+        """Modified eval mode to set all submodules to eval mode (currently works as default)."""
         self.train(mode=False)
 
     def sigmoid_to_depth(self, sigmoids):
-        """Convert sigmoids to depth values"""
+        """Converts sigmoids to depth maps."""
         return self.to_depth(sigmoids) if self.to_depth is not None else sigmoids
 
     def load(self, ckpt, name):

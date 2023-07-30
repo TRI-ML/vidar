@@ -1,4 +1,4 @@
-# Copyright 2021 Toyota Research Institute.  All rights reserved.
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 from abc import ABC
 
@@ -8,12 +8,19 @@ from vidar.geometry.pose import Pose
 
 
 class DefineInferenceModel(BaseModel, ABC):
+    """DeFiNe model class, focusing on inference. (https://arxiv.org/abs/2207.14287)
+
+    Parameters
+    ----------
+    cfg : Config
+        Configuration file for model generation
+    """
     def __init__(self, cfg):
         super().__init__(cfg)
 
-        from vidar.arch.networks.perceiver.DefineNet import DefineNet
+        from vidar.arch.networks.perceiver.DeFiNeNet import DeFiNeNet
 
-        self.networks["perceiver"] = DefineNet(cfg.model.network)
+        self.networks["perceiver"] = DeFiNeNet(cfg.model.network)
         self.weights = cfg.model.task_weights
         self.use_pose_noise = cfg.model.use_pose_noise
         self.use_virtual_cameras = cfg.model.use_virtual_cameras

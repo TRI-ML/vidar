@@ -1,4 +1,4 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 from abc import ABC
 from collections import OrderedDict
@@ -7,13 +7,13 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from vidar.arch.networks.layers.convs import ConvBlock, Conv3x3, upsample
+from vidar.arch.networks.layers.convolution import ConvBlock, Conv3x3, upsample
 from vidar.utils.config import cfg_has
 
 
 class DepthDecoder(nn.Module, ABC):
     """
-    Depth decoder network
+    Depth decoder class, to decode features into depth maps
 
     Parameters
     ----------
@@ -61,7 +61,7 @@ class DepthDecoder(nn.Module, ABC):
             raise ValueError('Invalid activation function {}'.format(cfg.activation))
 
     def forward(self, input_features):
-        """Network forward pass"""
+        """Forward pass of the decoder."""
 
         outputs = {}
 

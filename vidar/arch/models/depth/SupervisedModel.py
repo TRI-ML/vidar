@@ -1,4 +1,4 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 from abc import ABC
 
@@ -21,11 +21,15 @@ class SupervisedModel(BaseModel, ABC):
     cfg : Config
         Configuration with parameters
     """
+
+    required_networks = ('depth',)
+    required_losses = ('supervision', 'smoothness')
+
     def __init__(self, cfg):
         super().__init__()
 
     def forward(self, batch, epoch):
-        """Model forward pass"""
+        """Model forward pass, given a batch dictionary"""
 
         rgb = batch['rgb']
 
@@ -60,8 +64,8 @@ class SupervisedModel(BaseModel, ABC):
             Dictionary with input images [B,3,H,W]
         depths : list[torch.Tensor]
             List with target depth maps in different scales [B,1,H,W]
-        gt_depths : Dict
-            Dictionary with ground-truth depth maps
+        gt_depths : torch.Tensor
+            Ground-truth depth map for supervised training
 
         Returns
         -------

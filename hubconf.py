@@ -1,5 +1,4 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
-
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 dependencies = ["torch"]
 
@@ -9,7 +8,7 @@ import torch.nn.functional as F
 
 from vidar.core.evaluator import Evaluator
 from vidar.utils.config import read_config
-from vidar.utils.setup import setup_arch
+from vidar.utils.setup import setup_arch, setup_network
 
 
 def DeFiNe(pretrained=True, **kwargs):
@@ -67,5 +66,33 @@ def PackNet(pretrained=True, **kwargs):
         model = setup_arch(cfg.arch, verbose=True)
         state_dict = torch.hub.load_state_dict_from_url(url, map_location="cpu")
         model.load_state_dict(state_dict["state_dict"], strict=False)
+
+    return model
+
+
+def ZeroDepth(pretrained=True, **kwargs):
+    """
+    PackNet model for monocular depth estimation
+    pretrained (bool): load pretrained weights into model
+
+    Usage:
+        model = torch.hub.load("TRI-ML/vidar", "ZeroDepth", pretrained=True)
+        rgb_image = torch.rand(1, 3, H, W)
+        intrinsics = torch.rand(1, 3, 3)
+        depth_pred = model(rgb_image, intrinsics)
+    """
+
+    cfg_url = "https://raw.githubusercontent.com/TRI-ML/vidar/main/configs/papers/zerodepth/hub_zerodepth.yaml"
+    cfg = urllib.request.urlretrieve(cfg_url, "zerodepth_config.yaml")
+    cfg = read_config("zerodepth_config.yaml")
+    model = Evaluator(cfg)
+    model = setup_network(cfg.networks.perceiver)
+    model.eval()
+
+    if pretrained:
+        url = "https://tri-ml-public.s3.amazonaws.com/github/vidar/models/ZeroDepth_unified.ckpt"
+        state_dict = torch.hub.load_state_dict_from_url(url, map_location="cpu")
+        state_dict =  {k.replace("module.networks.define.", ""): v for k, v in state_dict["state_dict"].items()}
+        model.load_state_dict(state_dict, strict=True)
 
     return model

@@ -1,4 +1,4 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 import torch
 from pytorch3d.transforms.rotation_conversions import \
@@ -10,26 +10,26 @@ from vidar.utils.types import is_tensor, is_list, is_seq
 
 
 def flip_lr_fn(tensor):
-    """Function to flip a tensor from left to right"""
+    """Function to flip horizontally"""
     return torch.flip(tensor, [-1])
 
 
 def flip_flow_lr_fn(flow):
-    """Function to flip a flow tensor from left to right"""
+    """Function to flip a flow map horizontally"""
     flow_flip = torch.flip(flow, [3])
     flow_flip[:, :1, :, :] *= -1
     return flow_flip.contiguous()
 
 
 def flip_intrinsics_lr_fn(K, shape):
-    """Function to flip a 3x3 intrinsic matrix from left to right"""
+    """Function to flip intrinsics horizontally"""
     K = K.clone()
     K[:, 0, 2] = shape[-1] - K[:, 0, 2]
     return K
 
 
 def flip_pose_lr_fn(T):
-    """Function to flip a 4x4 transformation matrix from left to right"""
+    """Function to flip pose horizontally"""
     rot = T[:, :3, :3]
     axis = matrix_to_euler_angles(rot, convention='XYZ')
     axis[:, [1, 2]] = axis[:, [1, 2]] * -1
@@ -41,7 +41,7 @@ def flip_pose_lr_fn(T):
 
 @iterate1
 def flip_lr(tensor, flip=True):
-    """Flip a tensor from left to right"""
+    """Flip a tensor horizontally (i.e. last dimension)"""
     # Not flipping option
     if not flip:
         return tensor
@@ -58,7 +58,7 @@ def flip_lr(tensor, flip=True):
 
 @iterate1
 def flip_flow_lr(flow, flip=True):
-    """Flip a flow tensor from left to right"""
+    """Flip a flow map (optical flow or scene flow) horizontally"""
     # Not flipping option
     if not flip:
         return flow
@@ -75,7 +75,7 @@ def flip_flow_lr(flow, flip=True):
 
 @iterate12
 def flip_intrinsics_lr(K, shape, flip=True):
-    """Flip a 3x3 camera intrinsic matrix from left to right"""
+    """Flip camera intrinsics horizontally"""
     # Not flipping option
     if not flip:
         return K
@@ -91,7 +91,7 @@ def flip_intrinsics_lr(K, shape, flip=True):
 
 
 def flip_pose_lr(pose, flip=True):
-    """Flip a 4x4 transformation matrix from left to right"""
+    """Flip pose horizontally"""
     # Not flipping option
     if not flip:
         return pose
@@ -123,7 +123,7 @@ def flip_pose_lr(pose, flip=True):
 
 
 def flip_batch(batch, flip=True):
-    """Flip a batch from left to right"""
+    """Flip batch"""
     # Not flipping option
     if not flip:
         return batch
@@ -133,10 +133,10 @@ def flip_batch(batch, flip=True):
     # Flip batch
     flipped_batch = {}
     # Keys to not flip
-    for key in keys_in(batch, ['idx', 'filename', 'splitname']):
+    for key in keys_in(batch, ['idx', 'tag', 'filename', 'splitname']):
         flipped_batch[key] = batch[key]
     # Tensor flipping
-    for key in keys_in(batch, ['rgb', 'mask', 'input_depth', 'depth', 'semantic']):
+    for key in keys_in(batch, ['rgb', 'mask', 'mask_rgb', 'input_depth', 'depth', 'semantic']):
         flipped_batch[key] = flip_lr(batch[key])
     # Intrinsics flipping
     for key in keys_in(batch, ['intrinsics']):
@@ -148,7 +148,7 @@ def flip_batch(batch, flip=True):
 
 
 def flip_predictions(predictions, flip=True):
-    """Flip predictions from left to right"""
+    """Flip predictions"""
     # Not flipping option
     if not flip:
         return predictions
@@ -164,7 +164,7 @@ def flip_predictions(predictions, flip=True):
 
 
 def flip_output(output, flip=True):
-    """Flip output from left to right"""
+    """Flip output"""
     # Not flipping option
     if not flip:
         return output

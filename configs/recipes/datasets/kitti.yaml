@@ -1,31 +1,14 @@
-train_selfsup_mr:
+###############################################
+val_velodyne_MR:
     name: [KITTI]
-    path: [/data/vidar/KITTI_raw]
-    split: [data_splits/eigen_zhou_files.txt]
-    augmentation:
-        jittering: [0.2, 0.2, 0.2, 0.05]
-        resize: [192, 640]
-    dataloader:
-        batch_size: 1
-        pin_memory: True
-        num_workers: 16
-    context: [-1,1]
-    labels: []
-    cameras: [[0]]
-    single_intrinsics: [True]
-    repeat: [1]
-validation_mr:
-    name: [KITTI]
-    path: [/data/vidar/KITTI_raw]
+    path: [/data/datasets/KITTI_raw]
     split: [data_splits/eigen_test_files.txt]
+    context: []
+    cameras: [[0]]
+    labels: [depth,intrinsics]
+    depth_type: [velodyne]
     augmentation:
-        resize: [192, 640]
+        resize: [192,640]
     dataloader:
         batch_size: 1
-        pin_memory: True
-        num_workers: 16
-    context: []
-    labels: [depth]
-    cameras: [[0]]
-    single_intrinsics: [True]
-    depth_type: [velodyne,groundtruth]
+###############################################

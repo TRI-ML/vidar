@@ -1,4 +1,4 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 from abc import ABC
 
@@ -12,13 +12,13 @@ from vidar.geometry.pose_utils import vec2mat
 
 class PoseNet(BaseNet, ABC):
     """
-    Pose Network
+    Multi-frame depth encoder
 
     Parameters
     ----------
     cfg : Config
         Configuration with parameters
-    """
+    """    
     def __init__(self, cfg):
         super().__init__(cfg)
 

@@ -1,4 +1,4 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 from abc import ABC
 from functools import partial
@@ -12,39 +12,13 @@ from vidar.utils.types import is_list
 
 
 class ConsistencyLoss(BaseLoss, ABC):
-    """
-    Consistency loss class
-
-    Parameters
-    ----------
-    cfg : Config
-        Configuration with parameters
-    """
+    """Consistency loss, for enforcing consistency between teacher and student predictions."""
     def __init__(self, cfg):
         super().__init__(cfg)
-        self.interpolate = partial(
-            interpolate, mode='nearest', scale_factor=None, align_corners=None)
+        self.interpolate = partial(interpolate, mode='nearest', scale_factor=None)
 
     def calculate(self, teacher, student, confidence_mask, valid_mask=None):
-        """
-        Calculate consistency loss
-
-        Parameters
-        ----------
-        teacher : torch.Tensor
-            Teacher depth predictions [B,1,H,W]
-        student : torch.Tensor
-            Student depth predictions [B,1,H,W]
-        confidence_mask : torch.Tensor
-            Confidence mask for pixel selection [B,1,H,W]
-        valid_mask : torch.Tensor
-            Valid mask for pixel selection [B,1,H,W]
-
-        Returns
-        -------
-        loss : torch.Tensor
-            Consistency loss [1]
-        """
+        """Calculates the consistency loss between teacher and student predictions."""
         if not same_shape(teacher.shape[-2:], student.shape[-2:]):
             teacher = self.interpolate(teacher, size=student.shape[-2:])
         if not same_shape(confidence_mask.shape, teacher.shape):
@@ -57,25 +31,7 @@ class ConsistencyLoss(BaseLoss, ABC):
                               multiply_mask(non_confidence_mask, valid_mask))
 
     def forward(self, teacher, student, confidence_mask, valid_mask=None):
-        """
-        Forward loop for loss calculation
-
-        Parameters
-        ----------
-        teacher : list[torch.Tensor]
-            Teacher depth predictions [B,1,H,W]
-        student : list[torch.Tensor]
-            Student depth predictions [B,1,H,W]
-        confidence_mask : list[torch.Tensor]
-            Confidence mask for pixel selection [B,1,H,W]
-        valid_mask : list[torch.Tensor]
-            Valid mask for pixel selection [B,1,H,W]
-
-        Returns
-        -------
-        output : Dict
-            Dictionary with loss and metrics
-        """
+        """Forward pass for the consistency loss."""
         scales = self.get_scales(student)
         weights = self.get_weights(scales)
 

@@ -1,4 +1,4 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 from collections import OrderedDict
 
@@ -9,14 +9,14 @@ def average_key(batch_list, key):
 
     Parameters
     ----------
-    batch_list : list[Dict]
+    batch_list : list of dict
         List containing dictionaries with the same keys
-    key : String
+    key : str
         Key to be averaged
 
     Returns
     -------
-    average : Float
+    average : float
         Average of the value contained in key for all batches
     """
     values = [batch[key] for batch in batch_list]
@@ -29,16 +29,16 @@ def average_sub_key(batch_list, key, sub_key):
 
     Parameters
     ----------
-    batch_list : list[Dict]
+    batch_list : list of dict
         List containing dictionaries with the same keys
-    key : String
+    key : str
         Key to be averaged
-    sub_key : String
+    sub_key :
         Sub key to be averaged (belonging to key)
 
     Returns
     -------
-    average : Float
+    average : float
         Average of the value contained in the sub_key of key for all batches
     """
     values = [batch[key][sub_key] for batch in batch_list]
@@ -51,14 +51,14 @@ def average_loss_and_metrics(batch_list, prefix):
 
     Parameters
     ----------
-    batch_list : list[Dict]
+    batch_list : list of dict
         List containing dictionaries with the same keys
-    prefix : String
+    prefix : str
         Prefix string for metrics logging
 
     Returns
     -------
-    values : Dict
+    values : dict
         Dictionary containing a 'loss' float entry and a 'metrics' dict entry
     """
     values = OrderedDict()

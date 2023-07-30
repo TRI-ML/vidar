@@ -1,0 +1,108 @@
+wrapper:
+    seed: 42
+    min_epochs: 0
+    max_epochs: 0
+    find_unused_parameters: True
+    flip_lr_prob: 0.5
+    validate_first: True
+    validate_flipped: False
+    sync_batch_norm: True
+evaluation:
+    rgb:
+        only_first: False
+    depth:
+        crop: ''
+        min_depth: 0.1
+        max_depth: 10.0
+        scale_output: resize
+        median_scaling: True
+        post_process: False
+arch:
+    model:
+        file: perceiver/DeFiNeModel
+        samples:
+            encode_train: all
+            decode_train: all
+            encode_eval: all
+            decode_eval: all
+            decode_encodes: False
+            encoder_rays: 0.0
+            decoder_rays: 0.0
+        augmentations:
+            zero_origin: True
+            use_pose_noise: []
+            use_virtual_cameras: [0.5,1,0.25,0.25,0.25,0.25]
+            augment_canonical: True
+            virtual_cameras_eval: False
+            use_virtual_rgb: True
+            evaluate_projection: ''
+        weights:
+            scale_loss: True
+    networks:
+        perceiver:
+            file: perceiver/DeFiNeNet
+            downsample_encoder: 4
+            downsample_decoder: 4
+            encode_sources: [[camera,image]]
+            decode_sources: [['',0,mod,[camera],[depth]]]
+            mode: default
+            latent:
+                num: 1024
+                dim: 512
+            encoder:
+                use_query_residual: True
+                hidden_activ: gelu
+                attention_dropout: 0.1
+                num_blocks: 1
+                num_self_attends_per_block: 8
+                self_attention:
+                    num_heads: 8
+                    widening_factor: 1
+                cross_attention:
+                    num_heads: 1
+                    widening_factor: 1
+            embeddings:
+                image:
+                    type: resnet18_all-4
+                camera:
+                    to_world: True
+                    origin:
+                        num_bands: 20
+                        max_resolution: 60
+                    rays:
+                        num_bands: 10
+                        max_resolution: 60
+            decoders:
+                shared:
+                    hidden_activ: gelu
+                    use_query_residual: False
+                    attention_dropout: 0.1
+                    widening_factor: 1
+                    upsample_mode: convex
+                    upsample_value: 4
+                    num_heads: 1
+                rgb:
+                    output_num_channels: 3
+                depth:
+                    output_num_channels: 1
+                    depth_range: [0.1,10.0]
+                    output_mode: inv_depth
+datasets:
+    validation:
+        name: [ScanNet]
+        path: [/data/vidar/scannet_processed/scannet]
+        split: [test.txt]
+        context: []
+        labels: [depth,pose]
+        cameras: [[0,1]]
+        dataloader:
+            batch_size: 1
+            pin_memory: True
+            num_workers: 16
+        augmentation:
+            resize: [128,192]
+            resize_supervision: True
+            preserve_depth: True
+
+
+

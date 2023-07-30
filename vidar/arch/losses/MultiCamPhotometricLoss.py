@@ -1,4 +1,4 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 import torch
 
@@ -10,6 +10,7 @@ from vidar.utils.types import is_list, is_double_list
 
 
 class MultiCamPhotometricLoss(MultiViewPhotometricLoss):
+    """Photometric loss for multi-camera setups"""
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         # Large value for loss masking
@@ -18,6 +19,7 @@ class MultiCamPhotometricLoss(MultiViewPhotometricLoss):
 
     def warp(self, rgb_context, inv_depths, cam, cam_context,
              scene_flow=None, with_mask=True):
+        """Warp reference images to target using inverse depth and camera motion"""
         # Initialize empty warp and mask list
         warps_context, masks_context = [], []
         # If mask is available, use it instead of calculating
@@ -169,5 +171,3 @@ class MultiCamPhotometricLoss(MultiViewPhotometricLoss):
             'masks': masks_context,
             'photo': masked_loss,
         }
-
-########################################################################################################################

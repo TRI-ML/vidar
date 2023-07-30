@@ -1,5 +1,3 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
-
 import json
 import os
 import random
@@ -8,28 +6,13 @@ from collections import OrderedDict
 import numpy as np
 import torch
 
+import vidar.ontologies.convert
 from vidar.utils.decorators import iterate1
-from vidar.utils.types import is_seq, is_tensor, is_dict, is_int
+from vidar.utils.types import is_seq, is_tensor, is_dict, is_numpy, is_int, is_list
+
 
 
 def stack_sample(sample, lidar_sample=None, radar_sample=None):
-    """
-    Stack samples from multiple cameras
-
-    Parameters
-    ----------
-    sample : list[Dict]
-        List of camera samples
-    lidar_sample : list[Dict]
-        List of lidar samples
-    radar_sample : list[Dict]
-        List of radar samples
-
-    Returns
-    -------
-    stacked_sample: Dict
-        Stacked sample
-    """
     # If there are no tensors, return empty list
     if len(sample) == 0:
         return None
@@ -77,7 +60,6 @@ def stack_sample(sample, lidar_sample=None, radar_sample=None):
 
 
 def merge_sample(samples):
-    """Merge information from multiple samples"""
     merged_sample = {}
     for sample in samples:
         for key, val in sample.items():
@@ -89,7 +71,6 @@ def merge_sample(samples):
 
 
 def parse_crop(cfg, shape):
-    """Parse crop information to generate borders"""
     borders = None
     if cfg.has('crop_borders'):
         borders = parse_crop_borders(cfg.crop_borders, shape)
@@ -106,20 +87,20 @@ def parse_crop_borders(borders, shape):
 
     Parameters
     ----------
-    borders : Tuple
+    borders : tuple
         Border input for parsing. Can be one of the following forms:
         (int, int, int, int): y, height, x, width
         (int, int): y, x --> y, height = image_height - y, x, width = image_width - x
         Negative numbers are taken from image borders, according to the shape argument
         Float numbers for y and x are treated as percentage, according to the shape argument,
             and in this case height and width are centered at that point.
-    shape : Tuple
+    shape : tuple
         Image shape (image_height, image_width), used to determine negative crop boundaries
 
     Returns
     -------
-    borders : Tuple
-        Parsed borders for cropping (left, top, right, bottom)
+    borders : tuple (left, top, right, bottom)
+        Parsed borders for cropping
     """
     # Return full image if there are no borders to crop
     if len(borders) == 0:
@@ -167,7 +148,8 @@ def parse_crop_borders(borders, shape):
         raise NotImplementedError('Crop tuple must have 2 or 4 values.')
     # Assert that borders are valid
     assert 0 <= borders[0] < borders[2] <= shape[1] and \
-           0 <= borders[1] < borders[3] <= shape[0], 'Crop borders {} are invalid'.format(borders)
+        0 <= borders[1] < borders[3] <= shape[0], 'Crop borders {} are invalid'.format(
+            borders)
     # Return updated borders
     return borders
 
@@ -179,9 +161,9 @@ def parse_crop_random(borders, shape):
 
     Parameters
     ----------
-    borders : Tuple
-        Area of the image where random cropping can happen (left, top, right, bottom)
-    shape : Tuple
+    borders : tuple (left, top, right, bottom)
+        Area of the image where random cropping can happen
+    shape : tuple
         Cropped output shape (height, width)
 
     Returns
@@ -192,10 +174,33 @@ def parse_crop_random(borders, shape):
     # Return full borders if there is no random crop
     if len(shape) == 0:
         return borders
+    shape = [s for s in shape]
+    is_float = [None for _ in range(len(shape))]
+    div = [None for _ in range(len(shape))]
+    for i in range(len(shape)):
+        if is_list(shape[i]):
+            if len(shape[i]) == 3:
+                div[i] = shape[i][2]
+            if is_int(shape[i][0]):
+                shape[i] = shape[i][0] + (shape[i][1] - shape[i][0]) * random.uniform(0, 1)
+                is_float[i] = False
+            else:
+                shape[i] = shape[i][0] + (shape[i][1] - shape[i][0]) * random.uniform(0, 1)
+                is_float[i] = True
+        else:
+            is_float[i] = not is_int(shape[i])
+    if is_float[0]:
+        shape[0] = int(shape[0] * (borders[3] - borders[0]))
+    if is_float[1]:
+        shape[1] = int(shape[1] * (borders[2] - borders[1]))
     # Check if random crop is valid
     assert 0 < shape[1] <= borders[2] - borders[0] and \
-           0 < shape[0] <= borders[3] - borders[1], 'Random crop must be smaller than the image'
+        0 < shape[0] <= borders[3] - \
+        borders[1], 'Random crop must be smaller than the image'
     # Sample a crop
+    for i in range(len(div)):
+        if div[i] is not None:
+            shape[i] = shape[i] // div[i] * div[i]
     x = random.randint(borders[0], borders[2] - shape[1])
     y = random.randint(borders[1], borders[3] - shape[0])
     # Return new borders
@@ -209,12 +214,12 @@ def invert_pose(pose):
 
     Parameters
     ----------
-    pose : np.Array
+    pose : np.array
         Input pose [4, 4]
 
     Returns
     -------
-    inv_pose : np.Array
+    inv_pose : np.array
         Inverted pose [4, 4]
     """
     inv_pose = np.eye(4)
@@ -225,24 +230,12 @@ def invert_pose(pose):
 
 
 def make_relative_pose(samples):
-    """
-    Convert sample poses to relative frane of reference (based on the first target frame)
-
-    Parameters
-    ----------
-    samples : list[Dict]
-        Input samples
-
-    Returns
-    -------
-    samples : list[Dict]
-        Relative samples
-    """
     # Do nothing if there is no pose
     if 'pose' not in samples[0]:
         return samples
     # Get inverse current poses
-    inv_pose = [invert_pose(samples[i]['pose'][0]) for i in range(len(samples))]
+    inv_pose = [invert_pose(samples[i]['pose'][0])
+                for i in range(len(samples))]
     # For each camera
     for i in range(len(samples)):
         # For each context
@@ -263,13 +256,13 @@ def dummy_intrinsics(image):
 
     Parameters
     ----------
-    image : PIL Image
+    image : PIL.Image
         Image from which intrinsics will be calculated
 
     Returns
     -------
-    intrinsics : np.Array
-        Image intrinsics (fx = cx = w/2, fy = cy = h/2)  [3,3]
+    intrinsics : np.array (3x3)
+        Image intrinsics (fx = cx = w/2, fy = cy = h/2)
     """
     w, h = [float(d) for d in image.size]
     return np.array([[w/2, 0., w/2. - 0.5],
@@ -277,46 +270,25 @@ def dummy_intrinsics(image):
                      [0., 0., 1.]])
 
 
-def load_ontology(name, filter_list=None):
-    """Loads ontology from file and optionally filters it"""
-    filename = 'vidar/ontologies/{}.json'.format(name)
-    if os.path.exists(filename):
-        ontology = json.load(open(filename, 'r'))
-        if filter_list is not None and len(filter_list) > 0:
-            ontology = filter_ontology(ontology, filter_list)
-        return ontology
-    else:
-        return None
+def calculate_normals(depth, intrinsics):
 
+    u, v = np.meshgrid(
+        np.linspace(0, depth.shape[0] - 1, depth.shape[0]),
+        np.linspace(0, depth.shape[1] - 1, depth.shape[1]), indexing='ij')
+    print('bbb', u.shape, v.shape)
+    u = 2 * u / (depth.shape[0] - 1) - 1
+    v = 2 * v / (depth.shape[1] - 1) - 1
+    uv1 = np.stack([u, v, np.ones_like(u)], 2)
+    print('asdfasdf', uv1.shape, depth.shape)
+    print('qwer', uv1[0, 0], uv1[-1, -1])
+    points = uv1 @ np.linalg.inv(intrinsics).T
+    points = points * np.expand_dims(depth, 2)
+    p0 = points[:-1, :-1]
+    p1 = points[ 1:, :-1]
+    p2 = points[:-1,  1:]
 
-def save_ontology(ontology, name):
-    """Save ontology to a JSON file"""
-    if is_seq(ontology):
-        ontology = ontology[0]
-    for key in ontology.keys():
-        ontology[key]['color'] = ontology[key]['color'].tolist()
-    json.dump(ontology, open('ontologies/{}.json'.format(name), 'w'))
+    normals = np.cross(p1 - p0, p2 - p0, 2)
+    normals = normals / np.linalg.norm(normals, axis=2, keepdims=True)
+    normals = np.pad(normals, ((0, 1), (0, 1), (0, 0)), mode='edge')
 
-
-def filter_ontology(ontology, values):
-    """Filter ontology to remove certain classes"""
-    new_ontology = OrderedDict()
-    for i, val in enumerate(values[1:]):
-        new_ontology[i] = ontology[str(val)]
-    return new_ontology
-
-
-def convert_ontology(semantic_id, ontology_convert):
-    """Convert from one ontology to another"""
-    if ontology_convert is None:
-        return semantic_id
-    else:
-        semantic_id_convert = semantic_id.copy()
-        for key, val in ontology_convert.items():
-            semantic_id_convert[semantic_id == key] = val
-        return semantic_id_convert
-
-
-def initialize_ontology(base, ontology):
-    """Initialize ontology and conversion table if necessary"""
-    return load_ontology(base), None
+    return normals.transpose(2, 0, 1)

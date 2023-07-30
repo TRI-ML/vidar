@@ -5,7 +5,6 @@ import torch.nn as nn
 from vidar.geometry.pose import Pose
 from vidar.utils.tensor import pixel_grid
 
-########################################################################################################################
 
 class DSCamera(nn.Module):
     """
@@ -44,8 +43,6 @@ class DSCamera(nn.Module):
         self.Tcw = self.Tcw.to(*args, **kwargs)
         return self
 
-########################################################################################################################
-
     @property
     def fx(self):
         """Focal length in x"""
@@ -81,8 +78,6 @@ class DSCamera(nn.Module):
     def Twc(self):
         """World -> Camera pose transformation (inverse of Tcw)"""
         return self.Tcw.inverse()
-
-########################################################################################################################
 
     def reconstruct(self, depth, frame='w'):
         """

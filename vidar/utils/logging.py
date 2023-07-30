@@ -1,12 +1,11 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
-import argparse
 import os
-from functools import partial
-
 from termcolor import colored
+import argparse
 
 from vidar.utils.distributed import on_rank_0
+from functools import partial
 
 
 def pcolor(string, color, on_color=None, attrs=None):
@@ -15,18 +14,18 @@ def pcolor(string, color, on_color=None, attrs=None):
 
     Parameters
     ----------
-    string : String
+    string : str
         String that will be colored
-    color : String
+    color : str
         Color to use
-    on_color : String
+    on_color : str
         Background color to use
-    attrs : list[String]
+    attrs : list of str
         Different attributes for the string
 
     Returns
     -------
-    string: String
+    string: str
         Colored string
     """
     return colored(string, color, on_color, attrs)
@@ -39,7 +38,7 @@ def print_config(config):
 
     Parameters
     ----------
-    config : Config
+    config : CfgNode
         Model configuration
     """
     header_colors = {
@@ -66,31 +65,6 @@ def print_config(config):
                 print('{}: {}'.format(pcolor('{} {}'.format('-' * pad, key),
                                              color=line_colors[0],
                                              attrs=line_colors[1]), val))
-
-    # Color partial functions
-    pcolor1 = partial(pcolor, color='blue', attrs=('bold', 'dark'))
-    pcolor2 = partial(pcolor, color='blue', attrs=('bold',))
-    # Config and name
-    line = pcolor1('#' * 120)
-    # if 'default' in config.__dict__.keys():
-    #     path = pcolor1('### Config: ') + \
-    #            pcolor2('{}'.format(config.default.replace('/', '.'))) + \
-    #            pcolor1(' -> ') + \
-    #            pcolor2('{}'.format(config.config.replace('/', '.')))
-    # if 'name' in config.__dict__.keys():
-    #     name = pcolor1('### Name: ') + \
-    #            pcolor2('{}'.format(config.name))
-    #     # Add wandb link if available
-    #     if not config.wandb.dry_run:
-    #         name += pcolor1(' -> ') + \
-    #                 pcolor2('{}'.format(config.wandb.url))
-    #     # Add s3 link if available
-    #     if config.checkpoint.s3_path is not '':
-    #         name += pcolor1('\n### s3:') + \
-    #                 pcolor2(' {}'.format(config.checkpoint.s3_url))
-    #     # # Create header string
-    #     # header = '%s\n%s\n%s\n%s' % (line, path, name, line)
-
     # Print header, config and header again
     print()
     # print(header)
@@ -105,7 +79,7 @@ def set_debug(debug):
 
     Parameters
     ----------
-    debug : Bool
+    debug : bool
         Debugging flag (True to enable)
     """
     # Disable logging if requested
@@ -124,14 +98,15 @@ class AvgMeter:
 
     def __call__(self, value):
         """Append new value and returns average"""
-        self.values.append(value)
-        if len(self.values) > self.n_max:
-            self.values.pop(0)
+        if value is not None:
+            self.values.append(value)
+            if len(self.values) > self.n_max:
+                self.values.pop(0)
         return self.get()
 
     def get(self):
         """Get current average"""
-        return sum(self.values) / len(self.values)
+        return 0.0 if len(self.values) == 0 else sum(self.values) / len(self.values)
 
     def reset(self):
         """Reset meter"""

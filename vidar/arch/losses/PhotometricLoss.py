@@ -1,4 +1,4 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 from abc import ABC
 from functools import partial
@@ -11,14 +11,15 @@ from vidar.utils.tensor import interpolate
 
 
 class PhotometricLoss(BaseLoss, ABC):
+    """Photometric loss calss, to calculate the similarity between two images"""
     def __init__(self, cfg):
         super().__init__()
         self.alpha = cfg.alpha
         self.ssim_loss = SSIMLoss()
-        self.interpolate = partial(interpolate, scale_factor=None, mode='bilinear', align_corners=True)
+        self.interpolate = partial(interpolate, scale_factor=None, mode='bilinear')
 
     def forward(self, pred, gt):
-
+        """Photometric loss forward pass"""
         pred = self.interpolate(pred, size=gt)
         l1_loss = torch.abs(pred - gt).mean(1, True)
 

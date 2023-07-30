@@ -1,0 +1,36 @@
+wrapper:
+    recipe: wrapper|default_flip
+    validate_first: False
+    max_epochs: 1
+arch:
+    model:
+        file: generic/GenericModel
+        params:
+            depth:
+                targets: target
+    networks:
+        depth:
+            recipe: networks/mono_depth_net|resnet18
+            depth_range: [0.1,100.0]
+        pose:
+            recipe: networks/pose_net|resnet18
+    losses:
+        depth:
+            supervision:
+                recipe: losses/depth|supervised
+                mask_range: [0.1,100.0]
+                method: huber
+            smoothness:
+                recipe: losses/depth|smoothness
+evaluation:
+    depth:
+        recipe: evaluation/depth|kitti_resize
+optimizers:
+    depth:
+        recipe: optimizers|adam_20_05_step
+        lr: 2.0e-4
+datasets:
+    train:
+        recipe: datasets/kitti_tiny|train_supervised_MR
+    validation:
+        recipe: datasets/kitti_tiny|val_velodyne_MR
