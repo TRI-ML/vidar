@@ -1,7 +1,20 @@
-adam_20_05:
+###############################################
+adam_20_05_step:
     name: Adam
-    lr: 0.0001
+    lr: 1.0e-4
     scheduler:
         name: StepLR
         step_size: 20
         gamma: 0.5
+###############################################
+adamw_6_08_warmup:
+    name: AdamW
+    lr: 1.0e-4
+    weight_decay: 1.0e-4
+    scheduler:
+        name: StepWarmUp
+        lr_start: 0.1
+        warmup_epochs: 1
+        step_size: 6
+        gamma: 0.8
+###############################################

@@ -1,4 +1,3 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
 
 import os
 from glob import glob
@@ -15,27 +14,22 @@ class FolderTree:
 
     Parameters
     ----------
-    path : String
+    path : str
         Path where dataset is stored
-    prefix : String
+    prefix : str
         Optional prefix for each filename
-    suffix : String
-        Optional prefix for each filename
-    sub_folders : list[String]
+    sub_folders : list of str
         Optional list of sub_folders located inside each data folder where data is stored
-    deep : Int
-        How deep in the folder structure we should go
-    single_folder : Bool
-        Whether the folder structure should be ignored, and a single folder is used
     nested : bool
         If true, go one folder deeper to find scenes
-    stride: Int
-        Stride for context generation
-    context : Tuple
-        Which context should be used
+    back_context : int
+        How many previous images are required
+    forward_context : int
+        How many next images are required
     """
     def __init__(self, path, prefix='', suffix='', sub_folders=('',), deep=1,
-                 single_folder=False, nested=False, stride=1, context=()):
+                 start=None, finish=None, single_folder=False, nested=False, filter_nested=None,
+                 keep_folders=None, remove_folders=None, stride=1, context=()):
 
         # Store context information
         self.context = list(context)
@@ -61,6 +55,12 @@ class FolderTree:
             folders = glob(os.path.join(path, string))
             folders.sort()
 
+            # Remove and keep folders as needed
+            if keep_folders is not None:
+                folders = [f for f in folders if os.path.basename(f) in keep_folders]
+            if remove_folders is not None:
+                folders = [f for f in folders if os.path.basename(f) not in remove_folders]
+
             # If nesting, go one folder deeper in order to find the scenes
             if nested:
                 upd_folders = []
@@ -69,6 +69,8 @@ class FolderTree:
                     upd_folders.extend(new_folders)
                 folders = upd_folders
                 folders.sort()
+                if filter_nested is not None:
+                    folders = [f for f in folders if filter_nested in f]
 
             if single_folder:
                 # Use current folder as the only one
@@ -85,7 +87,14 @@ class FolderTree:
                                 pref, suf = files[i].split('/')[:-1], files[i].split('/')[-1]
                                 num, ext = suf.split('.')
                                 files[i] = '/'.join(pref) + ('/%010d' % int(num)) + '.' + ext
+                        # if len(remove) > 0:
+                        #     for rem in remove:
+                        #         files = [file for file in files if rem not in file]
                         files.sort()
+                        if start is not None:
+                            files = files[start:]
+                        if finish is not None:
+                            files = files[:finish]
                         if self.pad_numbers:
                             for i in range(len(files)):
                                 pref, suf = files[i].split('/')[:-1], files[i].split('/')[-1]
@@ -130,3 +139,15 @@ class FolderTree:
         idx1, idx2 = self.get_idxs(idx)
         return {ctx: self.folder_tree[idx1][idx2 - self.min_context + ctx] for ctx in self.context}
 
+    def get_random(self, idx, qty):
+        idx1, idx2 = self.get_idxs(idx)
+
+        n, m = len(self.folder_tree[idx1]), self.slices[idx1]
+        rnd = np.random.permutation(n)
+        rnd = [i for i in rnd if i != idx2]
+
+        idxs = [idx]
+        for i in range(qty - 1):
+            idxs.append(rnd[i] + m)
+
+        return idxs

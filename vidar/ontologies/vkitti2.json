@@ -1,0 +1,18 @@
+
+{
+  "0": {"name": "Terr", "color": [210, 0, 200]},
+  "1": {"name": "Sky", "color": [90, 200, 255]},
+  "2": {"name": "Tree", "color": [0, 199, 0]},
+  "3": {"name": "Veg", "color": [90, 240, 0]},
+  "4": {"name": "Build", "color": [140, 140, 140]},
+  "5": {"name": "Road", "color": [100, 60, 100]},
+  "6": {"name": "GRail", "color": [250, 100, 255]},
+  "7": {"name": "TSign", "color": [255, 255, 0]},
+  "8": {"name": "TLight", "color": [200, 200, 0]},
+  "9": {"name": "Pole", "color": [255, 130, 0]},
+  "10": {"name": "Misc", "color": [80, 80, 80]},
+  "11": {"name": "Truck", "color": [160, 60, 60]},
+  "12": {"name": "Car", "color": [255, 127, 80]},
+  "13": {"name": "Van", "color": [0, 139, 139]},
+  "14": {"name": "Undef", "color": [0, 0, 0]}
+}

@@ -30,14 +30,8 @@ class ScanNetTemporalDataset(BaseDataset):
         return len(self.rgb_tree)
 
     @staticmethod
-    def get_intrinsics(rgb):
-        """Return dummy intrinsics"""
-        return np.array([[rgb.size[0] / 2., 0., rgb.size[0] / 2.],
-                         [0., rgb.size[1], rgb.size[1] / 2.],
-                         [0., 0., 1.]])
-
-    @staticmethod
     def load_intrinsics(filename):
+        """Get intrinsics from filename"""
         filename_intrinsics = {key: '/'.join(val.split('/')[:-2]) + '/intrinsic/intrinsic_depth.txt'
                                for key, val in filename.items()}
         return {key: np.genfromtxt(val).astype(np.float32).reshape((4, 4))[:3, :3]
@@ -45,6 +39,7 @@ class ScanNetTemporalDataset(BaseDataset):
 
     @staticmethod
     def load_depth(filename):
+        """Get depth maps from filename"""
         try:
             filename_depth = {key: val.replace('color', 'depth').replace('.jpg', '.png')
                             for key, val in filename.items()}
@@ -58,6 +53,7 @@ class ScanNetTemporalDataset(BaseDataset):
 
     @staticmethod
     def load_pose(filename):
+        """Get poses from filename"""
         filename_pose = {key: val.replace('color', 'pose').replace('.jpg', '.txt')
                           for key, val in filename.items()}
         return {key: invert_pose(np.genfromtxt(val).astype(np.float32).reshape((4, 4)))
@@ -113,4 +109,4 @@ class ScanNetTemporalDataset(BaseDataset):
             samples = self.data_transform(samples)
 
         # Return stacked sample
-        return stack_sample(samples)
+        return stack_sample([samples])

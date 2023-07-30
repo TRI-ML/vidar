@@ -1,14 +1,17 @@
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 import torch
 from torch_scatter import scatter_min
 
-from vidar.geometry.camera import Camera
+from vidar.geometry.cameras.base import CameraBase
 from vidar.utils.tensor import unnorm_pixel_grid
 
 
-class CameraNerf(Camera):
+class CameraNerf(CameraBase):
+    """Camera class with NeRF functionalities"""
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Matrix to convert from vidar to NeRF coordinate system
         self.convert_matrix = torch.tensor(
             [[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]],
             dtype=torch.float32,
@@ -16,30 +19,36 @@ class CameraNerf(Camera):
 
     @staticmethod
     def from_list(cams):
+        """Get a CameraNerf object from a list of cameras"""
         K = torch.cat([cam.K for cam in cams], 0)
         Twc = torch.cat([cam.Twc.T for cam in cams], 0)
         return CameraNerf(K=K, Twc=Twc, hw=cams[0].hw)
 
     @staticmethod
     def from_dict(K, hw, Twc=None):
+        """Get a CameraNerf object from a dictionary of cameras"""
         return {key: CameraNerf(K=K[0], hw=hw[0], Twc=val) for key, val in Twc.items()}
 
     def switch(self):
+        """Convert from vidar to NeRF coordinate system"""
         T = self.convert_matrix.to(self.device)
         Twc = T @ self.Twc.T @ T
         return type(self)(K=self.K, Twc=Twc, hw=self.hw)
 
     def bwd(self):
+        """Go from NeRF to vidar coordinate system"""
         T = self.convert_matrix.to(self.device)
         Tcw = T @ self.Twc.T @ T
         return type(self)(K=self.K, Tcw=Tcw, hw=self.hw)
 
     def fwd(self):
+        """Go to vidar from NeRF coordinate system"""
         T = self.convert_matrix.to(self.device)
         Twc = T @ self.Tcw.T @ T
         return type(self)(K=self.K, Twc=Twc, hw=self.hw)
 
     def look_at(self, at, up=torch.Tensor([0, 1, 0])):
+        """Point a camera to a particular 3D point"""
 
         eps = 1e-5
         eye = self.Tcw.T[:, :3, -1]
@@ -65,13 +74,14 @@ class CameraNerf(Camera):
         self.Twc = Tcw.inverse()
 
     def get_origin(self, flatten=False):
+        """Get camera origin"""
         orig = self.Tcw.T[:, :3, -1].view(len(self), 3, 1, 1).repeat(1, 1, *self.hw)
         if flatten:
             orig = orig.reshape(len(self), 3, -1).permute(0, 2, 1)
         return orig
 
     def get_viewdirs(self, normalize=False, flatten=False, to_world=False):
-
+        """Get camera viewing rays"""
         ones = torch.ones((len(self), 1, *self.hw), dtype=self.dtype, device=self.device)
         rays = self.reconstruct_depth_map(ones, to_world=False)
         if normalize:
@@ -83,7 +93,7 @@ class CameraNerf(Camera):
         return rays
 
     def get_render_rays(self, near=None, far=None, n_rays=None, gt=None):
-
+        """Get camera render rays"""
         b = len(self)
 
         ones = torch.ones((b, 1, *self.hw), dtype=self.dtype, device=self.device)
@@ -115,7 +125,7 @@ class CameraNerf(Camera):
         return rays
 
     def get_plucker(self):
-
+        """Get camera plucker rays"""
         b = len(self)
         ones = torch.ones((b, 1, *self.hw), dtype=self.dtype, device=self.device)
         rays = self.reconstruct_depth_map(ones, to_world=False)
@@ -131,6 +141,7 @@ class CameraNerf(Camera):
         return plucker
 
     def project_pointcloud(self, pcl_src, rgb_src, thr=1):
+        """Project pointcloud to the image plane"""
 
         if rgb_src.dim() == 4:
             rgb_src = rgb_src.view(*rgb_src.shape[:2], -1)
@@ -183,6 +194,7 @@ class CameraNerf(Camera):
         return rgb_tgt, depth_tgt
 
     def reconstruct_depth_map_rays(self, depth, to_world=False):
+        """Reconstruct 3D points from depth map"""
         if depth is None:
             return None
         b, _, h, w = depth.shape

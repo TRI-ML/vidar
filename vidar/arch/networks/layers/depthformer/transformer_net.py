@@ -1,4 +1,4 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 import torch
 import torch.nn as nn
@@ -19,7 +19,14 @@ def batched_index_select(source, dim, index):
 
 
 class TransformerNet(nn.Module):
-
+    """
+    Transformer network class, to extract features and predict depth maps for DepthFormer
+    
+    Parameters
+    ----------
+    cfg : Config
+        Configuration with parameters
+    """
     def __init__(self, cfg, decoder_type='regression'):
         super().__init__()
 
@@ -40,6 +47,7 @@ class TransformerNet(nn.Module):
         self._relu_inplace()
 
     def _reset_parameters(self):
+        """Initialize network weights"""
         for n, m in self.named_modules():
             if isinstance(m, nn.Conv2d):
                 nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
@@ -50,16 +58,19 @@ class TransformerNet(nn.Module):
                 nn.init.zeros_(m.bias)
 
     def _disable_batchnorm_tracking(self):
+        """Disable batchnorm tracking"""
         for m in self.modules():
             if isinstance(m, nn.BatchNorm2d):
                 m.track_running_stats = False
 
     def _relu_inplace(self):
+        """Set ReLU to inplace"""
         for m in self.modules():
             if isinstance(m, nn.BatchNorm2d):
                 m.inplace = True
 
     def fix_layers(self):
+        """Fix layers (important to avoid batchnorm issues)"""
         def iterate(module):
             for key in module.keys():
                 if type(module[key]) == nn.BatchNorm2d:
@@ -73,6 +84,7 @@ class TransformerNet(nn.Module):
         iterate(self._modules)
 
     def forward(self, target, context, sampled_rows, sampled_cols, cam=None):
+        """ Forward method, taking target and context images and returning attention + depth maps"""
 
         bs, _, h, w = target.size()
 

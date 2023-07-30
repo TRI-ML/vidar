@@ -1,34 +1,22 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 import torch
 
-from vidar.geometry.camera_full import CameraFull
+from vidar.geometry.camera import Camera
 from vidar.utils.decorators import iterate1
 from vidar.utils.tensor import interpolate_image
-from vidar.utils.types import is_dict
+from vidar.utils.types import is_dict, is_int
 
 
 @iterate1
 def make_rgb_scales(rgb, pyramid=None, ratio_scales=None):
-    """
-    Create different RGB scales to correspond with predictions
-
-    Parameters
-    ----------
-    rgb : torch.Tensor
-        Input image [B,3,H,W]
-    pyramid : list[torch.Tensor]
-        List with tensors at different scales
-    ratio_scales : Tuple
-        Alternatively, you can provide how many scales and the downsampling ratio for each
-
-    Returns
-    -------
-    pyramid : list[torch.Tensor]
-        List with the input image at the same resolutions as pyramid
-    """
+    """Interpolate RGB images to match depth scales"""
     assert pyramid is None or ratio_scales is None
     if pyramid is not None:
+        if is_int(pyramid):
+            return [rgb] * pyramid
+        while is_dict(pyramid):
+            pyramid = list(pyramid.values())[0]
         return [interpolate_image(rgb, shape=pyr.shape[-2:]) for pyr in pyramid]
     elif ratio_scales is not None:
         return [interpolate_image(rgb, scale_factor=ratio_scales[0] ** i)
@@ -38,29 +26,7 @@ def make_rgb_scales(rgb, pyramid=None, ratio_scales=None):
 
 
 def break_context(dic, tgt=0, ctx=None, scl=None, stack=False):
-    """
-    Separate a dictionary between target and context information
-
-    Parameters
-    ----------
-    dic : Dict
-        Input dictionary
-    tgt : Int
-        Which key corresponds to target
-    ctx : Int
-        Which key corresponds to context (if None, use everything else)
-    scl : Int
-        Which scale should be used (it None, assume there are no scales)
-    stack : Bool
-        Stack output context or not
-
-    Returns
-    -------
-    tgt : torch.Tensor
-        Target information
-    ctx : list[torch.Tensor] or torch.Tensor
-        Context information (list or stacked)
-    """
+    """Break context into target and context"""
     # Get remaining frames if context is not provided
     if ctx is None:
         ctx = [key for key in dic.keys() if key != tgt]
@@ -77,35 +43,16 @@ def break_context(dic, tgt=0, ctx=None, scl=None, stack=False):
 
 
 def create_cameras(rgb, intrinsics, pose, zero_origin=True, scaled=None):
-    """
-    Create cameras from batch information
-    Parameters
-    ----------
-    rgb : Dict
-        Dictionary with images
-    intrinsics : Dict
-        Dictionary with camera intrinsics
-    pose : Dict
-        Dictionary with camera poses
-    zero_origin : Bool
-        Zero target camera to the origin or not
-    scaled : Float
-        Scale factor for the output cameras
-
-    Returns
-    -------
-    cams : Dict
-        Dictionary with output cameras
-    """
+    """Create cameras from intrinsics and pose"""
     if pose is None:
         return None
-    cams = {key: CameraFull(
+    cams = {key: Camera(
         K=intrinsics[key] if is_dict(intrinsics) else intrinsics,
         Twc=pose[key],
         hw=rgb[key] if is_dict(rgb) else rgb,
     ).scaled(scaled).to(pose[key].device) for key in pose.keys()}
     if zero_origin:
-        cams[0] = CameraFull(
+        cams[0] = Camera(
             K=intrinsics[0] if is_dict(intrinsics) else intrinsics,
             hw=rgb[0] if is_dict(rgb) else rgb,
         ).scaled(scaled).to(rgb.device)

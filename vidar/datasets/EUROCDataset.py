@@ -25,7 +25,7 @@ def get_idx(filename):
 
 class EUROCDataset(BaseDataset, ABC):
     """
-    KITTI dataset class
+    EUROC dataset class
 
     Parameters
     ----------
@@ -100,10 +100,7 @@ class EUROCDataset(BaseDataset, ABC):
 
     def _read_rgb_file(self, session, filename):
         """Read target images"""
-        gray_image = read_image(os.path.join(self.path, session, filename))
-        gray_image_np = np.array(gray_image)
-        rgb_image_np = np.stack([gray_image_np for _ in range(3)], axis=2)
-        return Image.fromarray(rgb_image_np)
+        return read_image(os.path.join(self.path, session, filename))
 
     def _read_npy_depth(self, session, depth_filename):
         """Read depth from numpy file"""
@@ -130,27 +127,27 @@ class EUROCDataset(BaseDataset, ABC):
         sample = {
             'idx': idx,
             'filename': '%s_%s' % (session, os.path.splitext(filename)[0]),
-            'rgb': {0: image},
-            'intrinsics': {0: dummy_calibration(image)},
+            'rgb': {(0, 0): image},
+            'intrinsics': {(0, 0): dummy_calibration(image)},
         }
 
         if self.has_context:
             image_context = self._read_rgb_context_files(session, filename)
             sample['rgb'].update({
-                    key: val for key, val in zip(self.context, image_context)
+                    (key, 0): val for key, val in zip(self.context, image_context)
                 })
 
         depth_filename = filename.split('.')[0] + 'depth.npy'
         if self.with_depth:
             if self._has_depth(session, depth_filename):
-                sample['depth'] = {0: self._read_depth(session, depth_filename)}
+                sample['depth'] = {(0, 0): self._read_depth(session, depth_filename)}
 
         samples.append(sample)
 
         if self.data_transform:
             samples = self.data_transform(samples)
 
-        return stack_sample(samples)
+        return stack_sample([samples])
 
 
 if __name__ == "__main__":

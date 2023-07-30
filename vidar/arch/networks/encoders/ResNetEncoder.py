@@ -1,11 +1,10 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 from abc import ABC
 
 import numpy as np
 import torch
 import torch.nn as nn
-import torch.utils.model_zoo as model_zoo
 import torchvision.models as models
 
 RESNET_VERSIONS = {
@@ -16,12 +15,22 @@ RESNET_VERSIONS = {
     152: models.resnet152
 }
 
-##################
+RESNET_WEIGHTS = 'IMAGENET1K_V1'
 
 
 class ResNetMultiInput(models.ResNet, ABC):
-    """ResNet encoder with multiple inputs"""
     def __init__(self, block_type, block_channels, num_input_rgb):
+        """Multi-input ResNet model
+
+        Parameters
+        ----------
+        block_type : nn.Module
+            Residual block type
+        block_channels : int
+            Number of channels in each block
+        num_input_rgb : int
+            Number of input images
+        """
         super().__init__(block_type, block_channels)
 
         self.inplanes = 64
@@ -45,7 +54,22 @@ class ResNetMultiInput(models.ResNet, ABC):
 
 
 def resnet_multi_input(num_layers, num_input_rgb, pretrained=True):
-    """Create a resnet encoder with multiple input images by copying the first layer"""
+    """Generates a multi-input ResNet model
+
+    Parameters
+    ----------
+    num_layers : int
+        Number of layers in the ResNet
+    num_input_rgb : int
+        Number of input images
+    pretrained : bool, optional
+        True is pre-trained ImageNet weights are used, by default True
+
+    Returns
+    -------
+    nn.Module
+        Multi-input ResNet model
+    """
     assert num_layers in [18, 50], 'Can only run with 18 or 50 layer resnet'
 
     block_channels = {
@@ -61,7 +85,7 @@ def resnet_multi_input(num_layers, num_input_rgb, pretrained=True):
     model = ResNetMultiInput(block_type, block_channels, num_input_rgb)
 
     if pretrained:
-        loaded = model_zoo.load_url(models.resnet.model_urls['resnet{}'.format(num_layers)])
+        loaded = RESNET_VERSIONS[num_layers](weights=RESNET_WEIGHTS).state_dict()
         loaded['conv1.weight'] = torch.cat(
             [loaded['conv1.weight']] * num_input_rgb, 1) / num_input_rgb
         model.load_state_dict(loaded)
@@ -71,7 +95,7 @@ def resnet_multi_input(num_layers, num_input_rgb, pretrained=True):
 
 class ResNetEncoder(nn.Module, ABC):
     """
-    ResNet encoder network
+    Single-frame depth encoder
 
     Parameters
     ----------
@@ -90,7 +114,8 @@ class ResNetEncoder(nn.Module, ABC):
             self.encoder = resnet_multi_input(
                 cfg.version, cfg.num_rgb_in, cfg.pretrained)
         else:
-            self.encoder = RESNET_VERSIONS[cfg.version](cfg.pretrained)
+            self.encoder = RESNET_VERSIONS[cfg.version](
+                weights=None if not cfg.pretrained else RESNET_WEIGHTS)
 
         if cfg.version > 34:
             self.num_ch_enc[1:] *= 4

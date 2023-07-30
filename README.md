@@ -1,4 +1,4 @@
-## TRI-VIDAR: TRI's Depth Estimation Repository
+## TRI-VIDAR
 
 <a href="https://www.tri.global/" target="_blank">
  <img align="right" src="/media/figs/tri-logo.png" width="25%"/>
@@ -6,13 +6,22 @@
 
 [Installation](#installation) | [Configuration](#configuration) | [Datasets](#datasets) | [Visualization](#visualization) | [Publications](#publications) | [License](#license)
 
-Official [PyTorch](https://pytorch.org/) repository for TRI's latest published depth estimation works. 
+Official [PyTorch](https://pytorch.org/) repository for some of TRI's latest publications, including self-supervised learning, multi-view geometry, and depth estimation. 
 Our goal is to provide a clean environment to reproduce our results and facilitate further research in this field.
 This repository is an updated version of [PackNet-SfM](https://github.com/TRI-ML/packnet-sfm), our previous monocular depth estimation repository, featuring a different license. 
 
 ## Models
 
-(Experimental) For convenient inference, we provide a growing list of our models (PackNet, DeFiNe) model over torchhub without installation.
+(Experimental) For convenient inference, we provide a growing list of our models (ZeroDepth, PackNet, DeFiNe) model over torchhub without installation.
+
+### (New!) ZeroDepth
+```python
+import torch
+zerodepth_model = torch.hub.load("TRI-ML/vidar", "ZeroDepth", pretrained=True, trust_repo=True)
+intrinsics = torch.zeros((1, 3, 3))
+rgb = torch.zeros((1, 3, 256, 256))
+depth_pred = zerodepth_model(rgb, intrinsics)
+```
 
 ### PackNet
 PackNet is a self-supervised monocular depth estimation model, to load a model trained on KITTI and run inference on an RGB image:
@@ -35,6 +44,7 @@ frames["pose"] = # a batch of 144 relative poses to reference frame (one will be
 depth_preds = define_model(frames) # list of depths, one for each frame
 ```
 
+
 ## Installation
 
 We recommend using our provided dockerfile (see [nvidia-docker2](https://github.com/NVIDIA/nvidia-docker) instructions) to have a reproducible environment. 
@@ -49,18 +59,18 @@ make docker-build                                                    # Build the
 To start our docker container, simply type `make docker-interactive`. From inside the docker, you can run scripts with the following command pattern:
 
 ```bash
-python3 scripts/run.py <config.yaml>         # Single CPU/GPU  
-python3 scripts/run_ddp.py <config.yaml>     # Distributed Data Parallel (DDP) multi-GPU
+python scripts/launch.py <config.yaml>         # Single CPU/GPU  
+python scripts/launch_ddp.py <config.yaml>     # Distributed Data Parallel (DDP) multi-GPU
 ```
 
 To verify that the environment is set up correctly, you can run a simple overfit test:
 
 ```bash
 # Download a tiny subset of KITTI
-mkdir /data/vidar 
-curl -s https://tri-ml-public.s3.amazonaws.com/github/vidar/datasets/KITTI_tiny.tar | tar xv -C /data/vidar/
+mkdir /data/datasets 
+curl -s https://tri-ml-public.s3.amazonaws.com/github/vidar/datasets/KITTI_tiny.tar | tar xv -C /data/datasets/
 # Inside docker
-python3 scripts/run.py configs/overfit/kitti_tiny.yaml
+python scripts/launch.py configs/overfit/kitti/selfsup_resnet18.yaml
 ```
 
 Once training is over (which takes around 1 minute), you should achieve results similar to this:
@@ -136,7 +146,7 @@ To enable WandB logging, you can set these additional parameters in your configu
 
 ```bash
 wandb:
-    folder: /data/vidar/wandb     # Where the wandb run is stored
+    folder: /data/wandb     # Where the wandb run is stored
     entity: your_entity           # Wandb entity
     project: your_project         # Wandb project
     num_validation_logs: X        # Number of visualization logs
@@ -148,7 +158,7 @@ To enable checkpoint saving, you can set these additional parameters in your con
 
 ```bash
 checkpoint:
-    folder: /data/vidar/checkpoints       # Local folder to store checkpoints
+    folder: /data/checkpoints       # Local folder to store checkpoints
     save_code: True                       # Save repository folder as well
     keep_top: 5                           # How many checkpoints should be stored
     s3_bucket: s3://path/to/s3/bucket     # [optional] AWS folder to store checkpoints        
@@ -169,85 +179,17 @@ Parameters added after the recipe will overwrite those copied over, to facilitat
 
 ## Datasets
 
-In our provided configuration files, datasets are assumed to be downloaded in `/data/vidar/<dataset-name>`. 
-For convenience, we provide links to some datasets we commonly use here (all licences still apply):
-
-<table>
-  <tr>
-    <td style="text-align:center">Dataset</td>
-    <td style="text-align:center">Version</td>
-    <td style="text-align:center">Labels</td>
-    <td style="text-align:center">Splits</td>
-  </tr>
-  <tr>
-    <td rowspan="2" style="text-align:left"><a href="http://www.cvlibs.net/datasets/kitti/">KITTI</a></td>
-    <td style="text-align:center">KITTI_raw</td>
-    <td style="text-align:center">RGB, Depth, Poses, Intrinsics</td>
-    <td style="text-align:center">Train / Validation / Test</td>
-  </tr>
-  <tr>
-    <td style="text-align:center">KITTI_tiny</td>
-    <td style="text-align:center">RGB, Depth, Poses, Intrinsics</td>
-    <td style="text-align:center">Train</td>
-  </tr>
-  <tr>
-    <td rowspan="3" style="text-align:left"><a href="https://github.com/TRI-ML/DDAD">DDAD</a></td>
-    <td style="text-align:center">DDAD_trainval</td>
-    <td style="text-align:center">Depth prediction</td>
-    <td style="text-align:center">Train / Validation</td>
-  </tr>
-  <tr>
-    <td style="text-align:center">DDAD_tiny</td>
-    <td style="text-align:center">Depth estimation</td>
-    <td style="text-align:center">Train</td>
-  </tr>
-  <tr>
-    <td style="text-align:center">DDAD_test</td>
-    <td style="text-align:center">Depth estimation</td>
-    <td style="text-align:center">Test</td>
-  </tr>
-  <tr>
-    <td rowspan="2" style="text-align:left"><a href="https://paralleldomain.com/public-datasets">PD</a></td>
-    <td style="text-align:center">PD_guda</td>
-    <td style="text-align:center">Depth prediction</td>
-    <td style="text-align:center">Train / Validation</td>
-  </tr>
-  <tr>
-    <td style="text-align:center">PD_draft</td>
-    <td style="text-align:center">Depth estimation</td>
-    <td style="text-align:center">Train / Validation</td>
-  </tr>
-  <tr>
-    <td rowspan="2" style="text-align:left"><a href="https://europe.naverlabs.com/research/computer-vision/proxy-virtual-worlds-vkitti-2/">VKITTI2</a></td>
-    <td style="text-align:center">VKITTI2</td>
-    <td style="text-align:center">Full Virtual KITTI 2 dataset</td>
-    <td style="text-align:center">Train</td>
-  </tr>
-  <tr>
-    <td style="text-align:center">VKITTI2_tiny</td>
-    <td style="text-align:center">Tiny version of VKITTI2</td>
-    <td style="text-align:center">Train</td>
-  </tr>
-</table>
-
-## Visualization
-
-We also provide tools for dataset and prediction visualization, based on our [CamViz](https://github.com/TRI-ML/camviz) library. 
-It is added as a submodule in the `externals` folder. To use it from inside the docker, run `xhost +local:` before entering it. 
-To visualize the information contained in different datasets, after it has been processed to be used by our repository, use the following command:
+In our provided configuration files, datasets are assumed to be downloaded in `/data/datasets/<dataset-name>`. We have a separate repository for dataset management, that is a submodule of this repository and can be found [here](http://github.com/tri-ml/efm_datasets_release). It contains dataloaders for all datasets used in our works, as well as visualization tools that build upon our [CamViz](https://github.com/TRI-ML/camviz) library. 
 
 ```bash
-python3 demos/display_datasets/display_datasets.py <dataset>   
+cd externals/efm_datasets
+python scripts/display_datasets/display_datasets.py scripts/config.yaml <dataset>   
 ```
 
-Some examples of visualization results you will generate for KITTI and DDAD are shown below (more examples can be found in the demo configuration file `demos/display_datasets/config.yaml`):
+Note that you need to execute `xhost +local:` before entering the docker with `make docker-interactive`, to enable local visualization. Some examples of visualization results you will generate for KITTI and DDAD are shown below:
 
 <img align="center" src="/media/figs/camviz_kitti.jpg" width="100%"/>
 <img align="center" src="/media/figs/camviz_ddad.jpg" width="100%"/>
-
-You can move the virtual viewing camera with the mouse, holding the left button to translate, the right button to rotate, and scrolling the wheel to zoom in/out. 
-The up/down arrow keys change between temporal contexts, and the left/right arrow keys change between labels. 
-Pressing SPACE changes between pointcloud color schemes (pixel color or per-camera). 
 
 ## Publications
 
@@ -304,7 +246,7 @@ Finally, we release DDAD (Dense Depth for Automated Driving), a new urban drivin
     <td style="text-align:center">0.996</td>
   </tr>
   <tr>
-    <td colspan="9"><a href="https://tri-ml-public.s3.amazonaws.com/github/vidar/models/PackNet_MR_selfsup_KITTI.ckpt****"> PackNet | Self-Supervised | 192x640 | KITTI </a></td>
+    <td colspan="9"><a href="https://tri-ml-public.s3.amazonaws.com/github/vidar/models/PackNet_MR_selfsup_KITTI.ckpt"> PackNet | Self-Supervised | 192x640 | KITTI </a></td>
   </tr>
   <tr>
     <td style="text-align:left">Original</td>
@@ -564,16 +506,40 @@ Vitor Guizilini, Igor Vasiljevic, Jiading Fang, Rares Ambrus, Greg Shakhnarovich
 
 **Abstract:** *Modern 3D computer vision leverages learning to boost geometric reasoning, mapping image data to classical structures such as cost volumes or epipolar constraints to improve matching. These architectures are specialized according to the particular problem, and thus require significant task-specific tuning, often leading to poor domain generalization performance. Recently, generalist Transformer architectures have achieved impressive results in tasks such as optical flow and depth estimation by encoding geometric priors as inputs rather than as enforced constraints. In this paper, we extend this idea and propose to learn an implicit, multi-view consistent scene representation, introducing a series of 3D data augmentation techniques as a geometric inductive prior to increase view diversity. We also show that introducing view synthesis as an auxiliary task further improves depth estimation. Our Depth Field Networks (DeFiNe) achieve state-of-the-art results in stereo and video depth estimation without explicit geometric constraints, and improve on zero-shot domain generalization by a wide margin.*
 
+<p align="center">
+  <img src="/media/figs/define.gif" width="50%"/>
+</p>
+
 ```
 @inproceedings{tri-define,
   title={Depth Field Networks For Generalizable Multi-view Scene Representation},
-  author={Guizilini, Vitor and Vasiljevic, Igor and Fang, Jiading and Ambru, Rare and Shakhnarovich, Greg and Walter, Matthew R and Gaidon, Adrien},
+  author={Guizilini, Vitor and Vasiljevic, Igor and Fang, Jiading and Ambrus, Rares and Shakhnarovich, Greg and Walter, Matthew R and Gaidon, Adrien},
   booktitle={Computer Vision--ECCV 2022: 17th European Conference, Tel Aviv, Israel, October 23--27, 2022, Proceedings, Part XXXII},
   pages={245--262},
   year={2022},
   organization={Springer}
 }
 ```
+
+### [Towards Zero-Shot Scale-Aware Monocular Depth Estimation](https://arxiv.org/abs/2306.17253) (ICCV 2023)
+Vitor Guizilini, Igor Vasiljevic, Dian Chen, Rares Ambrus, Adrien Gaidon
+
+**Abstract:** *Monocular depth estimation is scale-ambiguous, and thus requires scale supervision to produce metric predictions. Even so, the resulting models will be geometry-specific, with learned scales that cannot be directly transferred across domains. Because of that, recent works focus instead on relative depth, eschewing scale in favor of improved up-to-scale zero-shot transfer. In this work we introduce ZeroDepth, a novel monocular depth estimation framework capable of predicting metric scale for arbitrary test images from different domains and camera parameters. This is achieved by (i) the use of input-level geometric embeddings that enable the network to learn a scale prior over objects; and (ii) decoupling the encoder and decoder stages, via a variational latent representation that is conditioned on single frame information. We evaluated ZeroDepth targeting both outdoor (KITTI, DDAD, nuScenes) and indoor (NYUv2) benchmarks, and achieved a new state-of-the-art in both settings using the same pre-trained model, outperforming methods that train on in-domain data and require test-time scaling to produce metric estimates.*
+
+<p align="center">
+  <img src="/media/figs/zerodepth.gif" width="50%"/>
+</p>
+
+```
+@inproceedings{tri-zerodepth,
+  title={Towards Zero-Shot Scale-Aware Monocular Depth Estimation},
+  author={Guizilini, Vitor and Vasiljevic, Igor and Chen, Dian and Ambrus, Rares and Gaidon, Adrien},
+  booktitle={Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)},
+  month={October},
+  year={2023},
+}
+```
+
 
 ## License
 

@@ -1,4 +1,4 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 import os
 
@@ -51,9 +51,9 @@ def reduce_value(value, average, name):
     ----------
     value : torch.Tensor
         Value to be reduced
-    average : Bool
+    average : bool
         Whether values will be averaged or not
-    name : String
+    name : str
         Value name
 
     Returns

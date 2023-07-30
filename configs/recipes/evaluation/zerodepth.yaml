@@ -1,0 +1,91 @@
+###################
+outdoor:
+###################
+  evaluation:
+###################
+      depth|kitti_resize:
+          crop: garg
+          min_depth: 0.0
+          max_depth: 80.0
+          scale_output: resize
+          median_scaling: True
+          shift_scaling: True
+          post_process: True
+      depth|kitti_crop:
+          crop: garg
+          min_depth: 0.0
+          max_depth: 80.0
+          scale_output: top-center
+          median_scaling: True
+          shift_scaling: True
+          post_process: True
+###################
+      depth|ddad:
+          min_depth: 0.0
+          max_depth: 200.0
+          scale_output: resize
+          median_scaling: True
+          shift_scaling: True
+          post_process: True
+###################
+      depth|nuscenes:
+          min_depth: 0.0
+          max_depth: 200.0
+          scale_output: resize
+          median_scaling: True
+          shift_scaling: True
+          post_process: True
+###################
+      depth|waymo:
+          min_depth: 0.0
+          max_depth: 200.0
+          scale_output: resize
+          median_scaling: True
+          shift_scaling: True
+          post_process: True
+###################
+      depth|nyuv2:
+          crop: bts_nyu
+          min_depth: 0.1
+          max_depth: 10.0
+          scale_output: resize
+          median_scaling: True
+          shift_scaling: True
+          post_process: True
+####################
+#      recall_depth|kitti:
+#          crop: garg
+#          min_depth: 0.0
+#          max_depth: 80.0
+#          scale_output: resize
+#          median_scaling: True
+#          post_process: True
+####################
+#      recall_depth|ddad:
+#          min_depth: 0.0
+#          max_depth: 200.0
+#          scale_output: resize
+#          median_scaling: True
+#          post_process: True
+####################
+#      recall_depth|nuscenes:
+#          min_depth: 0.0
+#          max_depth: 200.0
+#          scale_output: resize
+#          median_scaling: True
+#          post_process: True
+####################
+#      recall_depth|waymo:
+#          min_depth: 0.0
+#          max_depth: 200.0
+#          scale_output: resize
+#          median_scaling: True
+#          post_process: True
+####################
+#      recall_depth|nyuv2:
+#          min_depth: 0.1
+#          max_depth: 10.0
+#          scale_output: resize
+#          median_scaling: True
+#          post_process: True
+##################

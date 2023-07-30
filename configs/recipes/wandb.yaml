@@ -1,5 +1,7 @@
+###############################################
 default:
     folder: /data/vidar/wandb
     entity: tri
     project: vidar
     num_validation_logs: 5
+###############################################

@@ -1,10 +1,10 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 import numpy as np
 import torch
 import torch.nn.functional as tfunc
-
 from vidar.utils.tensor import pixel_grid, cat_channel_ones
+from vidar.utils.data import align_corners
 
 
 def bearing_grid(rgb, intrinsics):
@@ -70,7 +70,7 @@ def pre_triangulation(ref_bearings, ref_translations, tgt_flows,
         Target optical flow values [B,2,H,W]
     intrinsics : torch.Tensor
         Camera intrinsics [B,3,3]
-    concat : Bool
+    concat : bool
         True if cross product results are concatenated
 
     Returns
@@ -107,7 +107,7 @@ def depth_ls2views(r, s, clip_range=None):
         Bearing x translation cross product between images [B,3,H,W]
     s : torch.Tensor
         Bearing x translation cross product between images [B,3,H,W]
-    clip_range : Tuple
+    clip_range : tuple
         Depth clipping range (min, max)
 
     Returns
@@ -148,7 +148,7 @@ def flow2bearing(flow, intrinsics, normalize=True):
         Input optical flow [B,2,H,W]
     intrinsics : torch.Tensor
         Camera intrinsics [B,3,3]
-    normalize : Bool
+    normalize : bool
         True if bearings are normalized
 
     Returns
@@ -159,6 +159,9 @@ def flow2bearing(flow, intrinsics, normalize=True):
     # Create initial grid
     height, width = flow.shape[2:]
     xx, yy = np.meshgrid(range(width), range(height))
+    if not align_corners():
+        xx = xx + 0.5
+        yy = yy + 0.5
     # Initialize bearing matrix
     bearings = torch.zeros_like(flow)
     # Populate bearings
@@ -190,9 +193,9 @@ def triangulation(ref_bearings, ref_translations,
         Target optical flow to reference [B,2,H,W]
     intrinsics : torch.Tensor
         Camera intrinsics [B,3,3]
-    clip_range : Tuple
+    clip_range : tuple
         Depth clipping range
-    residual : Bool
+    residual : bool
         True to return residual error and squared root of Hessian
 
     Returns

@@ -1,4 +1,4 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 import random
 from abc import ABC
@@ -12,7 +12,15 @@ from vidar.arch.models.utils import make_rgb_scales, break_context, create_camer
 from vidar.utils.data import get_from_dict
 from vidar.utils.depth import inv2depth
 from vidar.utils.tensor import interpolate, multiply_args
-from vidar.utils.types import is_str
+from vidar.utils.types import is_str, is_tuple, is_list, is_dict
+
+
+def fix_predictions(predictions):
+    fixed_predictions = {}
+    for key, val in predictions.items():
+        if is_dict(val):
+            fixed_predictions[key] = {k if is_tuple(k) else (k, 0): v for k, v in val.items()}   
+    return fixed_predictions
 
 
 def curr_stereo(val):
@@ -41,7 +49,7 @@ class DepthFormerModel(BaseModel, ABC):
         self.view_synthesis = ViewSynthesis()
 
         self.interpolate_nearest = partial(
-            interpolate, mode='nearest', scale_factor=None, align_corners=None)
+            interpolate, mode='nearest', scale_factor=None)
 
         self.set_attr(cfg.model, 'spatial_weight', [0.0, 0.0])
         self.set_attr(cfg.model, 'spatio_temporal_weight', [0.0, 0.0])
@@ -59,6 +67,7 @@ class DepthFormerModel(BaseModel, ABC):
     @staticmethod
     def process_stereo(batch):
         """Process batch to recover stereo / monocular information"""
+        
         batch = {key: val for key, val in batch.items()}
         new_intrinsics = {0: batch['intrinsics'][0]}
         for key in batch['pose'].keys():
@@ -127,9 +136,15 @@ class DepthFormerModel(BaseModel, ABC):
     def forward(self, batch, epoch=0):
         """Model forward pass"""
 
+        tgt = (0, 0)
+
         mono_depth_string = 'mono_depth'
         multi_depth_string = 'multi_depth'
 
+        for key in ['rgb', 'pose', 'intrinsics']:
+            if key in batch:
+                batch[key] = {k[0] if is_tuple(k) else k: v for k, v in batch[key].items()}
+ 
         predictions = {}
 
         batch = {key: val for key, val in batch.items()}
@@ -216,10 +231,13 @@ class DepthFormerModel(BaseModel, ABC):
                 mono_depth_output = self.networks[mono_depth_string](
                     rgb=rgb2, rgb_context=rgb_context2, cams=cams_match2, intrinsics=intrinsics, mode='multi')
                 predictions['depth_lowest_mono'] = {
-                    0: [inv2depth(mono_depth_output['lowest_cost'].unsqueeze(1)).detach()]}
-                predictions['volume_mono'] = {0: mono_depth_output['cost_volume']}
+                    tgt: [inv2depth(mono_depth_output['lowest_cost'].unsqueeze(1)).detach()]}
+                predictions['volume_mono'] = {
+                    tgt: mono_depth_output['cost_volume']
+                }
                 predictions['mask_confidence_mono'] = {
-                    0: [mono_depth_output['confidence_mask'].unsqueeze(1)]}
+                    tgt: [mono_depth_output['confidence_mask'].unsqueeze(1)]
+                }
             elif self.mono_type == 'mono':
                 mono_depth_output = self.networks[mono_depth_string](
                     rgb=rgb, intrinsics=intrinsics)
@@ -231,7 +249,7 @@ class DepthFormerModel(BaseModel, ABC):
             else:
                 depth_mono = mono_depth_output['depths']
                 
-            predictions['depth_mono'] = {0: depth_mono}
+            predictions['depth_mono'] = {tgt: depth_mono}
         else:
             mono_depth_output = depth_mono = None
 
@@ -261,16 +279,16 @@ class DepthFormerModel(BaseModel, ABC):
             else:
                 depth_multi = multi_depth_output['depths']
 
-            predictions['depth_multi'] = {0: depth_multi}
-            predictions['volume_multi'] = {0: multi_depth_output['cost_volume']}
+            predictions['depth_multi'] = {tgt: depth_multi}
+            predictions['volume_multi'] = {tgt: multi_depth_output['cost_volume']}
             predictions['depth_lowest_multi'] = {
-                0: [inv2depth(d.unsqueeze(1)).detach() for d in multi_depth_output['lowest_cost']]}
+                tgt: [inv2depth(d.unsqueeze(1)).detach() for d in multi_depth_output['lowest_cost']]}
             predictions['mask_confidence_multi'] = {
-                0: [multi_depth_output['confidence_mask'].unsqueeze(1)]}
+                tgt: [multi_depth_output['confidence_mask'].unsqueeze(1)]}
 
             if 'ssim_lowest_cost' in multi_depth_output:
                 predictions['depth_lowest_ssim'] = {
-                    0: [inv2depth(multi_depth_output['ssim_lowest_cost'].unsqueeze(1)).detach()]}
+                    tgt: [inv2depth(multi_depth_output['ssim_lowest_cost'].unsqueeze(1)).detach()]}
 
         else:
 
@@ -309,12 +327,12 @@ class DepthFormerModel(BaseModel, ABC):
         if valid_mask is not None:
             valid_mask = valid_mask[:, 0]
 
-        predictions['output_mono'] = mono_depth_output
-        predictions['output_multi'] = multi_depth_output
+        predictions['output_mono'] = fix_predictions(mono_depth_output)
+        predictions['output_multi'] = fix_predictions(multi_depth_output)
 
         if 'depth_regr' in multi_depth_output:
             predictions['depth_regr'] = {
-                0: [d.unsqueeze(1) for d in multi_depth_output['depth_regr']]
+                (0, 0): [d.unsqueeze(1) for d in multi_depth_output['depth_regr']]
             }
 
         if 'cal' in self.networks['multi_depth'].networks.keys():
@@ -322,7 +340,7 @@ class DepthFormerModel(BaseModel, ABC):
             depth1 = depth_multi[0]
             depth2 = predictions['depth_regr'][0][0]
             from vidar.utils.tensor import interpolate
-            depth2 = interpolate(depth2, size=depth1.shape[-2:], scale_factor=None, mode='nearest', align_corners=None)
+            depth2 = interpolate(depth2, size=depth1.shape[-2:], scale_factor=None, mode='nearest')
             predictions['depth_regr'][0].insert(0, cal(depth1, depth2, rgb))
 
         if not self.training:

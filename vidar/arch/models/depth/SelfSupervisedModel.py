@@ -1,8 +1,8 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
+# TRI-VIDAR - Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 from abc import ABC
 
-from vidar.arch.blocks.image.ViewSynthesis import ViewSynthesis
+from vidar.arch.blocks.image.ViewSynthesisSelfSup import ViewSynthesis
 from vidar.arch.models.BaseModel import BaseModel
 from vidar.arch.models.utils import make_rgb_scales, create_cameras
 from vidar.utils.data import get_from_dict
@@ -24,82 +24,91 @@ class SelfSupervisedModel(BaseModel, ABC):
         self.set_attr(cfg.model, 'use_gt_pose', False)
         self.set_attr(cfg.model, 'use_gt_intrinsics', True)
 
+        # Define camera model for self-calibration
         if not self.use_gt_intrinsics:
-            self.camera_model = cfg_has(cfg.networks.intrinsics, 'camera_model', 'UCM')
-            if self.camera_model == 'UCM':
+            self.camera_model = cfg_has(cfg.networks.intrinsics, 'camera_model', 'ucm')
+            if self.camera_model == 'ucm':
                 from vidar.geometry.camera_ucm import UCMCamera
                 self.camera_class = UCMCamera
-            elif self.camera_model == 'EUCM':
+            elif self.camera_model == 'eucm':
                 from vidar.geometry.camera_eucm import EUCMCamera
                 self.camera_class = EUCMCamera
-            elif self.camera_model == 'DS':
+            elif self.camera_model == 'ds':
                 from vidar.geometry.camera_ds import DSCamera
                 self.camera_class = DSCamera
             else:
                 raise NotImplementedError('Invalid camera type')
 
     def forward(self, batch, epoch=0):
-        """Model forward pass"""
+        """Model forward pass, given a batch dictionary"""
+
+        tgt = (0, 0)
 
         rgb = batch['rgb']
         if self.use_gt_intrinsics:
             intrinsics = get_from_dict(batch, 'intrinsics')
         else:
-            intrinsics = self.networks['intrinsics'](rgb=rgb[0])
+            intrinsics = self.networks['intrinsics'](rgb=rgb[tgt])
 
         valid_mask = get_from_dict(batch, 'mask')
 
         if self.use_gt_intrinsics:
-            depth_output = self.networks['depth'](rgb=rgb[0], intrinsics=intrinsics[0])
+            depth_output = self.networks['depth'](rgb=rgb[tgt], intrinsics=intrinsics[tgt])
         else:
-            depth_output = self.networks['depth'](rgb=rgb[0])
+            depth_output = self.networks['depth'](rgb=rgb[tgt])
         pred_depth = depth_output['depths']
 
         predictions = {
-            'depth': {0: pred_depth},
+            'depth': {tgt: pred_depth},
         }
 
         pred_logvar = get_from_dict(depth_output, 'logvar')
         if pred_logvar is not None:
-            predictions['logvar'] = {0: pred_logvar}
+            predictions['logvar'] = {tgt: pred_logvar}
 
+        # Return only predictions if not training 
+        
         if not self.training:
             return {
                 'predictions': predictions,
             }
 
+        # IF using GT, get it from batch
         if self.use_gt_pose:
             assert 'pose' in batch, 'You need input pose'
             pose = batch['pose']
+        # Otherwise, calculate it
         elif 'pose' in self.networks:
-            pose = self.compute_pose(rgb, self.networks['pose'], tgt=0, invert=True)
+            pose = self.compute_pose(rgb, self.networks['pose'], tgt=tgt, invert=True)
             predictions['pose'] = pose
         else:
             pose = None
 
+        # If not using GT, get camera class we are using
         if not self.use_gt_intrinsics:
-            cams = {0: self.camera_class(I=intrinsics)}
+            cams = {tgt: self.camera_class(I=intrinsics)}
             for key in pose.keys():
                 cams[key] = self.camera_class(I=intrinsics, Tcw=pose[key])
         else:
-            cams = create_cameras(rgb[0], intrinsics[0], pose)
+            cams = create_cameras(rgb[tgt], intrinsics[tgt], pose)
 
-        gt_depth = None if 'depth' not in batch else batch['depth'][0]
+        gt_depth = None if 'depth' not in batch else batch['depth'][tgt]
         loss, metrics = self.compute_loss_and_metrics(
             rgb, pred_depth, cams, gt_depth=gt_depth,
             logvar=pred_logvar, valid_mask=valid_mask
         )
 
+        # If not using GT intrinsics, get them from the network
         if not self.use_gt_intrinsics:
-            if self.camera_model == 'UCM':
+            if self.camera_model == 'ucm':
                 fx, fy, cx, cy, alpha = intrinsics[0].squeeze()
                 intrinsics_metrics = {'fx': fx, 'fy':fy, 'cx':cx, 'cy':cy, 'alpha':alpha}
                 metrics.update(intrinsics_metrics)
-            elif self.camera_model == 'EUCM':
+            elif self.camera_model == 'eucm':
                 fx, fy, cx, cy, alpha, beta = intrinsics[0].squeeze()
                 intrinsics_metrics = {'fx': fx, 'fy':fy, 'cx':cx, 'cy':cy, 'alpha':alpha, 'beta':beta}
                 metrics.update(intrinsics_metrics)
-            elif self.camera_model == 'DS':
+            elif self.camera_model == 'ds':
                 fx, fy, cx, cy, xi, alpha = intrinsics[0].squeeze()
                 intrinsics_metrics = {'fx': fx, 'fy':fy, 'cx':cx, 'cy':cy, 'xi':xi, 'alpha':alpha}
                 metrics.update(intrinsics_metrics)
@@ -139,7 +148,7 @@ class SelfSupervisedModel(BaseModel, ABC):
         metrics : Dict
             Dictionary with training metrics
         """
-        tgt = 0
+        tgt = (0, 0)
         ctx = [key for key in rgb.keys() if key != tgt]
 
         num_scales = self.get_num_scales(depths)
@@ -159,7 +168,7 @@ class SelfSupervisedModel(BaseModel, ABC):
             loss.append(reprojection_output['loss'])
             metrics.update(**reprojection_output['metrics'])
         if 'smoothness' in self.losses:
-            smoothness_output = self.losses['smoothness'](rgb_tgt, depths)
+            smoothness_output = self.losses['smoothness'](rgb_tgt[0], depths)
             loss.append(smoothness_output['loss'])
             metrics.update(**smoothness_output['metrics'])
         if 'supervision' in self.losses and gt_depth is not None:
@@ -174,3 +183,5 @@ class SelfSupervisedModel(BaseModel, ABC):
         loss = sum(loss)
 
         return loss, metrics
+    
+

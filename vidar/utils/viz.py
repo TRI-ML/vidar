@@ -1,4 +1,4 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 import flow_vis
 import numpy as np
@@ -16,9 +16,9 @@ def flow_to_color(flow_uv, clip_flow=None):
 
     Parameters
     ----------
-    flow_uv : np.Array
+    flow_uv : np.array
         Optical flow [H,W,2]
-    clip_flow : Float
+    clip_flow : float
         Clipping value for optical flow
 
     Returns
@@ -54,18 +54,18 @@ def viz_inv_depth(inv_depth, normalizer=None, percentile=95,
     ----------
     inv_depth : torch.Tensor
         Inverse depth map to be converted [B,1,H,W]
-    normalizer : Float
+    normalizer : float
         Value for inverse depth map normalization
-    percentile : Float
+    percentile : float
         Percentile value for automatic normalization
-    colormap : String
+    colormap : str
         Colormap to be used
-    filter_zeros : Bool
+    filter_zeros : bool
         If True, do not consider zero values during normalization
 
     Returns
     -------
-    colormap : np.Array [H,W,3]
+    colormap : np.array [H,W,3]
         Colormap generated from the inverse depth map
     """
     if is_list(inv_depth):
@@ -114,7 +114,7 @@ def viz_normals(normals):
 
     Returns
     -------
-    colormap : np.Array
+    colormap : np.array
         Colormap generated from the normals map [H,W,3]
     """
     # If a tensor is provided, convert to numpy
@@ -125,7 +125,7 @@ def viz_normals(normals):
 
 @iterate1
 @iterate1
-def viz_optical_flow(optflow, clip_value=100.):
+def viz_optical_flow(optflow, clip_value=100., multiplier=None, normalizer=None):
     """
     Returns a colorized version of an optical flow map
 
@@ -133,21 +133,28 @@ def viz_optical_flow(optflow, clip_value=100.):
     ----------
     optflow : torch.Tensor
         Optical flow to be colorized (NOT in batch) [2,H,W]
-    clip_value : Float
+    clip_value : float
         Optical flow clip value for visualization
-
+    multiplier : float
+        Value to multiply optical flow for visualization
+    normalizer : float
+        Value to normalize optical flow for visualization
     Returns
     -------
-    colorized : np.Array
+    colorized : np.array
         Colorized version of the input optical flow [H,W,3]
     """
     # If a tensor is provided, convert to numpy
     if is_list(optflow):
-        return [viz_optical_flow(opt[0]) for opt in optflow]
+        return [viz_optical_flow(opt[0], multiplier, normalizer) for opt in optflow]
     if is_tensor(optflow):
         if len(optflow.shape) == 4:
             optflow = optflow[0]
         optflow = optflow.permute(1, 2, 0).detach().cpu().numpy()
+    if multiplier is not None:
+        optflow = optflow * multiplier
+    if normalizer is not None:
+        optflow = (optflow / np.abs(optflow).max()) * normalizer
     # Return colorized optical flow
     return flow_to_color(optflow, clip_flow=clip_value)
 
@@ -155,22 +162,21 @@ def viz_optical_flow(optflow, clip_value=100.):
 @iterate1
 @iterate1
 def viz_photo(photo, colormap='viridis', normalize=False):
-    """
-    Returns a colorized version of the photometric loss
+    """Returns a colorized version of a photometric map
 
     Parameters
     ----------
-    photo : torch.Tensor
-        Per-pixel photometric error
-    colormap : String
-        Which colormap to use
-    normalize : Bool
-        Whether the photometric error should be normalized between [0,1]
+    photo : torch.Tensor    
+        Photometric map to be colorized (NOT in batch) [H,W]
+    colormap : str, optional
+        Color map used to convert values to colors, by default 'viridis'
+    normalize : bool, optional
+        True if values are normalized, by default False
 
     Returns
     -------
-    colorized : np.Array
-        Colorized version of the photometric error [H,W,3]
+    colorized : np.array
+        Colorized version of the input photometric map [H,W,3]
     """
     if is_tensor(photo):
         if len(photo.shape) == 4:
@@ -190,20 +196,19 @@ def viz_photo(photo, colormap='viridis', normalize=False):
 @iterate1
 @iterate1
 def viz_semantic(semantic, ontology):
-    """
-    Returns a colorized version of a semantic map
+    """Returns a colorized version of a semantic map
 
     Parameters
     ----------
     semantic : torch.Tensor
-        Semantic map to be colorized [B,1,H,W]
-    ontology : Dict
-        Dictionary mapping between class and color
+        Semantic map to be colorized (NOT in batch) [H,W]
+    ontology : dict 
+        Dictionary with ontology information
 
     Returns
     -------
-    colorized : np.Array
-        Colorized version of the semantic map [H,W,3]
+    colorized : np.array
+        Colorized version of the input semantic map [H,W,3]
     """
     # If it is a tensor, cast to numpy
     if is_tensor(semantic):
@@ -224,18 +229,17 @@ def viz_semantic(semantic, ontology):
 @iterate1
 @iterate1
 def viz_camera(camera):
-    """
-    Returns a colorized version of a camera viewing rays
+    """Returns a colorized version of camera rays
 
     Parameters
     ----------
-    camera : Camera of torch.Tensor
-        Input camera or viewing rays
+    camera : Camera
+        Camera to be visualized
 
     Returns
     -------
-    colorized : np.Array
-        Colorized version of the camera viewing rays [H,W,3]
+    colorized : np.array
+        Colorized version of the input camera [H,W,3]
     """
     if is_tensor(camera):
         # If it's a tensor, reshape it
@@ -245,3 +249,20 @@ def viz_camera(camera):
         rays = camera.no_translation().get_viewdirs(normalize=True, flatten=False, to_world=True)
         rays = rays[0].permute(1, 2, 0).detach().cpu().numpy()
     return (rays + 1) / 2
+
+
+@iterate1
+@iterate1
+def viz_stddev(stddev, normalizer=None):
+    """Returns a colorized version of a standard deviation map"""
+    return viz_inv_depth(stddev, colormap='jet', normalizer=normalizer)
+
+
+@iterate1
+@iterate1
+def viz_scene_flow(scnflow, clip_value=10):
+    """Returns a colorized version of a scene flow map"""
+    # If a tensor is provided, convert to numpy
+    if is_tensor(scnflow):
+        scnflow = scnflow.permute(1, 2, 0).detach().cpu().numpy()
+    return (np.clip(scnflow / clip_value, -1, 1) + 1) / 2

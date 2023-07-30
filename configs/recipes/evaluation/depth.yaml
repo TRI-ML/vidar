@@ -1,3 +1,4 @@
+###############################################
 kitti_resize:
     crop: garg
     min_depth: 0.0
@@ -5,6 +6,7 @@ kitti_resize:
     scale_output: resize
     median_scaling: True
     post_process: True
+###############################################
 kitti_crop:
     crop: garg
     min_depth: 0.0
@@ -12,6 +14,7 @@ kitti_crop:
     scale_output: top-center
     median_scaling: True
     post_process: True
+###############################################
 ddad_resize:
     crop: ''
     min_depth: 0.0
@@ -19,3 +22,20 @@ ddad_resize:
     scale_output: resize
     median_scaling: True
     post_process: True
+###############################################
+demon_resize:
+    crop: ''
+    min_depth: 0.1
+    max_depth: 10.0
+    scale_output: resize
+    median_scaling: True
+    post_process: False
+###############################################
+scannet_resize:
+    crop: ''
+    min_depth: 0.1
+    max_depth: 10.0
+    scale_output: resize
+    median_scaling: True
+    post_process: False
+###############################################

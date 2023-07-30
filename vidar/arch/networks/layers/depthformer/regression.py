@@ -1,4 +1,4 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 import torch
 import torch.nn.functional as F
@@ -9,6 +9,14 @@ from vidar.utils.volume import compute_depth_bin
 
 
 class RegressionHead(nn.Module):
+    """
+    Regression head for the context adjustment layer
+    
+    Parameters
+    ----------
+    cfg : Config
+        Configuration with parameters
+    """
     def __init__(self, cfg):
         super().__init__()
         self.cal = ContextAdjustmentLayer(cfg.context_adjustment)
@@ -17,10 +25,12 @@ class RegressionHead(nn.Module):
 
     @staticmethod
     def _compute_unscaled_pos_shift(w, device):
+        """Compute the unscaled position shift for the depth prediction"""
         return torch.linspace(0, w - 1, w)[None, None, None, :].to(device)
 
     @staticmethod
     def _compute_low_res_depth(pos_shift, attn_weight):
+        """Compute the low resolution depth prediction"""
         high_response = torch.argmax(attn_weight, dim=-1)  # NxHxW
         response_range = torch.stack([high_response - 1, high_response, high_response + 1], dim=-1)
         attn_weight_pad = F.pad(attn_weight, [1, 1], value=0.0)
@@ -40,6 +50,7 @@ class RegressionHead(nn.Module):
         return depth_pred_low_res, norm, high_response
 
     def upsample(self, x, depth_pred, scale=1.0):
+        """Upsample the depth prediction to the original resolution"""
         _, _, h, w = x.size()
         depth_pred_attn = depth_pred * scale
         depth_pred = F.interpolate(depth_pred_attn[None,], size=(h, w), mode='nearest')
@@ -47,12 +58,14 @@ class RegressionHead(nn.Module):
         return depth_pred_final.squeeze(1), depth_pred_attn.squeeze(1)
 
     def softmax(self, attn):
+        """Compute the softmax of the attention weights"""
         bs, h, w, d = attn.shape
         similarity_matrix = torch.cat([attn, self.phi.expand(bs, h, w, 1).to(attn.device)], -1)
         attn_softmax = F.softmax(similarity_matrix, dim=-1)
         return attn_softmax
 
     def forward(self, attn_weight, target, context, sampled_rows, sampled_cols, min_depth, max_depth, num_bins):
+        """Forward pass to compute the depth prediction"""
 
         stride = [1]
 
@@ -67,6 +80,7 @@ class RegressionHead(nn.Module):
         return final_output
 
     def forward2(self, attn_weight, target, sampled_cols, min_depth, max_depth, num_bins, stride=1):
+        """Auxiliary forward pass to compute the depth prediction"""
 
         bs, _, h, w = target.size()
         output = {}

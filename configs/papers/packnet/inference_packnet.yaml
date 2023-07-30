@@ -1,9 +1,9 @@
 wrapper:
-    recipe: wrapper|default
+    recipe: wrapper|default_flip
 arch:
     model:
         file: depth/SelfSupervisedModel
-        checkpoint: /data/vidar/models/papers/final/PackNet_MR_selfsup_KITTI.ckpt
+        checkpoint: /data/models/papers/PackNet_MR_selfsup_KITTI.ckpt
     networks:
         depth:
             recipe: networks/packnet|default
@@ -15,6 +15,6 @@ evaluation:
         recipe: evaluation/depth|kitti_resize
 datasets:
     validation:
-        recipe: datasets/kitti|validation_mr
+        recipe: datasets/kitti_tiny|val_velodyne_MR
 save:
     recipe: save|depth_splitname

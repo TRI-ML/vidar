@@ -1,6 +1,7 @@
 train_selfsup:
+    external: [False]
     name: [EUROC]
-    path: [/data/vidar/euroc/euroc_cam/cam0]
+    path: [/data/datasets/EUROC/euroc_cam/cam0]
     augmentation:
         jittering: [0.2, 0.2, 0.2, 0.05]
         resize: [256, 384]
@@ -15,8 +16,9 @@ train_selfsup:
     labels: []
     repeat: [1]
 validation:
+    external: [False]
     name: [EUROC]
-    path: [/data/vidar/euroc/euroc_has_depth/V2_01_easy_has_depth/mav0/]
+    path: [/data/datasets/EUROC/euroc_has_depth/V2_01_easy_has_depth/mav0/]
     augmentation:
         resize: [256, 384]
     dataloader:

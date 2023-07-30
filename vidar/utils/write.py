@@ -1,4 +1,4 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 import os
 import pickle as pkl
@@ -12,22 +12,13 @@ from vidar.utils.types import is_tensor, is_numpy
 
 
 def create_folder(filename):
-    """Create a new folder if it doesn't exist"""
+    """Create folder if it doesn't exist"""
     if '/' in filename:
         os.makedirs(os.path.dirname(filename), exist_ok=True)
 
 
 def write_pickle(filename, data):
-    """
-    Write a pickle file
-
-    Parameters
-    ----------
-    filename : String
-        File where the pickle file will be saved
-    data : Value
-        Data to be saved
-    """
+    """Write data to pickle file"""
     create_folder(filename)
     if not filename.endswith('.pkl'):
         filename = filename + '.pkl'
@@ -35,17 +26,19 @@ def write_pickle(filename, data):
 
 
 def write_npz(filename, data):
-    """
-    Write a numpy compressed file
-
-    Parameters
-    ----------
-    filename : String
-        File where the numpy file will be saved
-    data : Value
-        Data to be saved
-    """
+    """Write data to npz file"""
+    # Create folder if it doesn't exist
+    create_folder(filename)
+    # Save npz
     np.savez_compressed(filename, **data)
+
+
+def write_npy(filename, data):
+    """Write data to npy file"""
+    # Create folder if it doesn't exist
+    create_folder(filename)
+    # Save npy
+    np.save(filename, data)
 
 
 @multi_write
@@ -56,9 +49,9 @@ def write_image(filename, image):
 
     Parameters
     ----------
-    filename : String
+    filename : str
         File where image will be saved
-    image : np.Array [H,W,3]
+    image : np.array [H,W,3]
         RGB image
     """
     # Create folder if it doesn't exist
@@ -67,7 +60,7 @@ def write_image(filename, image):
     if is_tensor(image):
         if len(image.shape) == 4:
             image = image[0]
-        image = image.detach().cpu().numpy().transpose(1, 2, 0)
+        image = image.float().detach().cpu().numpy().transpose(1, 2, 0)
         cv2.imwrite(filename, image[:, :, ::-1] * 255)
     # If image is a numpy array
     elif is_numpy(image):
@@ -84,13 +77,15 @@ def write_depth(filename, depth, intrinsics=None):
 
     Parameters
     ----------
-    filename : String
+    filename : str
         File where depth map will be saved (.npz or .png)
-    depth : np.Array or torch.Tensor
+    depth : np.array or torch.Tensor
         Depth map [H,W]
-    intrinsics : np.Array
+    intrinsics : np.array
         Optional camera intrinsics matrix [3,3]
     """
+    # Create folder if it doesn't exist
+    create_folder(filename)
     # If depth is a tensor
     if is_tensor(depth):
         depth = depth.detach().squeeze().cpu().numpy()
@@ -110,17 +105,49 @@ def write_depth(filename, depth, intrinsics=None):
 
 
 @multi_write
+def write_normals(filename, normals, intrinsics=None):
+    """
+    Write a depth map to file, and optionally its corresponding intrinsics.
+
+    Parameters
+    ----------
+    filename : str
+        File where depth map will be saved (.npz or .png)
+    normals : np.array or torch.Tensor
+        Normals map [H,W]
+    intrinsics : np.array
+        Optional camera intrinsics matrix [3,3]
+    """
+    # Create folder if it doesn't exist
+    create_folder(filename)
+    # If normals is a tensor
+    if is_tensor(normals):
+        normals = normals.detach().squeeze().cpu().numpy()
+    # If intrinsics is a tensor
+    if is_tensor(intrinsics):
+        intrinsics = intrinsics.detach().cpu().numpy()
+    # If we are saving as a .npz
+    if filename.endswith('.npz'):
+        np.savez_compressed(filename, normals=normals, intrinsics=intrinsics)
+    # Something is wrong
+    else:
+        raise NotImplementedError('Normals filename not valid.')
+
+
+@multi_write
 def write_optical_flow(filename, optflow):
     """
     Write a depth map to file, and optionally its corresponding intrinsics.
 
     Parameters
     ----------
-    filename : String
+    filename : str
         File where depth map will be saved (.npz or .png)
-    optflow : np.Array or torch.Tensor
+    optflow : np.array or torch.Tensor
         Optical flow map [H,W]
     """
+    # Create folder if it doesn't exist
+    create_folder(filename)
     # If depth is a tensor
     if is_tensor(optflow):
         optflow = optflow.detach().squeeze().cpu().numpy()

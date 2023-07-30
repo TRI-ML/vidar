@@ -1,4 +1,4 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 import time
 from collections import OrderedDict
@@ -10,35 +10,37 @@ from torch.utils.data import ConcatDataset, DataLoader
 
 from vidar.datasets.utils.transforms import get_transforms
 from vidar.metrics.depth import DepthEvaluation
-from vidar.utils.config import get_folder_name, load_class, \
+from vidar.metrics.optical_flow import OpticalFlowEvaluation
+from vidar.metrics.rgb import ImageEvaluation
+from vidar.utils.config import Config, get_folder_name, load_class, \
     recursive_assignment, cfg_has, cfg_add_to_dict, get_from_cfg_list
 from vidar.utils.config import merge_dict, to_namespace
 from vidar.utils.data import flatten, keys_in
-from vidar.utils.decorators import iterate1
+from vidar.utils.decorators import iterate12
 from vidar.utils.distributed import print0, rank, world_size, dist_mode
 from vidar.utils.logging import pcolor
-from vidar.utils.networks import load_checkpoint, save_checkpoint
-from vidar.utils.types import is_namespace
+from vidar.utils.networks import load_checkpoint
+from vidar.utils.types import is_namespace, is_list
 
 
 def setup_arch(cfg, checkpoint=None, verbose=False):
-    """
-    Set architecture up for training/inference
+    """Setup architecture from config file
 
     Parameters
     ----------
     cfg : Config
-        Configuration file
-    checkpoint : String
-        Checkpoint to be loaded
-    verbose : Bool
-        Print information on screen
+        Configuration file with architecture information
+    checkpoint : str, optional
+        Checkpoint file, by default None
+    verbose : bool, optional
+        True if information is displayed on screen, by default False
 
     Returns
     -------
-    model: nn.Module
-        Model ready to go
+    torch.Module
+        Generated architecture
     """
+
     font = {'color': 'green'}
 
     if verbose:
@@ -51,77 +53,74 @@ def setup_arch(cfg, checkpoint=None, verbose=False):
 
     folder, name = get_folder_name(cfg.model.file, 'models')
     model = load_class(name, folder)(cfg)
-
-    if cfg_has(cfg, 'model'):
-        if verbose:
-            print0(pcolor('###### Model:', **font2))
-            print0(pcolor('######### %s' % model.__class__.__name__, **font1))
-        recursive_assignment(model, cfg.model, 'models', verbose=verbose)
+    if verbose:
+        print0(pcolor('###### Model:', **font2))
+        print0(pcolor('######### %s' % model.__class__.__name__, **font1))
 
     if cfg_has(cfg, 'networks'):
         if verbose:
             print0(pcolor('###### Networks:', **font2))
-        recursive_assignment(model, cfg.networks, 'networks', verbose=verbose)
+        recursive_assignment(model.networks, cfg.networks, 'networks', verbose=verbose)
 
     if cfg_has(cfg, 'losses'):
         if verbose:
             print0(pcolor('###### Losses:', **font2))
-        recursive_assignment(model, cfg.losses, 'losses', verbose=verbose)
+        recursive_assignment(model.losses, cfg.losses, 'losses', verbose=verbose)
 
     if checkpoint is not None:
         model = load_checkpoint(model, checkpoint,
                                 strict=True, verbose=verbose)
     elif cfg_has(cfg.model, 'checkpoint'):
-        model = load_checkpoint(model, cfg.model.checkpoint,
-                                strict=cfg.model.has('checkpoint_strict', False), verbose=verbose)
-
-    if cfg.model.has('checkpoint_save'):
-        save_checkpoint(cfg.model.checkpoint_save, model)
+        model = load_checkpoint(
+            model, cfg.model.checkpoint,
+            mode=cfg.model.has('checkpoint_mode', 'copy'),
+            strict=cfg.model.has('checkpoint_strict', False),
+            verbose=verbose,
+        )
 
     return model
 
 
-def setup_dataset(cfg, root='vidar/datasets', verbose=False):
-    """
-    Set dataset up for training/inference
+def setup_network(cfg):
+    """Setup network from config file"""
+    folder, name = get_folder_name(cfg.file, 'networks')
+    return load_class(name, folder)(cfg)
 
-    Parameters
-    ----------
-    cfg : Config
-        Configuration file
-    root : String
-        Where the dataset is located
-    verbose : Bool
-        Print information on screen
 
-    Returns
-    -------
-    dataset : Dataset
-        Dataset ready to go
-    """
+def setup_dataset(cfg, verbose=False, no_transform=False):
+    """Setup dataset from config file"""
+
+    if cfg.has('external') and not cfg.external[0]:
+        root = 'vidar/datasets'
+    else:
+        root = 'externals/efm_datasets/efm_datasets/dataloaders'
+
     shared_keys = ['context', 'labels', 'labels_context']
 
     num_datasets = 0
-    for key, val in cfg.__dict__.items():
+    for key, val in cfg.dict.items():
         if key not in shared_keys and not is_namespace(val):
             num_datasets = max(num_datasets, len(val))
 
-    datasets = []
+    datasets, datasets_cfg = [], []
     for i in range(num_datasets):
+
         args = {}
-        for key, val in cfg.__dict__.items():
-            if not is_namespace(val):
+        for key, val in cfg.dict.items():
+            if is_namespace(val):
+                cfg_add_to_dict(args, cfg, key)
+            else:
                 cfg_add_to_dict(args, cfg, key, i if key not in shared_keys else None)
 
         args['data_transform'] = get_transforms('train', cfg.augmentation) \
-            if cfg_has(cfg, 'augmentation') else get_transforms('none')
+            if cfg_has(cfg, 'augmentation') else get_transforms('none') if not no_transform else None
 
         name = get_from_cfg_list(cfg, 'name', i)
         repeat = get_from_cfg_list(cfg, 'repeat', i)
         cameras = get_from_cfg_list(cfg, 'cameras', i)
 
-        context = cfg.context
-        labels = cfg.labels
+        context = cfg.has('context', [])
+        labels = cfg.has('labels', [])
 
         dataset = load_class(name + 'Dataset', root)(**args)
 
@@ -135,38 +134,39 @@ def setup_dataset(cfg, root='vidar/datasets', verbose=False):
             if cfg_has(cfg, 'context'):
                 string += f' | context {context}'.replace(', ', ',')
             if cfg_has(cfg, 'cameras'):
-                string += f' | cameras {cameras}'.replace(', ', ',')
+                string += f' | cameras {cameras}'.replace(', ', ',').replace("'", "")
             if cfg_has(cfg, 'labels'):
-                string += f' | labels {labels}'.replace(', ', ',')
-            print0(pcolor(string , color='yellow', attrs=('dark',)))
+                string += f' | labels {labels}'.replace(', ', ',').replace('\'', '')
+            print0(pcolor(string, color='yellow', attrs=('dark',)))
 
         datasets.append(dataset)
+        datasets_cfg.append(Config(**args))
 
-    return datasets
+    return datasets, datasets_cfg
 
 
-def setup_datasets(cfg, verbose=False, concat_modes=('train', 'mixed'), stack=True):
-    """
-    Set multiple datasets up for training/inference
+def setup_datasets(cfg, verbose=False, concat_modes=('train', 'mixed'), stack=True, no_transform=False):
+    """Setup multiple datasets from configuration file
 
     Parameters
     ----------
     cfg : Config
-        Configuration file
-    verbose : Bool
-        Print information on screen
-    concat_modes : String
-        Which dataset modes are going to be concatenated into a single one
-    stack : Bool
-        Whether datasets are stacked together
+        Configurafile with dataset information
+    verbose : bool, optional
+        True if information is displayed on screen, by default False
+    concat_modes : tuple, optional
+        Which datasets are concatenated after generated, by default ('train', 'mixed')
+    stack : bool, optional
+        Stack generated datasets, by default True
+    no_transform : bool, optional
+        If True skip data transformations, by default False
 
     Returns
     -------
-    datasets : Dict
-        Datasets ready to go
-    datasets_cfg : Dict
-        Dataset configurations
+    dict
+        Generated datasets
     """
+
     if verbose:
         print0(pcolor('#' * 60, 'green'))
         print0(pcolor('### Preparing Datasets', 'green'))
@@ -174,24 +174,40 @@ def setup_datasets(cfg, verbose=False, concat_modes=('train', 'mixed'), stack=Tr
 
     font = {'color': 'yellow', 'attrs': ('bold', 'dark')}
 
+    modes = ['train', 'mixed', 'validation']
+
     datasets_cfg = {}
-    for key in cfg.__dict__.keys():
-        datasets_cfg[key] = cfg.__dict__[key]
-        for mode in ['train', 'validation']:
-            if key.startswith(mode) and key != mode and mode in cfg.__dict__.keys():
+    for key in cfg.dict.keys():
+        datasets_cfg[key] = cfg.dict[key]
+        for mode in modes:
+            if key.startswith(mode) and key != mode and mode in cfg.dict.keys():
                 datasets_cfg[key] = to_namespace(merge_dict(deepcopy(
-                    cfg.__dict__[mode].__dict__), cfg.__dict__[key].__dict__))
+                    cfg.dict[mode].dict), cfg.dict[key].dict))
+
+    for key in list(datasets_cfg.keys()):
+        if datasets_cfg[key].has('datasets') and \
+                key not in datasets_cfg[key].datasets and \
+                key not in modes:
+            datasets_cfg.pop(key)
+    for key in list(datasets_cfg.keys()):
+        if datasets_cfg[key].has('datasets'):
+            val = datasets_cfg[key].dict
+            val.pop('datasets')
+            datasets_cfg[key] = to_namespace(val)
 
     datasets = {}
     for key, val in list(datasets_cfg.items()):
-        if 'name' in val.__dict__.keys():
+        if 'name' in val.dict.keys():
             if verbose:
                 print0(pcolor('###### {}'.format(key), **font))
-            datasets[key] = setup_dataset(val, verbose=verbose)
-            datasets_cfg[key] = [datasets_cfg[key]] * len(datasets[key])
+            datasets[key], datasets_cfg[key] = setup_dataset(
+                val, verbose=verbose, no_transform=no_transform)
             for mode in concat_modes:
-                if key.startswith(mode) and len(datasets[key]) > 1:
-                    datasets[key] = ConcatDataset(datasets[key])
+                if key.startswith(mode):
+                    if len(datasets[key]) > 1:
+                        datasets[key] = ConcatDataset(datasets[key])
+                    if is_list(datasets[key]):
+                        datasets[key] = datasets[key][0]
         else:
             datasets_cfg.pop(key)
 
@@ -217,29 +233,19 @@ def setup_datasets(cfg, verbose=False, concat_modes=('train', 'mixed'), stack=Tr
 
 
 def setup_metrics(cfg):
-    """
-    Set metrics up for evaluation
-
-    Parameters
-    ----------
-    cfg : Config
-        Configuration file
-
-    Returns
-    -------
-    tasks : Dict
-        Dictionary containing metric classes for requested tasks
-    """
+    """Setup metrics from configuration file"""
 
     methods = {
+        'rgb': ImageEvaluation,
         'depth': DepthEvaluation,
+        'optical_flow': OpticalFlowEvaluation,
     }
 
-    available_tasks = [key for key in cfg.__dict__.keys() if key is not 'tasks']
+    available_tasks = [key for key in cfg.dict.keys() if key != 'tasks']
     requested_tasks = cfg_has(cfg, 'tasks', available_tasks)
-    tasks = [task for task in available_tasks if task in requested_tasks and task in methods]
+    tasks = [task for task in available_tasks if task in requested_tasks and task.split('|')[0] in methods]
 
-    return {task: methods[task](cfg.__dict__[task]) for task in tasks}
+    return {task: methods[task.split('|')[0]](cfg.dict[task]) for task in tasks}
 
 
 def worker_init_fn(worker_id):
@@ -249,36 +255,37 @@ def worker_init_fn(worker_id):
 
 
 def get_datasampler(dataset, shuffle):
-    """Return distributed data sampler"""
+    """Distributed data sampler"""
     return torch.utils.data.distributed.DistributedSampler(
         dataset, shuffle=shuffle,
         num_replicas=world_size(), rank=rank())
 
 
 def no_collate(batch):
-    """Dummy function to use when dataset is not to be collated"""
+    """Dummy function to avoid collate_fn in dataloader"""
     return batch
 
 
-@iterate1
+@iterate12
 def setup_dataloader(dataset, cfg, mode):
     """
     Create a dataloader class
 
     Parameters
     ----------
-    mode : String {'train', 'validation', 'test'}
+    mode : str {'train', 'validation', 'test'}
         Mode from which we want the dataloader
     dataset : Dataset
         List of datasets from which to create dataloaders
-    cfg : Config
+    cfg : CfgNode
         Model configuration (cf. configs/default_config.py)
 
     Returns
     -------
-    dataloaders : list[Dataloader]
+    dataloaders : list of Dataloader
         List of created dataloaders for each input dataset
     """
+    cfg = cfg.dataloader
     ddp = dist_mode() == 'ddp'
     shuffle = 'train' in mode
     return DataLoader(dataset,
@@ -293,23 +300,7 @@ def setup_dataloader(dataset, cfg, mode):
 
 
 def reduce(data, modes, train_modes):
-    """
-    Reduce dictionary values
-
-    Parameters
-    ----------
-    data : Dict
-        Dictionary with data for reduction
-    modes : String
-        Data mode ('train', 'validation', 'test')
-    train_modes : list[String]
-        Which modes are training modes
-
-    Returns
-    -------
-    reduced : Dict
-        Dictionary with reduced information
-    """
+    """ Reduce data to a single value per mode"""
     reduced = {
         mode: flatten([val for key, val in data.items() if mode in key])
         for mode in modes
@@ -323,19 +314,8 @@ def reduce(data, modes, train_modes):
 
 
 def stack_datasets(datasets):
-    """
-    Stack datasets together for training/validation
+    """Stack datasets together"""
 
-    Parameters
-    ----------
-    datasets : Dict
-        Dictionary containing datasets
-
-    Returns
-    -------
-    stacked_datasets: : Dict
-        Dictionary containing stacked datasets
-    """
     all_modes = ['train', 'mixed', 'validation', 'test']
     train_modes = ['train', 'mixed']
 

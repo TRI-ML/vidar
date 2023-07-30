@@ -1,4 +1,4 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 from argparse import Namespace
 
@@ -23,7 +23,7 @@ def is_tuple(data):
 
 def is_list(data):
     """Checks if data is a list."""
-    return isinstance(data, list)
+    return isinstance(data, list) or isinstance(data, torch.nn.ModuleList)
 
 
 def is_double_list(data):
@@ -33,7 +33,12 @@ def is_double_list(data):
 
 def is_dict(data):
     """Checks if data is a dictionary."""
-    return isinstance(data, dict)
+    return isinstance(data, dict) or isinstance(data, torch.nn.ModuleDict)
+
+
+def is_module_dict(data):
+    """Checks if data is a dictionary."""
+    return isinstance(data, torch.nn.ModuleDict)
 
 
 def is_str(data):
@@ -49,6 +54,11 @@ def is_int(data):
 def is_seq(data):
     """Checks if data is a list or tuple."""
     return is_tuple(data) or is_list(data)
+
+
+def is_double_seq(data):
+    """Checks if data is a double list (list of lists)"""
+    return is_seq(data) and len(data) > 0 and is_seq(data[0])
 
 
 def is_namespace(data):

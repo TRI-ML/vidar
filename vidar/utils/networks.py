@@ -1,4 +1,4 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 import math
 
@@ -12,18 +12,7 @@ from vidar.utils.types import is_list
 
 
 def freeze_layers(network, layers=('ALL',), flag_freeze=True):
-    """
-    Freeze layers of a network (weights and biases)
-
-    Parameters
-    ----------
-    network : nn.Module
-        Network to be modified
-    layers : List or Tuple
-        List of layers to freeze/unfreeze ('ALL' for everything)
-    flag_freeze : Bool
-        Whether the layers will be frozen (True) or not (False)
-    """
+    """Freeze layers of a network"""
     if len(layers) > 0:
         for name, parameters in network.named_parameters():
             for layer in layers:
@@ -32,23 +21,13 @@ def freeze_layers(network, layers=('ALL',), flag_freeze=True):
 
 
 def freeze_norms(network, layers=('ALL',), flag_freeze=True):
-    """
-    Freeze layers of a network (normalization)
-
-    Parameters
-    ----------
-    network : nn.Module
-        Network to be modified
-    layers : List or Tuple
-        List of layers to freeze/unfreeze ('ALL' for everything)
-    flag_freeze : Bool
-        Whether the layers will be frozen (True) or not (False)
-    """
+    """Freeze normalization layers of a network"""
     if len(layers) > 0:
         for name, module in network.named_modules():
             for layer in layers:
                 if layer in name or layer == 'ALL':
-                    if isinstance(module, nn.BatchNorm2d):
+                    if isinstance(module, nn.BatchNorm2d) or \
+                            isinstance(module, nn.LayerNorm):
                         if hasattr(module, 'weight'):
                             module.weight.requires_grad_(not flag_freeze)
                         if hasattr(module, 'bias'):
@@ -65,28 +44,8 @@ def freeze_layers_and_norms(network, layers=('ALL',), flag_freeze=True):
     freeze_norms(network, layers, flag_freeze)
 
 
-def make_val_fit(model, key, val, updated_state_dict, strict=False):
-    """
-    Parse state dictionary to fit a model, and make tensors fit if requested
-
-    Parameters
-    ----------
-    model : nn.Module
-        Network to be used
-    key : String
-        Which key will be used
-    val : torch.Tensor
-        Key value
-    updated_state_dict : Dict
-        Updated dictionary
-    strict : Bool
-        True if no changes are allowed, False if tensors can be changed to fit
-
-    Returns
-    -------
-    fit : Int
-        Number of tensors that fit the model
-    """
+def make_val_fit(model, key, val, updated_state_dict, mode='copy', strict=False):
+    """Modify a value in a state dict to fit the model"""
     fit = 0
     val_new = model.state_dict()[key]
     if same_shape(val.shape, val_new.shape):
@@ -96,15 +55,29 @@ def make_val_fit(model, key, val, updated_state_dict, strict=False):
         for i in range(val.dim()):
             if val.shape[i] != val_new.shape[i]:
                 if val_new.shape[i] > val.shape[i]:
-                    ratio = math.ceil(val_new.shape[i] / val.shape[i])
-                    val = torch.cat([val] * ratio, i)
-                    if val.shape[i] != val_new.shape[i]:
-                        val = val[:val_new.shape[i]]
+                    if mode == 'copy':
+                        ratio = math.ceil(val_new.shape[i] / val.shape[i])
+                        val = torch.cat([val] * ratio, i)
+                        if val.shape[i] != val_new.shape[i]:
+                            if i == 0: val = val[:val_new.shape[0], ...]
+                            elif i == 1: val = val[:, :val_new.shape[1], ...]
+                            elif i == 2: val = val[:, :, val_new.shape[2], ...]
+                    elif mode in ['zeros', 'small']:
+                        shape = list(val.shape)
+                        shape[i] = val_new.shape[i]
+                        k = {'zeros': 0, 'small': 1e-6}[mode]
+                        tensor_new = k * torch.zeros(shape, dtype=val.dtype)
+                        if i == 0: tensor_new[:val.shape[0], ...] = val
+                        elif i == 1: tensor_new[:, :val.shape[1], ...] = val
+                        elif i == 2: tensor_new[:, :, val.shape[2], ...] = val
+                        val = tensor_new
                     if same_shape(val.shape, val_new.shape):
                         updated_state_dict[key] = val
                         fit += 1
-                elif val_new.shape[0] < val.shape[i]:
-                    val = val[:val_new.shape[i]]
+                elif val_new.shape[i] < val.shape[i]:
+                    if i == 0: val = val[:val_new.shape[0], ...]
+                    elif i == 1: val = val[:, :val_new.shape[1], ...]
+                    elif i == 2: val = val[:, :, val_new.shape[2], ...]
                     if same_shape(val.shape, val_new.shape):
                         updated_state_dict[key] = val
                         fit += 1
@@ -112,31 +85,12 @@ def make_val_fit(model, key, val, updated_state_dict, strict=False):
     return fit
 
 
-def load_checkpoint(model, checkpoint, strict=False, verbose=False, prefix=None):
-    """
-    Load checkpoint into a model
-
-    Parameters
-    ----------
-    model : nn.Module
-        Input network
-    checkpoint : String or list[String]
-        Checkpoint path (if it's a list, load them in order)
-    strict : Bool
-        True if all tensors are required, False if can be partially loaded
-    verbose : Bool
-        Print information on screen
-    prefix : String
-        Prefix used to change keys
-
-    Returns
-    -------
-    model: nn.Module
-        Loaded network
-    """
+def load_checkpoint(model, checkpoint, mode='copy', strict=False, verbose=False, prefix=None,
+                    remove_prefixes=('model.', 'module.'), replaces=()):
+    """Load a checkpoint to a model"""
     if is_list(checkpoint):
         for ckpt in checkpoint:
-            load_checkpoint(model, ckpt, strict, verbose)
+            load_checkpoint(model, ckpt, mode, strict, verbose, prefix, remove_prefixes, replaces)
         return model
 
     font1 = {'color': 'magenta', 'attrs': ('bold', 'dark')}
@@ -148,23 +102,28 @@ def load_checkpoint(model, checkpoint, strict=False, verbose=False, prefix=None)
                pcolor('{}'.format(checkpoint), **font2))
 
     state_dict = torch.load(
-        checkpoint,
-        map_location='cpu' if dist_mode() == 'cpu' else 'cuda:{}'.format(rank())
+        checkpoint, map_location='cpu' if dist_mode() == 'cpu' else 'cuda:{}'.format(rank())
     )['state_dict']
     updated_state_dict = {}
+
+    prefix_state_dict = {}
+    for key1, val1 in state_dict.items():
+        for key2, val2 in model.state_dict().items():
+            if key1.endswith(key2):
+                prefix_state_dict[key2] = val1
+    state_dict = prefix_state_dict
 
     total, fit = len(model.state_dict()), 0
     for key, val in state_dict.items():
 
-        for start in ['model.', 'module.']:
-            if key.startswith(start):
-                key = key[len(start):]
-        if prefix is not None:
-            idx = key.find(prefix)
-            if idx > -1:
-                key = key[(idx + len(prefix) + 1):]
+        for replace in replaces:
+            key = key.replace(replace[0], replace[1])
+
         if key in model.state_dict().keys():
-            fit += make_val_fit(model, key, val, updated_state_dict, strict=strict)
+            fit += make_val_fit(
+                model, key, val, updated_state_dict,
+                mode=mode, strict=strict
+            )
 
     model.load_state_dict(updated_state_dict, strict=strict)
 
@@ -178,26 +137,9 @@ def load_checkpoint(model, checkpoint, strict=False, verbose=False, prefix=None)
     return model
 
 
-def save_checkpoint(filename, wrapper, epoch=None):
-    """
-    Save checkpoint to disk
-
-    Parameters
-    ----------
-    filename : String
-        Name of the file
-    wrapper : nn.Module
-        Model wrapper to save
-    epoch : Int
-        Training epoch
-    """
-    if epoch is None:
-        torch.save({
-            'state_dict': wrapper.state_dict(),
-        }, filename)
-    else:
-        torch.save({
-            'epoch': epoch,
-            'config': wrapper.cfg,
-            'state_dict': wrapper.arch.state_dict(),
-        }, filename)
+def save_checkpoint(filename, wrapper, epoch):
+    """Save a checkpoint"""
+    torch.save({
+        'config': wrapper.cfg, 'epoch': epoch,
+        'state_dict': wrapper.arch.state_dict(),
+    }, filename)

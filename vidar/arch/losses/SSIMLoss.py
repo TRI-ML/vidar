@@ -1,4 +1,4 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 from abc import ABC
 
@@ -9,7 +9,7 @@ from vidar.arch.losses.BaseLoss import BaseLoss
 
 
 class SSIMLoss(BaseLoss, ABC):
-    """SSIM (Structural Similarity Index Metric) loss class"""
+    """ Structural similarity (SSIM) loss class."""
     def __init__(self):
         super().__init__()
 
@@ -26,21 +26,8 @@ class SSIMLoss(BaseLoss, ABC):
         self.C2 = 0.03 ** 2
 
     def forward(self, x, y):
-        """
-        Calculates SSIM loss
+        """Forward pass for the SSIM loss."""
 
-        Parameters
-        ----------
-        x : torch.Tensor
-            Input image 1 [B,3,H,W]
-        y : torch.Tensor
-            Input image 2 [B,3,H,W]
-
-        Returns
-        -------
-        output : Dict
-            Dictionary with loss
-        """
         x = self.refl(x)
         y = self.refl(y)
 

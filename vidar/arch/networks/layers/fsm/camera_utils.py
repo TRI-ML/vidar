@@ -1,4 +1,4 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 import torch
 import torch.nn.functional as tf
@@ -67,46 +67,6 @@ def view_synthesis(ref_image, depth, ref_cam, cam, scene_flow=None,
     world_points = cam.reconstruct(depth, frame='w', scene_flow=scene_flow)
     # Project world points onto reference camera
     ref_coords = ref_cam.project(world_points, frame='w')
-    # View-synthesis given the projected reference points
-    return tf.grid_sample(ref_image, ref_coords, mode=mode,
-                          padding_mode=padding_mode, align_corners=align_corners)
-
-
-def view_synthesis_generic(ref_image, depth, ref_cam, cam,
-                           mode='bilinear', padding_mode='zeros',  align_corners=True,
-                           progress=0.0):
-    """
-    Synthesize an image from another plus a depth map.
-
-    Parameters
-    ----------
-    ref_image : torch.Tensor
-        Reference image to be warped [B,3,H,W]
-    depth : torch.Tensor
-        Depth map from the original image [B,1,H,W]
-    ref_cam : Camera
-        Camera class for the reference image
-    cam : Camera
-        Camera class for the original image
-    mode : str
-        Interpolation mode
-    padding_mode : str
-        Padding mode for interpolation
-    align_corners : bool
-        Corner alignment for grid sampling
-    progress : float
-        Training process (percentage)
-
-    Returns
-    -------
-    ref_warped : torch.Tensor
-        Warped reference image in the original frame of reference [B,3,H,W]
-    """
-    assert depth.shape[1] == 1, 'Depth map should have C=1'
-    # Reconstruct world points from target_camera
-    world_points = cam.reconstruct(depth, frame='w')
-    # Project world points onto reference camera
-    ref_coords = ref_cam.project(world_points, progress=progress, frame='w')
     # View-synthesis given the projected reference points
     return tf.grid_sample(ref_image, ref_coords, mode=mode,
                           padding_mode=padding_mode, align_corners=align_corners)

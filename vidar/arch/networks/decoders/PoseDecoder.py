@@ -1,4 +1,4 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 from abc import ABC
 
@@ -7,17 +7,24 @@ import torch.nn as nn
 
 
 class PoseDecoder(nn.Module, ABC):
-    """
-    Pose decoder network
-
-    Parameters
-    ----------
-    cfg : Config
-        Configuration with parameters
-    """
     def __init__(self, num_ch_enc, num_input_features,
                  num_frames_to_predict_for=None,
                  stride=1, output_multiplier=0.01):
+        """Pose decoder, to decode features into poses.
+
+        Parameters
+        ----------
+        num_ch_enc : int
+            Number of channels in the encoder.
+        num_input_features : int
+            Number of input features.
+        num_frames_to_predict_for : int, optional
+            Number of images used for prediction, by default None
+        stride : int, optional
+            Context stride, by default 1
+        output_multiplier : float, optional
+            Multiplicative factor for output, by default 0.01
+        """
         super().__init__()
 
         self.num_encoder_channels = num_ch_enc
@@ -39,7 +46,7 @@ class PoseDecoder(nn.Module, ABC):
         self.relu = nn.ReLU()
 
     def forward(self, all_features):
-        """Network forward pass"""
+        """Forward pass of the decoder."""
 
         last_features = [f[-1] for f in all_features]
         last_features = [self.relu(self.convs['squeeze'](f)) for f in last_features]

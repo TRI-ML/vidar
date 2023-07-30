@@ -1,4 +1,4 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 import os
 from datetime import datetime
@@ -11,15 +11,14 @@ from vidar.utils.logging import pcolor
 
 
 class ModelCheckpoint:
-    """
-    Class for model checkpointing
+    """Checkpoint manager class.
 
     Parameters
     ----------
     cfg : Config
-        Configuration with parameters
-    verbose : Bool
-        Print information on screen if enabled
+        Configuration file with checkpoint parameters
+    verbose : bool, optional
+        True if information is displayed on screen, by default False
     """
     def __init__(self, cfg, verbose=False):
         super().__init__()
@@ -34,6 +33,7 @@ class ModelCheckpoint:
             self.path = None
 
         # Exclude folders
+        # self.excludes = ['ZZZ','code','sandbox']
         self.excludes = ['sandbox']
 
         # If there is no folder, only track metrics
@@ -87,7 +87,8 @@ class ModelCheckpoint:
                 self.sync_s3(verbose=False)
 
     def print(self):
-        """Print information on screen"""
+        """Print checkpoint information"""
+
         font_base = {'color': 'red', 'attrs': ('bold', 'dark')}
         font_name = {'color': 'red', 'attrs': ('bold',)}
         font_underline = {'color': 'red', 'attrs': ('underline',)}
@@ -106,7 +107,7 @@ class ModelCheckpoint:
 
     @staticmethod
     def save_model(wrapper, name, epoch):
-        """Save model"""
+        """Save model in the checkpoint folder"""
         torch.save({
             'config': wrapper.cfg, 'epoch': epoch,
             'state_dict': wrapper.arch.state_dict(),
@@ -114,7 +115,7 @@ class ModelCheckpoint:
 
     @staticmethod
     def del_model(name):
-        """Delete model"""
+        """Delete model from the checkpoint folder"""
         if os.path.isfile(name):
             os.remove(name)
 
@@ -140,7 +141,7 @@ class ModelCheckpoint:
         os.system(command)
 
     def print_improvements(self, key, value, idx, is_best):
-        """Print color-coded changes in tracked metrics"""
+        """Print metrics improvements"""
 
         font1 = {'color': 'cyan', 'attrs':('dark', 'bold')}
         font2 = {'color': 'cyan', 'attrs': ('bold',)}
@@ -165,7 +166,7 @@ class ModelCheckpoint:
 
     def save(self, wrapper, epoch, verbose=True):
         """Save model"""
-        # Do nothing if no path is provided
+
         if self.path:
 
             name = '%03d.ckpt' % epoch
@@ -183,14 +184,30 @@ class ModelCheckpoint:
         if verbose:
             print()
 
-    def check_and_save(self, wrapper, metrics, prefixes, epoch, verbose=True):
-        """Check if model should be saved and maybe save it"""
+    def check_and_save(self, wrapper, metrics, prefixes, epoch, samples, verbose=True):
+        """Check current performance and save model if there is improvement
+
+        Parameters
+        ----------
+        wrapper : Model
+            Model wrapper
+        metrics : dict
+            Current metrics
+        prefixes : str
+            Checkpoint prefixes
+        epoch : int
+            Current epoch   
+        samples : int
+            Current number o samples
+        verbose : bool, optional
+            True if information is displayed on screen, by default True
+        """
         # Not tracking any metric, save every iteration
         if self.num_tracking == 0:
-            # Do nothing if no path is provided
+
             if self.path:
 
-                name = '%03d.ckpt' % epoch
+                name = '%03.2f_%d.ckpt' % (epoch, samples)
                 folder = os.path.join(self.path, 'models')
 
                 os.makedirs(folder, exist_ok=True)
@@ -233,7 +250,7 @@ class ModelCheckpoint:
 
                     if self.path:
 
-                        name = '%03d_%3.6f.ckpt' % (epoch, value)
+                        name = '%03.2f_%d_%3.6f.ckpt' % (epoch, samples, value)
                         folder = os.path.join(self.path, key)
 
                         os.makedirs(folder, exist_ok=True)

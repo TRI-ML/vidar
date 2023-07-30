@@ -1,0 +1,25 @@
+###############################################
+supervised:
+    file: SupervisedDepthLoss
+    mask_sparse: True
+    weight: 1.0
+    gamma: 0.5
+###############################################
+self_supervised:
+    file: ReprojectionLoss
+    automasking: True
+    reprojection_reduce_op: min
+    jitter_identity_reprojection: 1.0e-5
+    photometric:
+        file: PhotometricLoss
+        weight: 1.0
+        alpha: 0.85
+    weight: 1.0
+    gamma: 1.0
+###############################################
+smoothness:
+    file: SmoothnessLoss
+    normalize: True
+    weight: 1.0e-4
+    gamma: 0.5
+###############################################

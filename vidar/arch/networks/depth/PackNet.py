@@ -1,4 +1,4 @@
-# TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
+# Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 from abc import ABC
 
@@ -6,7 +6,7 @@ import torch
 import torch.nn as nn
 
 from vidar.arch.networks.BaseNet import BaseNet
-from vidar.arch.networks.layers.packnet.packnet import \
+from vidar.arch.networks.layers.packnet import \
     PackLayerConv3d, UnpackLayerConv3d, Conv2D, ResidualBlock, InvDepth
 from vidar.utils.depth import inv2depth
 
@@ -14,7 +14,7 @@ from vidar.utils.depth import inv2depth
 class PackNet(BaseNet, ABC):
     """
     PackNet depth network (https://arxiv.org/abs/1905.02693)
-
+    
     Parameters
     ----------
     cfg : Config
