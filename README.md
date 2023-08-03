@@ -18,8 +18,10 @@ This repository is an updated version of [PackNet-SfM](https://github.com/TRI-ML
 ```python
 import torch
 zerodepth_model = torch.hub.load("TRI-ML/vidar", "ZeroDepth", pretrained=True, trust_repo=True)
-intrinsics = torch.zeros((1, 3, 3))
-rgb = torch.zeros((1, 3, 256, 256))
+
+intrinsics = torch.tensor(np.load('examples/ddad_intrinsics.npy')).unsqueeze(0)
+rgb = torch.tensor(imread('examples/ddad_sample.png')).permute(2,0,1).unsqueeze(0)/255.
+
 depth_pred = zerodepth_model(rgb, intrinsics)
 ```
 
@@ -28,7 +30,8 @@ PackNet is a self-supervised monocular depth estimation model, to load a model t
 ```python
 import torch
 packnet_model = torch.hub.load("TRI-ML/vidar", "PackNet", pretrained=True, trust_repo=True)
-rgb_image = # 13HW torch.tensor
+rgb = torch.tensor(imread('examples/ddad_sample.png')).permute(2,0,1).unsqueeze(0)/255.
+
 depth_pred = model(rgb_image)
 ```
 
