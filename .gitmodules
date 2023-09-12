@@ -3,4 +3,4 @@
 	url = https://github.com/TRI-ML/efm_datasets.git
 [submodule "externals/camviz"]
 	path = externals/camviz
-	url = git@github.com:TRI-ML/camviz.git
+	url = https://github.com/TRI-ML/camviz.git

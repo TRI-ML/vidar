@@ -76,9 +76,35 @@ def to_global_pose_broken(pose, zero_origin=False):
     return pose
 
 
-def euler2mat(angle):
+def get_scaled_translation(transformation: torch.Tensor,
+                           multiply: torch.Tensor) -> torch.Tensor:
+    """
+    Multiply scalar to the translation part of the transformation matrix
+
+    Parameters
+    ----------
+    transformation : torch.Tensor
+        Transformation matrices to be scaled, (Bx4x4)
+    multiply : torch.Tensor
+        Scalars t obe multiplied to the matrix, (B,)
+
+    Returns
+    -------
+    torch.Tensor
+        Scaled transformation matrix with (Bx4x4)
+    """
+    b = transformation.shape[0]
+    rot_mat = transformation[:, :3, :3]  # [b,3,3]
+    scaled_transl = (multiply.unsqueeze(-1) * transformation[:, :3, -1]).unsqueeze(-1)  # [b,3,1]
+    bx3x4 = torch.concat([rot_mat, scaled_transl], 2)  # [b,3,4]
+    return torch.concat([bx3x4, torch.tensor([0, 0, 0, 1]).repeat(b, 1, 1).to(transformation.device)], 1)  # [b,4,4]
+
+
+def euler2mat(angle, dtype=None):
     """Convert euler angles to rotation matrix"""
     B = angle.size(0)
+    if dtype is not None:
+        angle = angle.to(dtype)
     x, y, z = angle[:, 0], angle[:, 1], angle[:, 2]
 
     cosz = torch.cos(z)
@@ -108,17 +134,25 @@ def euler2mat(angle):
     return rot_mat
 
 
-def pose_vec2mat(vec, mode='euler'):
+def pose_vec2mat(vec, mode='euler', dtype=None):
     """Convert Euler parameters to transformation matrix."""
     if mode is None:
         return vec
     trans, rot = vec[:, :3].unsqueeze(-1), vec[:, 3:]
     if mode == 'euler':
-        rot_mat = euler2mat(rot)
+        rot_mat = euler2mat(rot, dtype)
     else:
         raise ValueError('Rotation mode not supported {}'.format(mode))
     mat = torch.cat([rot_mat, trans], dim=2)  # [B,3,4]
     return mat
+
+
+def pose_vec2mat_homogeneous(vec: torch.Tensor, mode="euler", dtype=None) -> torch.Tensor:
+    """ Covert pose [B,6] (=> [B,concat([translation, euler_ang])]) to homogeneous style [B, 4, 4] """
+    batch = vec.shape[0]
+    bx3x4 = pose_vec2mat(vec, mode, dtype=dtype)
+    bx4x4 = torch.concat([bx3x4, torch.tensor([0, 0, 0, 1]).repeat([batch, 1]).unsqueeze(1).to(device=vec.device)], 1)
+    return bx4x4
 
 
 @iterate1
@@ -129,6 +163,84 @@ def invert_pose(T):
     Tinv[:, :3, -1] = torch.bmm(-1. * Tinv[:, :3, :3], T[:, :3, -1].unsqueeze(-1)).squeeze(-1)
     return Tinv
     # return torch.linalg.inv(T)
+
+
+def __apply_func_for_multi_camera(func, b_cam_matrix: torch.Tensor) -> torch.Tensor:
+    """
+    Extend the method (=func) that is intended for the pose (Bx4x4), to multi-camera pose that shapes (Bxcamx4x4)
+
+    Parameters
+    ----------
+    func : method
+        Method to be applied to multi-camera tensor
+    b_cam_matrix : torch.Tensor
+        Multi-camera pose tensor, (Bxcamx4x4)
+
+    Returns
+    -------
+    torch.Tensor
+        `func` applied tensor, such as shapes (Bxcamx3), (Bxcamx3x3) ... etc.
+    """
+    b_cam_matrix = b_cam_matrix.contiguous()
+    shape_b_cam = list(b_cam_matrix.shape[:2])  # [b, camera]
+    remained_shape = b_cam_matrix.shape[2:]  # [rank1, rank2, ...]
+    shape_before_mapping = [-1]
+    shape_before_mapping.extend(remained_shape)
+    T = b_cam_matrix.view(shape_before_mapping)  # [b*camera, rank1, rank2, ...]
+    applied_tensor = func(T)  # [b*camera, rank1', rank2', ...]
+    shape_after_mapping = applied_tensor.shape[1:]  # [ rank1', rank2', ..., ]
+    shape_b_cam.extend(shape_after_mapping)  # [b, camera, rank1', rank2', ..., ]
+    return applied_tensor.view(shape_b_cam)  # [b, camera, rank1', rank2', ..., ]
+
+
+def multicam_rot_matrix(Ts: torch.Tensor) -> torch.Tensor:
+    """Gives multi-camera rotation matrices (Bxcamx3x3) from transformation matrix: (Bxcamx4x4) """
+    return __apply_func_for_multi_camera(pose_tensor2rotmatrix, Ts)  # [B, cam, 3, 3]
+
+
+def multicam_eulers(Ts: torch.Tensor) -> torch.Tensor:
+    """Gives multi-camera Euler angle (Bxcamx3) from transformation matrix: (Bxcamx4x4) """
+    return __apply_func_for_multi_camera(pose_tensor2euler_tensor, Ts)  # [B, cam, 3]
+
+
+def multicam_translations(Ts: torch.Tensor) -> torch.Tensor:
+    """Gives multi-camera translation vectors (Bxcamx3) from transformation matrix: (Bxcamx4x4) """
+    return __apply_func_for_multi_camera(pose_tensor2transl_vec, Ts)  # [B, cam, 3]
+
+
+def invert_multi_pose(Ts) -> torch.Tensor:
+    """Inverts a multi-camera pose tensor, (Bxcam4x4)"""
+    return __apply_func_for_multi_camera(invert_pose, Ts)
+
+
+def pose_tensor2euler_tensor(T: torch.Tensor) -> torch.Tensor:
+    """ Gives Euler angle (Bx3) from the pose represented as homogeneous matrix form, [Bx4x4]"""
+    return torch.concat([mat2euler(T[i, :3, :3]).unsqueeze(0) for i in range(len(T))])
+
+
+def pose_tensor2rotmatrix(T: torch.Tensor) -> torch.Tensor:
+    """Gives rotation matrices (Bx3x3) from the pose represented as homogeneous matrix form, [Bx4x4]"""
+    return torch.concat([T[i, :3, :3].unsqueeze(0) for i in range(len(T))])
+
+
+def pose_tensor2transl_vec(T: torch.Tensor) -> torch.Tensor:
+    """ Gives translation vector [B, 3] from the pose represented as homogeneous matrix form, [Bx4x4]"""
+    return T[:, :3, 3]
+
+
+def get_geodesic_err(R1: torch.Tensor, R2: torch.Tensor):
+    """
+    Get rotation error for Rotation matrices that shapes (B,), by the matrix R1 (Bx3x3) and R2 (Bx3x3)
+    ref: https://pytorch3d.readthedocs.io/en/latest/modules/transforms.html#pytorch3d.transforms.so3_relative_angle
+
+    """
+    if R1.dtype != R2.dtype:
+        R1 = R1.to(torch.float64)
+        R2 = R2.to(torch.float64)
+    R12 = torch.clamp(torch.bmm(R1.to(torch.float64), R2.permute(0, 2, 1).to(torch.float64)), max=1., min=-1.)
+    rot_trace = R12[:, 0, 0] + R12[:, 1, 1] + R12[:, 2, 2]
+    phi = torch.clamp(0.5 * (rot_trace - 1.0), max=1., min=-1.)
+    return torch.acos(phi)
 
 
 def tvec_to_translation(tvec):

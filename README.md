@@ -543,6 +543,56 @@ Vitor Guizilini, Igor Vasiljevic, Dian Chen, Rares Ambrus, Adrien Gaidon
 }
 ```
 
+### [Robust Self-Supervised Extrinsic Self-Calibration](https://arxiv.org/pdf/2308.02153.pdf) (IROS 2023)
+Takayuki Kanai, Igor Vasiljevic, Vitor Guizilini, Adrien Gaidon, Rares Ambrus
+
+**Abstract:** *Autonomous vehicles and robots need to operate over a wide variety of scenarios in order to complete tasks efficiently and safely. Multi-camera self-supervised monocular depth estimation from videos is a promising way to reason about the environment, as it generates metrically scaled geometric predictions from visual data without requiring additional sensors. However, most works assume well-calibrated extrinsics to fully leverage this multi-camera setup, even though accurate and efficient calibration is still a challenging problem. In this work, we introduce a novel method for extrinsic calibration that builds upon the principles of self-supervised monocular depth and ego-motion learning. Our proposed curriculum learning strategy uses monocular depth and pose estimators with velocity supervision to estimate extrinsics, and then jointly learns extrinsic calibration along with depth and pose for a set of overlapping cameras rigidly attached to a moving vehicle. Experiments on a benchmark multi-camera dataset (DDAD) demonstrate that our method enables self-calibration in various scenes robustly and efficiently compared to a traditional vision-based pose estimation pipeline. Furthermore, we demonstrate the benefits of extrinsics self-calibration as a way to improve depth prediction via joint optimization.*
+
+<p align="center">
+  <img src="/media/figs/sesc_teaser.gif" width="50%"/>
+</p>
+
+<table>
+  <tr>
+    <td>Abs.Rel.</td>
+    <td>Front</td>
+    <td>F.Left</td>
+    <td>F.Right</td>
+    <td>B.Left</td>
+    <td>B.Right</td>
+    <td>Back</td>
+  </tr>
+  <tr>
+    <td colspan="9"><a href="https://tri-ml-public.s3.amazonaws.com/github/vidar/models/SESC_MR_withExtrinsics_DDAD.ckpt"> SESC | Self-Supervised | 384x640 | ImageNet &rightarrow; DDAD </a> (<a href="https://tri-ml-public.s3.amazonaws.com/github/vidar/data/extrinsics-ddad-everything.pkl">GT-extrinsics</a>)</td>
+  </tr>
+  <tr>
+    <td style="text-align:left">Metric (PP)</td>
+    <td style="text-align:center">0.159</td>
+    <td style="text-align:center">0.194</td>
+    <td style="text-align:center">0.213</td>
+    <td style="text-align:center">0.212</td>
+    <td style="text-align:center">0.220</td>
+    <td style="text-align:center">0.205</td>
+  </tr>
+  <tr>
+    <td style="text-align:left">Scaled (PP_MD)</td>
+    <td style="text-align:center">0.156</td>
+    <td style="text-align:center">0.200</td>
+    <td style="text-align:center">0.225</td>
+    <td style="text-align:center">0.217</td>
+    <td style="text-align:center">0.234</td>
+    <td style="text-align:center">0.216</td>
+  </tr>
+</table>
+
+```
+@inproceedings{tri_sesc_iros23,
+  title = {Robust Self-Supervised Extrinsic Self-Calibration},
+  author = {Takayuki Kanai and Igor Vasiljevic and Vitor Guizilini and Adrien Gaidon and Rares Ambrus},
+  booktitle = {IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)},
+  year = {2023},
+}
+```
 
 ## License
 

@@ -57,3 +57,28 @@ def create_cameras(rgb, intrinsics, pose, zero_origin=True, scaled=None):
             hw=rgb[0] if is_dict(rgb) else rgb,
         ).scaled(scaled).to(rgb.device)
     return cams
+
+def apply_rgb_mask(synthesised_masks: dict, mask_rgb_tgt: list,
+                   mode='nearest', align_corners=None) -> dict:
+    """
+    Merge masking tensor will be used for photometric loss calculation (that decides where to be ignored).
+
+    Parameters
+    ----------
+    synthesised_masks : Dict[tuple, List[torch.Tensor]]
+        Masks from view-synthesis
+    mask_rgb_tgt : List[torch.Tensor]
+        Self-occlusion masks to be merged, that shapes ScaleList[ Tensor(Bx1xHxW) ]
+
+    Returns
+    -------
+    Dict[tuple, List[torch.Tensor]]
+        Merged masks which has the same shape with synthesised_masks
+
+    """
+    for key in synthesised_masks.keys():  # broken_context keys corresponding to the target
+        for scale in range(len(synthesised_masks[key])):  # Scale list
+            synthesised_masks[key][scale] *= torch.nn.functional.interpolate(
+                mask_rgb_tgt[scale], size=synthesised_masks[key][scale].shape[-2:], mode=mode,
+                align_corners=align_corners)
+    return synthesised_masks

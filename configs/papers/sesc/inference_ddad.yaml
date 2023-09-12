@@ -1,0 +1,56 @@
+wrapper:
+    recipe: wrapper|default_flip
+    max_epochs: 0
+arch:
+    model:
+        file: releaseSesc/SelfCalibFSM
+        checkpoint: /data/models/papers/SESC_MR_withExtrinsics_DDAD.ckpt
+        context: [-1,1]
+        dataset: ddad
+        cameras: [1,5,6,7,8,9]
+        camera_neighboring_pairs: [ [ 2, 1 ], [ 0, 3 ], [ 4, 0 ], [ 1, 5 ], [ 5, 2 ], [ 4, 3 ] ] # 6 camera on DDAD
+        stereo_loss_coeff: 0.1
+        gt_to_scale_injection: True
+        ddad_mask_path: data/masks/ddad/
+        mask_h_w: [ 384,640 ]
+    networks:
+        depth:
+            recipe: networks/mono_depth_net|resnet18
+            depth_range: [ 0.0005,0.3 ]
+            scale_intrinsics: True
+            num_scales: 1
+        pose:
+            recipe: networks/pose_net|resnet18
+        extrinsics_net:
+            file: extrinsics/RelativePoseNet
+            total_estimate_num: 5
+            init_std: 0.0
+            search_scenario_from_path: /data/datasets/DDAD
+            back_camera_id: [ 5 ] # 1st camera is ID=0, next is 1, 2, 3...
+            add_shared_bias: True
+            fix_shared: True
+            dtype: float64
+evaluation:
+    depth:
+        recipe: evaluation/depth|ddad_resize
+        only_first: True
+    extrinsics:
+        dataset: ddad
+        dump_pkl_path: /data/vidar/save/extrinsics-ddad-everything.pkl
+        follows_exclude_scenario: True
+        cameras: [1,5,6,7,8,9]
+        metrics: [ 't','rod']
+datasets:
+    train:
+        recipe: datasets/ddad|train_self_supervised_MR
+        context: [-1,1]
+        labels: [pose,intrinsics]
+        labels_context: [pose]
+        cameras: [ [ 1, 5, 6, 7, 8, 9 ] ]
+        # `jittering: [0.2,0.2,0.2,0.05]` was applied for all Depth Network training phase
+    validation:
+        recipe: datasets/ddad|val_6cams
+        labels: [depth,intrinsics]
+        augmentation:
+            resize_supervision: True
+            preserve_depth: True

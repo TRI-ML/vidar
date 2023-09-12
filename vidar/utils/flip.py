@@ -131,9 +131,9 @@ def flip_batch(batch, flip=True):
     if is_seq(batch):
         return [flip_batch(b) for b in batch]
     # Flip batch
-    flipped_batch = {}
+    flipped_batch = {"flipped": True}
     # Keys to not flip
-    for key in keys_in(batch, ['idx', 'tag', 'filename', 'splitname']):
+    for key in keys_in(batch, ['idx', 'tag', 'filename', 'splitname', 'extrinsics']):
         flipped_batch[key] = batch[key]
     # Tensor flipping
     for key in keys_in(batch, ['rgb', 'mask', 'mask_rgb', 'input_depth', 'depth', 'semantic']):
