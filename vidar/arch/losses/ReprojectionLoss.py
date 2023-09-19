@@ -57,7 +57,7 @@ class ReprojectionLoss(BaseLoss, ABC):
         return reprojection_loss, overlap_mask
 
     def calculate(self, rgb, rgb_ctx, warps, logvar=None,
-                  valid_mask=None, overlap_mask=None):
+                  valid_mask=None, overlap_mask=None, use_default_automask=True):
         """Calculate reprojection loss"""
 
         reprojection_losses = [
@@ -65,7 +65,7 @@ class ReprojectionLoss(BaseLoss, ABC):
         reprojection_loss, overlap_mask = self.reduce_reprojection(
             reprojection_losses, overlap_mask=overlap_mask)
 
-        if self.automasking:
+        if use_default_automask and self.automasking:
             reprojection_identity_losses = [
                 self.losses['photometric'](ctx, rgb)['loss'] for ctx in rgb_ctx]
             reprojection_identity_loss, _ = self.reduce_reprojection(
@@ -94,7 +94,7 @@ class ReprojectionLoss(BaseLoss, ABC):
         return average_loss, reprojection_mask, reprojection_loss, overlap_mask
 
     def forward(self, rgb, rgb_ctx, warps, logvar=None,
-                valid_mask=None, overlap_mask=None):
+                valid_mask=None, overlap_mask=None, use_default_automask=True):
         """ Forward pass for the reprojection loss"""
         
         scales = self.get_scales(warps)
@@ -117,7 +117,8 @@ class ReprojectionLoss(BaseLoss, ABC):
 
                 loss_i, mask_i, photo_i, overlap_mask_i = self.calculate(
                     rgb, rgb_ctx, warps_i, logvar=logvar_i,
-                    valid_mask=valid_mask_i, overlap_mask=overlap_mask_i)
+                    valid_mask=valid_mask_i, overlap_mask=overlap_mask_i,
+                    use_default_automask=use_default_automask)
                 loss_i = weights[i] * loss_i
             else:
                 rgb_i, rgb_context_i, warps_i = rgb[0], rgb_ctx[0], warps[i]
@@ -127,7 +128,8 @@ class ReprojectionLoss(BaseLoss, ABC):
 
                 loss_i, mask_i, photo_i, overlap_mask_i = self.calculate(
                     rgb_i, rgb_context_i, warps_i, logvar=logvar_i,
-                    valid_mask=valid_mask_i, overlap_mask=overlap_mask_i)
+                    valid_mask=valid_mask_i, overlap_mask=overlap_mask_i,
+                    use_default_automask=use_default_automask)
                 loss_i = weights[i] * loss_i
                 
             metrics[f'reprojection_loss/{i}'] = loss_i.detach()

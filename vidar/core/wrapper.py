@@ -125,13 +125,15 @@ class Wrapper(torch.nn.Module, ABC):
         for key, val in self.cfg.optimizers.__dict__.items():
             if key not in self.arch.networks:
                 continue
-            optimizers[key] = {
-                'optimizer': getattr(torch.optim, val.name)(**{
+            args = {
                     'lr': val.lr,
-                    'eps': val.has('eps', 1.0e-8),
                     'weight_decay': val.has('weight_decay', 0.0),
                     'params': self.arch.networks[key].parameters(),
-                }),
+                }
+            if 'Adam' in val.name:
+                args.update({'eps': val.has('eps', 1.0e-8)})
+            optimizers[key] = {
+                'optimizer': getattr(torch.optim, val.name)(**args),
                 'settings': {} if not cfg_has(val, 'settings') else val.settings.__dict__
             }
             if cfg_has(val, 'scheduler'):

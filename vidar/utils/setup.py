@@ -10,6 +10,7 @@ from torch.utils.data import ConcatDataset, DataLoader
 
 from vidar.datasets.utils.transforms import get_transforms
 from vidar.metrics.depth import DepthEvaluation
+from vidar.metrics.extrinsics import ExtrinsicsEvaluation
 from vidar.metrics.optical_flow import OpticalFlowEvaluation
 from vidar.metrics.rgb import ImageEvaluation
 from vidar.utils.config import Config, get_folder_name, load_class, \
@@ -239,6 +240,7 @@ def setup_metrics(cfg):
         'rgb': ImageEvaluation,
         'depth': DepthEvaluation,
         'optical_flow': OpticalFlowEvaluation,
+        'extrinsics': ExtrinsicsEvaluation,
     }
 
     available_tasks = [key for key in cfg.dict.keys() if key != 'tasks']

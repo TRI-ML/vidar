@@ -94,6 +94,8 @@ RUN pip install sacremoses huggingface_hub transformers
 RUN pip install open_clip_torch
 # Install more transformers stuff
 RUN pip install mmcv taming-transformers taming-transformers-rom1504
+# Install seaborn for extrinsic error map visualization
+RUN pip install seaborn==0.12.2
 
 # Expose jupyter notebook port
 EXPOSE 8888
