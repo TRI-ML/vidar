@@ -182,7 +182,7 @@ Parameters added after the recipe will overwrite those copied over, to facilitat
 
 ## Datasets
 
-In our provided configuration files, datasets are assumed to be downloaded in `/data/datasets/<dataset-name>`. We have a separate repository for dataset management, that is a submodule of this repository and can be found [here](http://github.com/tri-ml/efm_datasets_release). It contains dataloaders for all datasets used in our works, as well as visualization tools that build upon our [CamViz](https://github.com/TRI-ML/camviz) library. 
+In our provided configuration files, datasets are assumed to be downloaded in `/data/datasets/<dataset-name>`. We have a separate repository for dataset management, that is a submodule of this repository and can be found [here](http://github.com/tri-ml/efm_datasets). It contains dataloaders for all datasets used in our works, as well as visualization tools that build upon our [CamViz](https://github.com/TRI-ML/camviz) library. 
 
 ```bash
 cd externals/efm_datasets
