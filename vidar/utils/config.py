@@ -192,7 +192,7 @@ def load_class(filename, paths, concat=True, methodname=None):
     for path in make_list(paths):
         # Create full path
         path = path.replace('/', '.').replace("\\",'.')
-        full_path = '{}.{}'.format(path, filename) if concat else path
+        full_path = 'knk_vision.vidar.{}.{}'.format(path, filename) if concat else path
         # Get module
         module = importlib.import_module(full_path)
         # Try all method names
