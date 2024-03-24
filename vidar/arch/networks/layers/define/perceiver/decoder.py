@@ -2,7 +2,7 @@
 
 import torch.nn as nn
 
-from vidar.arch.networks.layers.define.perceiver.layer import PerceiverLayer
+from knk_vision.vidar.vidar.arch.networks.layers.define.perceiver.layer import PerceiverLayer
 
 
 class PerceiverBasicDecoder(nn.Module):
@@ -46,18 +46,18 @@ class PerceiverBasicDecoder(nn.Module):
                 nn.Linear(2 * cfg.num_channels, output_num_channels),
             )
         elif self.mlp_type == 'implicit':
-            from vidar.arch.networks.layers.define.decoders.utils.implicit_net import ImplicitNet
+            from knk_vision.vidar.vidar.arch.networks.layers.define.decoders.utils.implicit_net import ImplicitNet
             self.final_layer = ImplicitNet(d_out=output_num_channels, num_blocks=3)
         elif self.mlp_type == 'residual':
-            from vidar.arch.networks.layers.define.decoders.utils.res_mlp import ResMLP
+            from knk_vision.vidar.vidar.arch.networks.layers.define.decoders.utils.res_mlp import ResMLP
             self.final_layer = ResMLP(input_dim=cfg.num_channels, output_dim=output_num_channels,
                                       depth=44, channels=256)
         elif self.mlp_type == 'residual_upsample':
-            from vidar.arch.networks.layers.define.decoders.utils.res_mlp_upsample import ResMLPUpsample
+            from knk_vision.vidar.vidar.arch.networks.layers.define.decoders.utils.res_mlp_upsample import ResMLPUpsample
             self.final_layer = ResMLPUpsample(input_dim=cfg.num_channels, output_dim=output_num_channels,
                                       depth=44, channels=256)
         else:
-            from vidar.arch.networks.layers.define.decoders.utils.mlp import ImplicitNet
+            from knk_vision.vidar.vidar.arch.networks.layers.define.decoders.utils.mlp import ImplicitNet
             self.final_layer = ImplicitNet(d_in=cfg.num_channels, d_out=output_num_channels, dims=self.mlp_type)
 
     def forward(self, query, z, shape=None, query_mask=None, extra=None):

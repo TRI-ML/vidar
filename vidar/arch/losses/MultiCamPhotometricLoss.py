@@ -2,11 +2,11 @@
 
 import torch
 
-from vidar.arch.losses.MultiViewPhotometricLoss import MultiViewPhotometricLoss
-from vidar.arch.networks.layers.fsm.utils import coords_from_motion, warp_from_coords, mask_from_coords
-from vidar.utils.depth import inv2depth
-from vidar.utils.tensor import match_scales
-from vidar.utils.types import is_list, is_double_list
+from knk_vision.vidar.vidar.arch.losses.MultiViewPhotometricLoss import MultiViewPhotometricLoss
+from knk_vision.vidar.vidar.arch.networks.layers.fsm.utils import coords_from_motion, warp_from_coords, mask_from_coords
+from knk_vision.vidar.vidar.utils.depth import inv2depth
+from knk_vision.vidar.vidar.utils.tensor import match_scales
+from knk_vision.vidar.vidar.utils.types import is_list, is_double_list
 
 
 class MultiCamPhotometricLoss(MultiViewPhotometricLoss):

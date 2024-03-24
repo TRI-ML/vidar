@@ -4,9 +4,9 @@ import torch
 from pytorch3d.transforms.rotation_conversions import \
     matrix_to_euler_angles, euler_angles_to_matrix
 
-from vidar.utils.data import keys_in
-from vidar.utils.decorators import iterate1, iterate12
-from vidar.utils.types import is_tensor, is_list, is_seq
+from knk_vision.vidar.vidar.utils.data import keys_in
+from knk_vision.vidar.vidar.utils.decorators import iterate1, iterate12
+from knk_vision.vidar.vidar.utils.types import is_tensor, is_list, is_seq
 
 
 def flip_lr_fn(tensor):

@@ -2511,7 +2511,7 @@ class PerceiverRGBDecoder(PerceiverAbstractDecoder):
                 self.decoder_mask = PerceiverBasicDecoder(
                     config, output_num_channels=output_num_channels_mask, **decoder_kwargs)
             elif self.upsample_mode == 'bilinear':
-                from vidar.utils.tensor import interpolate
+                from knk_vision.vidar.vidar.utils.tensor import interpolate
                 from functools import partial
                 self.interpolate = partial(interpolate, scale_factor=upsample_value,
                                            size=None, mode='bilinear', align_corners=True)
@@ -2576,7 +2576,7 @@ class PerceiverDepthDecoder(PerceiverAbstractDecoder):
                 self.decoder_mask = PerceiverBasicDecoder(
                     config, output_num_channels=output_num_channels_mask, **decoder_kwargs)
             elif self.upsample_mode == 'bilinear':
-                from vidar.utils.tensor import interpolate
+                from knk_vision.vidar.vidar.utils.tensor import interpolate
                 from functools import partial
                 self.interpolate = partial(interpolate, scale_factor=upsample_value,
                                            size=None, mode='bilinear', align_corners=True)
@@ -2592,12 +2592,12 @@ class PerceiverDepthDecoder(PerceiverAbstractDecoder):
 
         self.output_mode = output_mode
         if self.output_mode == 'inv_depth':
-            from vidar.arch.blocks.depth.SigmoidToInvDepth import SigmoidToInvDepth
+            from knk_vision.vidar.vidar.arch.blocks.depth.SigmoidToInvDepth import SigmoidToInvDepth
             self.sigmoid = torch.nn.Sigmoid()
             self.sigmoid_to_depth = SigmoidToInvDepth(
                 min_depth=min_depth, max_depth=max_depth, return_depth=True)
         elif self.output_mode == 'log_depth':
-            from vidar.arch.blocks.depth.SigmoidToLogDepth import SigmoidToLogDepth
+            from knk_vision.vidar.vidar.arch.blocks.depth.SigmoidToLogDepth import SigmoidToLogDepth
             self.sigmoid_to_log_depth = SigmoidToLogDepth()
         else:
             raise ValueError('Invalid depth output mode')

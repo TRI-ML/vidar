@@ -2,11 +2,11 @@
 
 import os
 
-from vidar.utils.config import cfg_has
-from vidar.utils.data import make_list, expand_and_break
-from vidar.utils.types import is_dict, is_list
-from vidar.utils.viz import viz_depth, viz_optical_flow, viz_normals, viz_stddev
-from vidar.utils.write import write_image, write_depth, write_normals, write_optical_flow, write_pickle
+from knk_vision.vidar.vidar.utils.config import cfg_has
+from knk_vision.vidar.vidar.utils.data import make_list, expand_and_break
+from knk_vision.vidar.vidar.utils.types import is_dict, is_list
+from knk_vision.vidar.vidar.utils.viz import viz_depth, viz_optical_flow, viz_normals, viz_stddev
+from knk_vision.vidar.vidar.utils.write import write_image, write_depth, write_normals, write_optical_flow, write_pickle
 
 
 def ctx_str(ctx):

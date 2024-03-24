@@ -3,8 +3,8 @@
 import torch
 from torch_scatter import scatter_min
 
-from vidar.geometry.cameras.base import CameraBase
-from vidar.utils.tensor import unnorm_pixel_grid
+from knk_vision.vidar.vidar.geometry.cameras.base import CameraBase
+from knk_vision.vidar.vidar.utils.tensor import unnorm_pixel_grid
 
 
 class CameraNerf(CameraBase):

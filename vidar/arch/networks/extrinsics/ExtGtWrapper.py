@@ -5,9 +5,9 @@ import pickle
 import numpy as np
 import torch
 
-from vidar.arch.networks.layers.selffsm.implemented_dataset_cfg import IMPLEMENTED_DATASET2FRONT_CAM
-from vidar.geometry.pose_utils import invert_pose
-from vidar.utils.distributed import print0
+from knk_vision.vidar.vidar.arch.networks.layers.selffsm.implemented_dataset_cfg import IMPLEMENTED_DATASET2FRONT_CAM
+from knk_vision.vidar.vidar.geometry.pose_utils import invert_pose
+from knk_vision.vidar.vidar.utils.distributed import print0
 
 
 class ExtGtLoader(object):

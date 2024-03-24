@@ -5,7 +5,7 @@ from functools import partial
 import torch
 from torch import linalg as LA
 
-from vidar.geometry.pose_utils import get_geodesic_err, multicam_translations
+from knk_vision.vidar.vidar.geometry.pose_utils import get_geodesic_err, multicam_translations
 
 __PI = 3.1416
 

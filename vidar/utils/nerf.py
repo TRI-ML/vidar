@@ -1,8 +1,8 @@
 # Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 import torch
-from vidar.utils.types import is_list
-from vidar.utils.depth import get_depth_bins, get_depth_bins_volume
+from knk_vision.vidar.vidar.utils.types import is_list
+from knk_vision.vidar.vidar.utils.depth import get_depth_bins, get_depth_bins_volume
 
 
 def get_delta(zvals, inf=1e10):

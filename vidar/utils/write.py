@@ -7,8 +7,8 @@ import cv2
 import numpy as np
 import torchvision.transforms as transforms
 
-from vidar.utils.decorators import multi_write
-from vidar.utils.types import is_tensor, is_numpy
+from knk_vision.vidar.vidar.utils.decorators import multi_write
+from knk_vision.vidar.vidar.utils.types import is_tensor, is_numpy
 
 
 def create_folder(filename):

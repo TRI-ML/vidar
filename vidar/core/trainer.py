@@ -6,15 +6,15 @@ import numpy as np
 import torch
 from tqdm import tqdm
 
-from vidar.core.checkpoint import ModelCheckpoint
-from vidar.core.logger import WandbLogger
-from vidar.core.saver import Saver
-from vidar.utils.config import cfg_has, dataset_prefix
-from vidar.utils.data import make_list, prepare_batch, get_from_dict
-from vidar.utils.distributed import on_rank_0, rank, world_size, print0, dist_mode
-from vidar.utils.logging import pcolor, AvgMeter
-from vidar.utils.setup import setup_dataloader, reduce
-from vidar.utils.types import is_dict, is_seq, is_numpy, is_tensor, is_list, is_namespace
+from knk_vision.vidar.vidar.core.checkpoint import ModelCheckpoint
+from knk_vision.vidar.vidar.core.logger import WandbLogger
+from knk_vision.vidar.vidar.core.saver import Saver
+from knk_vision.vidar.vidar.utils.config import cfg_has, dataset_prefix
+from knk_vision.vidar.vidar.utils.data import make_list, prepare_batch, get_from_dict
+from knk_vision.vidar.vidar.utils.distributed import on_rank_0, rank, world_size, print0, dist_mode
+from knk_vision.vidar.vidar.utils.logging import pcolor, AvgMeter
+from knk_vision.vidar.vidar.utils.setup import setup_dataloader, reduce
+from knk_vision.vidar.vidar.utils.types import is_dict, is_seq, is_numpy, is_tensor, is_list, is_namespace
 
 
 def sample_to_cuda(sample, proc_rank, dtype=None):

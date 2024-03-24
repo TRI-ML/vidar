@@ -2,8 +2,8 @@
 
 import torch
 
-from vidar.geometry.cameras.base import CameraBase
-from vidar.utils.types import is_seq
+from knk_vision.vidar.vidar.geometry.cameras.base import CameraBase
+from knk_vision.vidar.vidar.utils.types import is_seq
 
 
 class CameraUCM(CameraBase):

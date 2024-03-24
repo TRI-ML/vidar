@@ -6,13 +6,13 @@ from abc import ABC
 import numpy as np
 import torch
 
-from vidar.arch.models.BaseModel import BaseModel
-from vidar.arch.models.define.DefineModel import augment_canonical, create_virtual_cameras
-from vidar.geometry.camera import Camera
-from vidar.geometry.pose import Pose
-from vidar.utils.data import flatten
-from vidar.utils.types import is_list
-from vidar.arch.networks.perceiver.DeFiNeNet import DeFiNeNet
+from knk_vision.vidar.vidar.arch.models.BaseModel import BaseModel
+from knk_vision.vidar.vidar.arch.models.define.DefineModel import augment_canonical, create_virtual_cameras
+from knk_vision.vidar.vidar.geometry.camera import Camera
+from knk_vision.vidar.vidar.geometry.pose import Pose
+from knk_vision.vidar.vidar.utils.data import flatten
+from knk_vision.vidar.vidar.utils.types import is_list
+from knk_vision.vidar.vidar.arch.networks.perceiver.DeFiNeNet import DeFiNeNet
 
 
 def sample_pred_gt(output, gt, pred):

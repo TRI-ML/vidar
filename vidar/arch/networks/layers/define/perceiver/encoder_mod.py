@@ -2,8 +2,8 @@
 
 import torch.nn as nn
 
-from vidar.arch.networks.layers.define.perceiver.layer import PerceiverLayer
-from vidar.utils.types import is_list
+from knk_vision.vidar.vidar.arch.networks.layers.define.perceiver.layer import PerceiverLayer
+from knk_vision.vidar.vidar.utils.types import is_list
 
 
 class PerceiverEncoder(nn.Module):

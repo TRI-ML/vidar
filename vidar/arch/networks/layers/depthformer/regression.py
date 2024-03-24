@@ -4,8 +4,8 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
-from vidar.arch.networks.layers.depthformer.context_adjustment import ContextAdjustmentLayer
-from vidar.utils.volume import compute_depth_bin
+from knk_vision.vidar.vidar.arch.networks.layers.depthformer.context_adjustment import ContextAdjustmentLayer
+from knk_vision.vidar.vidar.utils.volume import compute_depth_bin
 
 
 class RegressionHead(nn.Module):

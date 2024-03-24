@@ -7,17 +7,17 @@ import os
 
 import torch
 
-from vidar.core.wrapper import Wrapper
-from vidar.utils.config import read_config
+from knk_vision.vidar.vidar.core.wrapper import Wrapper
+from knk_vision.vidar.vidar.utils.config import read_config
 
-from vidar.arch.networks.layers.selffsm.metrics import *
-from vidar.arch.networks.layers.selffsm.implemented_dataset_cfg import \
+from knk_vision.vidar.vidar.arch.networks.layers.selffsm.metrics import *
+from knk_vision.vidar.vidar.arch.networks.layers.selffsm.implemented_dataset_cfg import \
     (DATASET2FRONT_IMG_PATH_UNDER_SCENARIO, DATASET2IMG_EXT,
      DATASET2DEFAULT_HW, DATASET2DEFAULT_VIEW_KEY, DATASET2DEFAULT_SCENARIO
      )
 
-from vidar.utils.config import cfg_has
-from vidar.utils.data import make_batch
+from knk_vision.vidar.vidar.utils.config import cfg_has
+from knk_vision.vidar.vidar.utils.data import make_batch
 
 
 def parser(feed_by_lst=None):

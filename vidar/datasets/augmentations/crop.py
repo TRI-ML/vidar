@@ -4,8 +4,8 @@ from copy import deepcopy
 
 import numpy as np
 
-from vidar.utils.data import keys_with
-from vidar.utils.decorators import iterate1
+from knk_vision.vidar.vidar.utils.data import keys_with
+from knk_vision.vidar.vidar.utils.decorators import iterate1
 
 
 @iterate1

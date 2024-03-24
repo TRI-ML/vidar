@@ -1,6 +1,6 @@
 # Copyright 2023 Toyota Research Institute.  All rights reserved.
 
-from vidar.utils.types import is_seq
+from knk_vision.vidar.vidar.utils.types import is_seq
 
 
 def invert_intrinsics(K):

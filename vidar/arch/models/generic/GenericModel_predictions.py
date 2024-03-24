@@ -1,7 +1,7 @@
 # Copyright 2023 Toyota Research Institute.  All rights reserved.
 
-from vidar.arch.models.generic.GenericModel_utils import get_if_not_none, make_pairs, update_predictions
-from vidar.utils.data import get_from_dict, remove_nones_dict, update_dict, update_dict_nested, sum_list, tensor_like
+from knk_vision.vidar.vidar.arch.models.generic.GenericModel_utils import get_if_not_none, make_pairs, update_predictions
+from knk_vision.vidar.vidar.utils.data import get_from_dict, remove_nones_dict, update_dict, update_dict_nested, sum_list, tensor_like
 import torch
 
 

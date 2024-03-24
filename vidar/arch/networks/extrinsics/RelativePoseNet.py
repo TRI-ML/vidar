@@ -9,9 +9,9 @@ from typing import Dict, List, Any
 import torch
 import torch.nn as nn
 
-from vidar.arch.networks.BaseNet import BaseNet
-from vidar.arch.networks.extrinsics.representations.tvec_euler import TvecEulerRepresentation
-from vidar.utils.config import Config, cfg_has
+from knk_vision.vidar.vidar.arch.networks.BaseNet import BaseNet
+from knk_vision.vidar.vidar.arch.networks.extrinsics.representations.tvec_euler import TvecEulerRepresentation
+from knk_vision.vidar.vidar.utils.config import Config, cfg_has
 
 
 class RelativePoseNet(BaseNet, ABC):

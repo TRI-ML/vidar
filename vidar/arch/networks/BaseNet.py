@@ -3,8 +3,8 @@
 import torch
 import torch.nn as nn
 
-from vidar.arch.blocks.depth.SigmoidToInvDepth import SigmoidToInvDepth
-from vidar.utils.config import cfg_has
+from knk_vision.vidar.vidar.arch.blocks.depth.SigmoidToInvDepth import SigmoidToInvDepth
+from knk_vision.vidar.vidar.utils.config import cfg_has
 
 
 class BaseNet(nn.Module):

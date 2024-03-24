@@ -4,10 +4,10 @@ import random
 
 import torch
 
-from vidar.geometry.camera import Camera
-from vidar.utils.data import make_list, get_from_dict
-from vidar.utils.tensor import interpolate_nearest, same_shape
-from vidar.utils.types import is_dict, is_seq, is_double_seq, is_list, is_tuple
+from knk_vision.vidar.vidar.geometry.camera import Camera
+from knk_vision.vidar.vidar.utils.data import make_list, get_from_dict
+from knk_vision.vidar.vidar.utils.tensor import interpolate_nearest, same_shape
+from knk_vision.vidar.vidar.utils.types import is_dict, is_seq, is_double_seq, is_list, is_tuple
 
 
 def prepare_gt(data):

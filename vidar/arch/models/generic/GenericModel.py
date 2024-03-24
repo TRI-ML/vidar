@@ -5,20 +5,20 @@ from functools import partial
 
 import torch
 
-from vidar.arch.models.BaseModel import BaseModel
-from vidar.arch.models.generic.GenericModel_losses import GenericModelLosses
-from vidar.arch.models.generic.GenericModel_predictions import GenericModelPredictions
-from vidar.arch.models.generic.GenericModel_utils import \
+from knk_vision.vidar.vidar.arch.models.BaseModel import BaseModel
+from knk_vision.vidar.vidar.arch.models.generic.GenericModel_losses import GenericModelLosses
+from knk_vision.vidar.vidar.arch.models.generic.GenericModel_predictions import GenericModelPredictions
+from knk_vision.vidar.vidar.arch.models.generic.GenericModel_utils import \
     filter_targets, filter_contexts, filter_encodes, filter_losses, get_if_not_none, \
     filter_params, sum_valid
-from vidar.arch.models.generic.GenericModel_warps import GenericModelWarps
-from vidar.geometry.camera import Camera
-from vidar.geometry.pose import Pose
-from vidar.utils.augmentations import augment_batch1, augment_batch2
-from vidar.utils.config import Config
-from vidar.utils.data import get_from_dict, update_dict_nested, all_in
-from vidar.utils.flow import residual_scene_flow, residual_scene_flow_from_depth_optflow, to_world_scene_flow
-from vidar.utils.types import is_list
+from knk_vision.vidar.vidar.arch.models.generic.GenericModel_warps import GenericModelWarps
+from knk_vision.vidar.vidar.geometry.camera import Camera
+from knk_vision.vidar.vidar.geometry.pose import Pose
+from knk_vision.vidar.vidar.utils.augmentations import augment_batch1, augment_batch2
+from knk_vision.vidar.vidar.utils.config import Config
+from knk_vision.vidar.vidar.utils.data import get_from_dict, update_dict_nested, all_in
+from knk_vision.vidar.vidar.utils.flow import residual_scene_flow, residual_scene_flow_from_depth_optflow, to_world_scene_flow
+from knk_vision.vidar.vidar.utils.types import is_list
 
 
 class GenericModel(BaseModel, ABC, GenericModelLosses, GenericModelWarps, GenericModelPredictions):
@@ -38,7 +38,7 @@ class GenericModel(BaseModel, ABC, GenericModelLosses, GenericModelWarps, Generi
 
         # Prepare display window (requires Camviz)
         if cfg.model.has('display') and cfg.model.display.enabled:
-            from vidar.arch.models.generic.GenericModel_display import Display
+            from knk_vision.vidar.vidar.arch.models.generic.GenericModel_display import Display
             self.display = Display(cfg.model.display)
             self.display_mode = cfg.model.display.mode
         else:

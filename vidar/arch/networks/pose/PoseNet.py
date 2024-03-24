@@ -4,10 +4,10 @@ from abc import ABC
 
 import torch
 
-from vidar.arch.networks.BaseNet import BaseNet
-from vidar.arch.networks.decoders.PoseDecoder import PoseDecoder
-from vidar.arch.networks.encoders.ResNetEncoder import ResNetEncoder
-from vidar.geometry.pose_utils import vec2mat
+from knk_vision.vidar.vidar.arch.networks.BaseNet import BaseNet
+from knk_vision.vidar.vidar.arch.networks.decoders.PoseDecoder import PoseDecoder
+from knk_vision.vidar.vidar.arch.networks.encoders.ResNetEncoder import ResNetEncoder
+from knk_vision.vidar.vidar.geometry.pose_utils import vec2mat
 
 
 class PoseNet(BaseNet, ABC):

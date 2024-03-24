@@ -5,7 +5,7 @@ from abc import ABC
 import torch
 import torch.nn as nn
 
-from vidar.utils.decorators import iterate2
+from knk_vision.vidar.vidar.utils.decorators import iterate2
 
 
 class SigmoidToLogDepth(nn.Module, ABC):

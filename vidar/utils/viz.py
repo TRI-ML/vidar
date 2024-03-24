@@ -5,9 +5,9 @@ import numpy as np
 import torch
 from matplotlib.cm import get_cmap
 
-from vidar.utils.decorators import iterate1
-from vidar.utils.depth import depth2inv
-from vidar.utils.types import is_tensor, is_list
+from knk_vision.vidar.vidar.utils.decorators import iterate1
+from knk_vision.vidar.vidar.utils.depth import depth2inv
+from knk_vision.vidar.vidar.utils.types import is_tensor, is_list
 
 
 def flow_to_color(flow_uv, clip_flow=None):

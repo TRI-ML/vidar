@@ -2,8 +2,8 @@
 
 import torch.nn as nn
 
-from vidar.arch.networks.layers.define.perceiver.self_attention import PerceiverSelfAttention
-from vidar.arch.networks.layers.define.perceiver.self_output import PerceiverSelfOutput
+from knk_vision.vidar.vidar.arch.networks.layers.define.perceiver.self_attention import PerceiverSelfAttention
+from knk_vision.vidar.vidar.arch.networks.layers.define.perceiver.self_output import PerceiverSelfOutput
 
 
 class PerceiverAttention(nn.Module):
@@ -43,7 +43,7 @@ class PerceiverAttention(nn.Module):
                 v_channels = qk_channels
 
         if not self.is_cross_attention and self.with_flash_attention:
-            from vidar.arch.networks.layers.define.perceiver.flash import FlashMHA
+            from knk_vision.vidar.vidar.arch.networks.layers.define.perceiver.flash import FlashMHA
             self.self = FlashMHA(
                 embed_dim=q_dim, num_heads=num_heads,
                 attention_dropout=attention_dropout,

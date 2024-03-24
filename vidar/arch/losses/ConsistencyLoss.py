@@ -5,10 +5,10 @@ from functools import partial
 
 import torch
 
-from vidar.arch.losses.BaseLoss import BaseLoss
-from vidar.utils.data import get_mask_from_list
-from vidar.utils.tensor import interpolate, same_shape, multiply_mask, masked_average
-from vidar.utils.types import is_list
+from knk_vision.vidar.vidar.arch.losses.BaseLoss import BaseLoss
+from knk_vision.vidar.vidar.utils.data import get_mask_from_list
+from knk_vision.vidar.vidar.utils.tensor import interpolate, same_shape, multiply_mask, masked_average
+from knk_vision.vidar.vidar.utils.types import is_list
 
 
 class ConsistencyLoss(BaseLoss, ABC):

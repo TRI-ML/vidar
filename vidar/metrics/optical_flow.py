@@ -2,10 +2,10 @@
 
 import torch
 
-from vidar.metrics.base import BaseEvaluation
-from vidar.utils.data import remove_nones_dict, get_from_dict
-from vidar.utils.distributed import on_rank_0
-from vidar.utils.logging import pcolor
+from knk_vision.vidar.vidar.metrics.base import BaseEvaluation
+from knk_vision.vidar.vidar.utils.data import remove_nones_dict, get_from_dict
+from knk_vision.vidar.vidar.utils.distributed import on_rank_0
+from knk_vision.vidar.vidar.utils.logging import pcolor
 
 
 class OpticalFlowEvaluation(BaseEvaluation):

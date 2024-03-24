@@ -5,11 +5,11 @@ import random
 import numpy as np
 import torch
 
-from vidar.utils.decorators import iterate1
-from vidar.utils.tensor import interpolate_nearest, interpolate_image
-from vidar.utils.types import is_seq, is_int
-from vidar.utils.data import keys_in, get_random
-from vidar.geometry.pose_utils import invert_pose
+from knk_vision.vidar.vidar.utils.decorators import iterate1
+from knk_vision.vidar.vidar.utils.tensor import interpolate_nearest, interpolate_image
+from knk_vision.vidar.vidar.utils.types import is_seq, is_int
+from knk_vision.vidar.vidar.utils.data import keys_in, get_random
+from knk_vision.vidar.vidar.geometry.pose_utils import invert_pose
 
 
 def parse_resize(shape, raw):

@@ -2,11 +2,11 @@
 
 from abc import ABC
 
-from vidar.arch.blocks.depth.SigmoidToInvDepth import SigmoidToInvDepth
-from vidar.arch.networks.BaseNet import BaseNet
-from vidar.arch.networks.decoders.DepthDecoder import DepthDecoder
-from vidar.arch.networks.encoders.ResNetEncoder import ResNetEncoder as ResnetEncoder
-from vidar.utils.depth import inv2depth, depth2inv
+from knk_vision.vidar.vidar.arch.blocks.depth.SigmoidToInvDepth import SigmoidToInvDepth
+from knk_vision.vidar.vidar.arch.networks.BaseNet import BaseNet
+from knk_vision.vidar.vidar.arch.networks.decoders.DepthDecoder import DepthDecoder
+from knk_vision.vidar.vidar.arch.networks.encoders.ResNetEncoder import ResNetEncoder as ResnetEncoder
+from knk_vision.vidar.vidar.utils.depth import inv2depth, depth2inv
 
 
 class FocalMonoDepthNet(BaseNet, ABC):

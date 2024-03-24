@@ -5,13 +5,13 @@ import numpy as np
 
 import cv2
 
-from vidar.datasets.BaseDataset import BaseDataset
-from vidar.datasets.utils.FolderTree import FolderTree
-from vidar.datasets.utils.misc import stack_sample
-from vidar.utils.read import read_image
-from vidar.datasets.BaseDataset import BaseDataset
-from vidar.datasets.utils.misc import invert_pose, stack_sample, make_relative_pose
-from vidar.utils.read import read_image
+from knk_vision.vidar.vidar.datasets.BaseDataset import BaseDataset
+from knk_vision.vidar.vidar.datasets.utils.FolderTree import FolderTree
+from knk_vision.vidar.vidar.datasets.utils.misc import stack_sample
+from knk_vision.vidar.vidar.utils.read import read_image
+from knk_vision.vidar.vidar.datasets.BaseDataset import BaseDataset
+from knk_vision.vidar.vidar.datasets.utils.misc import invert_pose, stack_sample, make_relative_pose
+from knk_vision.vidar.vidar.utils.read import read_image
 
 
 class ScanNetTemporalDataset(BaseDataset):

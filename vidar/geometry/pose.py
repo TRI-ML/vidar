@@ -4,8 +4,8 @@ from copy import deepcopy
 
 import torch
 
-from vidar.geometry.pose_utils import invert_pose, pose_vec2mat, to_global_pose, euler2mat, to_global_pose_broken
-from vidar.utils.types import is_int, is_tensor
+from knk_vision.vidar.vidar.geometry.pose_utils import invert_pose, pose_vec2mat, to_global_pose, euler2mat, to_global_pose_broken
+from knk_vision.vidar.vidar.utils.types import is_int, is_tensor
 
 
 def from_dict_sample(T, to_global=False, zero_origin=False, to_matrix=False, broken=False):

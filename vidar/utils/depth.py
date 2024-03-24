@@ -4,10 +4,10 @@ import numpy as np
 import torch
 import torch.nn.functional as tfn
 
-from vidar.geometry.camera import Camera
-from vidar.utils.decorators import iterate1
-from vidar.utils.tensor import same_shape
-from vidar.utils.types import is_tensor, is_numpy, is_list, is_dict
+from knk_vision.vidar.vidar.geometry.camera import Camera
+from knk_vision.vidar.vidar.utils.decorators import iterate1
+from knk_vision.vidar.vidar.utils.tensor import same_shape
+from knk_vision.vidar.vidar.utils.types import is_tensor, is_numpy, is_list, is_dict
 
 
 @iterate1
@@ -109,7 +109,7 @@ def post_process_inv_depth(inv_depth, inv_depth_flipped, method='mean'):
     inv_depth_pp : torch.Tensor
         Post-processed inverse depth map [B,1,H,W]
     """
-    from vidar.utils.flip import flip_lr
+    from knk_vision.vidar.vidar.utils.flip import flip_lr
     B, C, H, W = inv_depth.shape
     inv_depth_hat = inv_depth_flipped
     inv_depth_fused = fuse_inv_depth(inv_depth, inv_depth_hat, method=method)

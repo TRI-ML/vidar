@@ -2,10 +2,10 @@
 
 from abc import ABC
 
-from vidar.arch.networks.perceiver.DeFiNeNet import DefineNet
-from vidar.arch.models.BaseModel import BaseModel
-from vidar.geometry.camera_nerf import CameraNerf
-from vidar.geometry.pose import Pose
+from knk_vision.vidar.vidar.arch.networks.perceiver.DeFiNeNet import DefineNet
+from knk_vision.vidar.vidar.arch.models.BaseModel import BaseModel
+from knk_vision.vidar.vidar.geometry.camera_nerf import CameraNerf
+from knk_vision.vidar.vidar.geometry.pose import Pose
 
 
 class DefineInferenceModel(BaseModel, ABC):

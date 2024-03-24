@@ -3,10 +3,10 @@
 import torch
 import torch.nn as nn
 
-from vidar.arch.networks.layers.depthformer.feature_extraction import SppBackbone as Backbone
-from vidar.arch.networks.layers.depthformer.regression import RegressionHead
-from vidar.arch.networks.layers.depthformer.tokenizer import Tokenizer
-from vidar.arch.networks.layers.depthformer.transformer import Transformer
+from knk_vision.vidar.vidar.arch.networks.layers.depthformer.feature_extraction import SppBackbone as Backbone
+from knk_vision.vidar.vidar.arch.networks.layers.depthformer.regression import RegressionHead
+from knk_vision.vidar.vidar.arch.networks.layers.depthformer.tokenizer import Tokenizer
+from knk_vision.vidar.vidar.arch.networks.layers.depthformer.transformer import Transformer
 
 
 def batched_index_select(source, dim, index):

@@ -8,11 +8,11 @@ import skimage.measure
 import skimage.metrics
 import torch
 
-from vidar.metrics.base import BaseEvaluation
-from vidar.utils.data import remove_nones_dict
-from vidar.utils.distributed import on_rank_0
-from vidar.utils.logging import pcolor
-from vidar.utils.tensor import interpolate
+from knk_vision.vidar.vidar.metrics.base import BaseEvaluation
+from knk_vision.vidar.vidar.utils.data import remove_nones_dict
+from knk_vision.vidar.vidar.utils.distributed import on_rank_0
+from knk_vision.vidar.vidar.utils.logging import pcolor
+from knk_vision.vidar.vidar.utils.tensor import interpolate
 
 
 class SSIM:

@@ -8,11 +8,11 @@ from argparse import Namespace
 import torch
 import yaml
 
-from vidar.utils.data import make_list, num_trainable_params
-from vidar.utils.distributed import print0
-from vidar.utils.logging import pcolor
-from vidar.utils.networks import load_checkpoint
-from vidar.utils.types import is_dict, is_list, is_namespace, is_module_dict
+from knk_vision.vidar.vidar.utils.data import make_list, num_trainable_params
+from knk_vision.vidar.vidar.utils.distributed import print0
+from knk_vision.vidar.vidar.utils.logging import pcolor
+from knk_vision.vidar.vidar.utils.networks import load_checkpoint
+from knk_vision.vidar.vidar.utils.types import is_dict, is_list, is_namespace, is_module_dict
 
 
 def cfg_has(*args):
@@ -191,8 +191,8 @@ def load_class(filename, paths, concat=True, methodname=None):
     # for each path in paths
     for path in make_list(paths):
         # Create full path
-        path = path.replace('/', '.')
-        full_path = '{}.{}'.format(path, filename) if concat else path
+        path = path.replace('/', '.').replace("\\",'.')
+        full_path = 'knk_vision.vidar.{}.{}'.format(path, filename) if concat else path
         # Get module
         module = importlib.import_module(full_path)
         # Try all method names

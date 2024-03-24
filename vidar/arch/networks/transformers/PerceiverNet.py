@@ -6,7 +6,7 @@ from externals.transformers.adapters.inputs.image import ImageInputAdapter
 from externals.transformers.adapters.outputs.image import ImageOutputAdapter
 from externals.transformers.networks.perceiver_io import PerceiverIO
 from externals.transformers.networks.perceiver_io_decoder import PerceiverIODecoder
-from vidar.arch.networks.BaseNet import BaseNet
+from knk_vision.vidar.vidar.arch.networks.BaseNet import BaseNet
 
 
 class PerceiverNet(BaseNet, ABC):

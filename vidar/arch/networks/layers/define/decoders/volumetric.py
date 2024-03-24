@@ -2,8 +2,8 @@
 
 import torch
 
-from vidar.arch.networks.layers.define.decoders.utils.base_decoder import BaseDecoder
-from vidar.utils.nerf import composite, composite_depth, composite_weights
+from knk_vision.vidar.vidar.arch.networks.layers.define.decoders.utils.base_decoder import BaseDecoder
+from knk_vision.vidar.vidar.utils.nerf import composite, composite_depth, composite_weights
 
 
 class Exponential(torch.nn.Module):

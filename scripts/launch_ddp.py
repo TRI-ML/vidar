@@ -7,9 +7,9 @@ import torch
 import torch.distributed as dist
 import torch.multiprocessing as mp
 
-from vidar.core.trainer import Trainer
-from vidar.utils.config import read_config
-from vidar.core.wrapper import Wrapper
+from knk_vision.vidar.vidar.core.trainer import Trainer
+from knk_vision.vidar.vidar.utils.config import read_config
+from knk_vision.vidar.vidar.core.wrapper import Wrapper
 
 
 def train(cfg, **kwargs):

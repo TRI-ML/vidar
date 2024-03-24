@@ -6,9 +6,9 @@ import urllib
 import torch
 import torch.nn.functional as F
 
-from vidar.core.evaluator import Evaluator
-from vidar.utils.config import read_config
-from vidar.utils.setup import setup_arch, setup_network
+from knk_vision.vidar.vidar.core.evaluator import Evaluator
+from knk_vision.vidar.vidar.utils.config import read_config
+from knk_vision.vidar.vidar.utils.setup import setup_arch, setup_network
 
 
 def DeFiNe(pretrained=True, **kwargs):

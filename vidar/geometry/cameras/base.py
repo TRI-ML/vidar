@@ -6,11 +6,11 @@ from copy import deepcopy
 import torch
 import torch.nn as nn
 
-from vidar.geometry.camera_utils import invert_intrinsics, scale_intrinsics
-from vidar.geometry.pose import Pose
-from vidar.geometry.pose_utils import invert_pose
-from vidar.utils.tensor import pixel_grid, same_shape, cat_channel_ones, norm_pixel_grid, interpolate, interleave
-from vidar.utils.types import is_tensor, is_seq, is_tuple
+from knk_vision.vidar.vidar.geometry.camera_utils import invert_intrinsics, scale_intrinsics
+from knk_vision.vidar.vidar.geometry.pose import Pose
+from knk_vision.vidar.vidar.geometry.pose_utils import invert_pose
+from knk_vision.vidar.vidar.utils.tensor import pixel_grid, same_shape, cat_channel_ones, norm_pixel_grid, interpolate, interleave
+from knk_vision.vidar.vidar.utils.types import is_tensor, is_seq, is_tuple
 from einops import rearrange
 
 

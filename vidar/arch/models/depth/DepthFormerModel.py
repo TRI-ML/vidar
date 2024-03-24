@@ -6,13 +6,13 @@ from functools import partial
 
 import torch
 
-from vidar.arch.blocks.image.ViewSynthesis import ViewSynthesis
-from vidar.arch.models.BaseModel import BaseModel
-from vidar.arch.models.utils import make_rgb_scales, break_context, create_cameras
-from vidar.utils.data import get_from_dict
-from vidar.utils.depth import inv2depth
-from vidar.utils.tensor import interpolate, multiply_args
-from vidar.utils.types import is_str, is_tuple, is_list, is_dict
+from knk_vision.vidar.vidar.arch.blocks.image.ViewSynthesis import ViewSynthesis
+from knk_vision.vidar.vidar.arch.models.BaseModel import BaseModel
+from knk_vision.vidar.vidar.arch.models.utils import make_rgb_scales, break_context, create_cameras
+from knk_vision.vidar.vidar.utils.data import get_from_dict
+from knk_vision.vidar.vidar.utils.depth import inv2depth
+from knk_vision.vidar.vidar.utils.tensor import interpolate, multiply_args
+from knk_vision.vidar.vidar.utils.types import is_str, is_tuple, is_list, is_dict
 
 
 def fix_predictions(predictions):
@@ -339,7 +339,7 @@ class DepthFormerModel(BaseModel, ABC):
             cal = self.networks['multi_depth'].networks['cal']
             depth1 = depth_multi[0]
             depth2 = predictions['depth_regr'][0][0]
-            from vidar.utils.tensor import interpolate
+            from knk_vision.vidar.vidar.utils.tensor import interpolate
             depth2 = interpolate(depth2, size=depth1.shape[-2:], scale_factor=None, mode='nearest')
             predictions['depth_regr'][0].insert(0, cal(depth1, depth2, rgb))
 

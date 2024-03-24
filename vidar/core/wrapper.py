@@ -7,16 +7,16 @@ from collections import OrderedDict
 
 import torch
 
-from vidar.utils.config import cfg_has, read_config
-from vidar.utils.data import set_random_seed, get_from_dict, make_list
-from vidar.utils.distributed import rank, world_size
-from vidar.utils.flip import flip_batch, flip_output
-from vidar.utils.logging import pcolor, set_debug
-from vidar.utils.networks import load_checkpoint, save_checkpoint, freeze_layers_and_norms
-from vidar.utils.setup import setup_arch, setup_datasets, setup_metrics
-from vidar.utils.types import is_str
-from vidar.utils.optimizers import get_step_schedule_with_warmup, get_linear_schedule_with_warmup
-from vidar.utils.augmentations import crop_stack_batch, merge_stack_predictions
+from knk_vision.vidar.vidar.utils.config import cfg_has, read_config
+from knk_vision.vidar.vidar.utils.data import set_random_seed, get_from_dict, make_list
+from knk_vision.vidar.vidar.utils.distributed import rank, world_size
+from knk_vision.vidar.vidar.utils.flip import flip_batch, flip_output
+from knk_vision.vidar.vidar.utils.logging import pcolor, set_debug
+from knk_vision.vidar.vidar.utils.networks import load_checkpoint, save_checkpoint, freeze_layers_and_norms
+from knk_vision.vidar.vidar.utils.setup import setup_arch, setup_datasets, setup_metrics
+from knk_vision.vidar.vidar.utils.types import is_str
+from knk_vision.vidar.vidar.utils.optimizers import get_step_schedule_with_warmup, get_linear_schedule_with_warmup
+from knk_vision.vidar.vidar.utils.augmentations import crop_stack_batch, merge_stack_predictions
 
 
 class Wrapper(torch.nn.Module, ABC):

@@ -5,8 +5,8 @@ import numpy as np
 import torch
 
 from pyquaternion import Quaternion
-from vidar.utils.types import is_seq, is_dict
-from vidar.geometry.camera import Camera
+from knk_vision.vidar.vidar.utils.types import is_seq, is_dict
+from knk_vision.vidar.vidar.geometry.camera import Camera
 
 
 def slerp(cams, n=10, keep_edges=False, use_first=False, perturb=False):
