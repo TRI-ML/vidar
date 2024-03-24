@@ -2,7 +2,7 @@ from abc import ABC
 
 import torch.nn as nn
 
-from vidar.arch.networks.layers.convolution import Conv3x3, upsample
+from knk_vision.vidar.vidar.arch.networks.layers.convolution import Conv3x3, upsample
 
 
 class ConvDecoder(nn.Module, ABC):

@@ -6,14 +6,14 @@ import torch
 
 from camviz.objects.camera import Camera as CVCam
 
-from vidar.arch.models.releaseSesc.BaseFSM import BaseFSM
-from vidar.arch.networks.layers.selffsm.dataset_interface_method import get_relative_poses_from_base_cam, \
+from knk_vision.vidar.vidar.arch.models.releaseSesc.BaseFSM import BaseFSM
+from knk_vision.vidar.vidar.arch.networks.layers.selffsm.dataset_interface_method import get_relative_poses_from_base_cam, \
     get_unbroken_extrinsic, run_break_if_not_yet
-from vidar.geometry.camera import Camera
-from vidar.utils.config import cfg_has
-from vidar.utils.distributed import print0
-from vidar.utils.flip import flip_lr
-from vidar.utils.viz import viz_depth
+from knk_vision.vidar.vidar.geometry.camera import Camera
+from knk_vision.vidar.vidar.utils.config import cfg_has
+from knk_vision.vidar.vidar.utils.distributed import print0
+from knk_vision.vidar.vidar.utils.flip import flip_lr
+from knk_vision.vidar.vidar.utils.viz import viz_depth
 
 VIZ_CAMERA_SCALE = 1.
 VIZ_CAMERA_COLORS = ['red', 'yel', 'gre', 'blu', 'mag', 'cya'] * 100  # Full

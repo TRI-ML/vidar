@@ -2,7 +2,7 @@
 
 from functools import partial
 
-from vidar.arch.networks.layers.selffsm.dataset_interface_method import numeric_cam_id2camera_dir_name
+from knk_vision.vidar.vidar.arch.networks.layers.selffsm.dataset_interface_method import numeric_cam_id2camera_dir_name
 
 # for evaluation
 

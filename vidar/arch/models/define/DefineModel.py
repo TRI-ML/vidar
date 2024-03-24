@@ -5,8 +5,8 @@ from abc import ABC
 
 import torch
 
-from vidar.geometry.pose import Pose
-from vidar.utils.types import is_int
+from knk_vision.vidar.vidar.geometry.pose import Pose
+from knk_vision.vidar.vidar.utils.types import is_int
 
 
 def augment_canonical(pose):

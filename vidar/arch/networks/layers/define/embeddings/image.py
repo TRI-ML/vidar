@@ -5,11 +5,11 @@ from functools import partial
 import torch
 import torch.nn as nn
 
-from vidar.arch.networks.encoders.ResNetEncoder import ResNetEncoder
-from vidar.utils.config import Config
-from vidar.utils.networks import freeze_layers_and_norms
-from vidar.utils.tensor import interpolate
-from vidar.utils.setup import load_checkpoint
+from knk_vision.vidar.vidar.arch.networks.encoders.ResNetEncoder import ResNetEncoder
+from knk_vision.vidar.vidar.utils.config import Config
+from knk_vision.vidar.vidar.utils.networks import freeze_layers_and_norms
+from knk_vision.vidar.vidar.utils.tensor import interpolate
+from knk_vision.vidar.vidar.utils.setup import load_checkpoint
 
 
 class DownSampleRGB(nn.Module):
@@ -74,10 +74,10 @@ class ImageEmbeddings(nn.Module):
             self.encoder = None
         elif self.type == 'pixel_nerf':
             self.dim = 512
-            from vidar.arch.networks.layers.define.embeddings.utils.spatial_encoder import SpatialEncoder
+            from knk_vision.vidar.vidar.arch.networks.layers.define.embeddings.utils.spatial_encoder import SpatialEncoder
             self.encoder = SpatialEncoder(backbone='resnet34', pretrained=True, num_layers=4)
         elif self.type.startswith('dpt'):
-            from vidar.arch.networks.depth.OmniDataNet import OmniDataNet
+            from knk_vision.vidar.vidar.arch.networks.depth.OmniDataNet import OmniDataNet
             backbone = self.type.split('-')[-1]
             self.downsample = int(self.type.split('-')[1])
             self.dim = {
@@ -106,19 +106,19 @@ class ImageEmbeddings(nn.Module):
                 load_checkpoint(self.encoder, cfg.checkpoint, strict=False, verbose=True,
                                 remove_prefixes=(), replaces=[['networks.depth.', '']])
         elif self.type.startswith('vit'):
-            from vidar.arch.networks.layers.vit.models_mae import mae_vit_base_patch16
+            from knk_vision.vidar.vidar.arch.networks.layers.vit.models_mae import mae_vit_base_patch16
             backbone = self.type.split('-')[-1]
             self.dim = {
                 'base_patch16': 768,
             }[backbone]
             self.encoder = mae_vit_base_patch16(checkpoint=cfg.has('checkpoint', None))
         elif self.type.startswith('mim'):
-            from vidar.arch.networks.depth.MIMDepthNet import MIMDepthNet
+            from knk_vision.vidar.vidar.arch.networks.depth.MIMDepthNet import MIMDepthNet
             backbone = self.type.split('-')[-1]
             self.dim = 1024
             self.encoder = MIMDepthNet(Config())
         elif self.type.startswith('vpd'):
-            from vidar.arch.networks.depth.VPDNet import VPDNet
+            from knk_vision.vidar.vidar.arch.networks.depth.VPDNet import VPDNet
             self.dim = 2240 if self.type.endswith('multi') else 1536
             self.encoder = VPDNet(cfg.model)
         else:

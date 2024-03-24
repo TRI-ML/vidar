@@ -6,9 +6,9 @@ from collections import OrderedDict
 import numpy as np
 import torch
 
-import vidar.ontologies.convert
-from vidar.utils.decorators import iterate1
-from vidar.utils.types import is_seq, is_tensor, is_dict, is_numpy, is_int, is_list
+import knk_vision.vidar.vidar.ontologies.convert
+from knk_vision.vidar.vidar.utils.decorators import iterate1
+from knk_vision.vidar.vidar.utils.types import is_seq, is_tensor, is_dict, is_numpy, is_int, is_list
 
 
 

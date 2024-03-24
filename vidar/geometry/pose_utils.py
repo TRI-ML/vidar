@@ -4,7 +4,7 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 
-from vidar.utils.decorators import iterate1
+from knk_vision.vidar.vidar.utils.decorators import iterate1
 
 
 def mat2euler(M, cy_thresh=None):

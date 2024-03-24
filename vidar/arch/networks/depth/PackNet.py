@@ -5,10 +5,10 @@ from abc import ABC
 import torch
 import torch.nn as nn
 
-from vidar.arch.networks.BaseNet import BaseNet
-from vidar.arch.networks.layers.packnet import \
+from knk_vision.vidar.vidar.arch.networks.BaseNet import BaseNet
+from knk_vision.vidar.vidar.arch.networks.layers.packnet import \
     PackLayerConv3d, UnpackLayerConv3d, Conv2D, ResidualBlock, InvDepth
-from vidar.utils.depth import inv2depth
+from knk_vision.vidar.vidar.utils.depth import inv2depth
 
 
 class PackNet(BaseNet, ABC):

@@ -2,17 +2,17 @@
 
 from functools import partial
 
-from vidar.datasets.augmentations.image import \
+from knk_vision.vidar.vidar.datasets.augmentations.image import \
     colorjitter_sample, normalize_sample
-from vidar.datasets.augmentations.crop import \
+from knk_vision.vidar.vidar.datasets.augmentations.crop import \
     crop_sample_input, crop_sample
-from vidar.datasets.augmentations.misc import \
+from knk_vision.vidar.vidar.datasets.augmentations.misc import \
     duplicate_sample, mask_depth_percentage, mask_depth_number, clip_depth, mask_depth_range
-from vidar.datasets.augmentations.resize import resize_sample, resize_sample_input
-from vidar.datasets.augmentations.tensor import to_tensor_sample
-from vidar.datasets.utils.misc import parse_crop, parse_crop_borders, parse_crop_random
-from vidar.utils.types import is_list
-from vidar.utils.data import make_list
+from knk_vision.vidar.vidar.datasets.augmentations.resize import resize_sample, resize_sample_input
+from knk_vision.vidar.vidar.datasets.augmentations.tensor import to_tensor_sample
+from knk_vision.vidar.vidar.datasets.utils.misc import parse_crop, parse_crop_borders, parse_crop_random
+from knk_vision.vidar.vidar.utils.types import is_list
+from knk_vision.vidar.vidar.utils.data import make_list
 
 
 def train_transforms(sample, cfg):
@@ -34,7 +34,7 @@ def train_transforms(sample, cfg):
     # Make sample a list if it's not
     sample = make_list(sample)
     if cfg.has('calc_normals', False):
-        from vidar.datasets.utils.misc import calculate_normals
+        from knk_vision.vidar.vidar.datasets.utils.misc import calculate_normals
         for i in range(len(sample)):
             sample[i]['normals'] = {
                 tgt: calculate_normals(sample[i]['depth'][tgt], sample[i]['intrinsics'][tgt])

@@ -6,7 +6,7 @@ import torch
 from packaging import version
 from torch import nn
 
-from vidar.arch.networks.layers.activations import GaussianActivation
+from knk_vision.vidar.vidar.arch.networks.layers.activations import GaussianActivation
 
 
 def sine(x):

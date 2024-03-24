@@ -8,10 +8,10 @@ from PIL import Image
 import torch
 from torchvision.transforms import ToTensor
 
-from vidar.geometry.pose_utils import invert_pose
-from vidar.utils.data import break_key
-from vidar.utils.distributed import print0
-from vidar.utils.types import is_double_list
+from knk_vision.vidar.vidar.geometry.pose_utils import invert_pose
+from knk_vision.vidar.vidar.utils.data import break_key
+from knk_vision.vidar.vidar.utils.distributed import print0
+from knk_vision.vidar.vidar.utils.types import is_double_list
 
 
 def get_unbroken_extrinsic(ext_dict: Dict[tuple, torch.Tensor]) -> torch.Tensor:

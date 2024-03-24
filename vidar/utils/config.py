@@ -8,11 +8,11 @@ from argparse import Namespace
 import torch
 import yaml
 
-from vidar.utils.data import make_list, num_trainable_params
-from vidar.utils.distributed import print0
-from vidar.utils.logging import pcolor
-from vidar.utils.networks import load_checkpoint
-from vidar.utils.types import is_dict, is_list, is_namespace, is_module_dict
+from knk_vision.vidar.vidar.utils.data import make_list, num_trainable_params
+from knk_vision.vidar.vidar.utils.distributed import print0
+from knk_vision.vidar.vidar.utils.logging import pcolor
+from knk_vision.vidar.vidar.utils.networks import load_checkpoint
+from knk_vision.vidar.vidar.utils.types import is_dict, is_list, is_namespace, is_module_dict
 
 
 def cfg_has(*args):

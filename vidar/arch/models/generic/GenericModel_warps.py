@@ -2,15 +2,15 @@
 
 from functools import partial
 
-from vidar.arch.models.generic.GenericModel_utils import \
+from knk_vision.vidar.vidar.arch.models.generic.GenericModel_utils import \
     filter_targets, filter_contexts, get_if_not_none, make_pairs, sample_from_coords, parse_source
-from vidar.utils.config import Config
-from vidar.utils.data import update_dict_nested, get_from_dict, not_none, one_is
-from vidar.utils.flow import \
+from knk_vision.vidar.vidar.utils.config import Config
+from knk_vision.vidar.vidar.utils.data import update_dict_nested, get_from_dict, not_none, one_is
+from knk_vision.vidar.vidar.utils.flow import \
     fwd_bwd_optflow_consistency_check, optflow_from_motion, \
     warp_depth_from_motion, reverse_optflow, depth_from_optflow, \
     residual_scene_flow_from_depth_optflow, to_world_scene_flow
-from vidar.utils.types import is_list
+from knk_vision.vidar.vidar.utils.types import is_list
 
 
 class GenericModelWarps:

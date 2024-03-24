@@ -6,9 +6,9 @@ from copy import deepcopy
 import torch
 import torch.nn as nn
 
-from vidar.arch.networks.layers.define.perceiver.encoder_mod import PerceiverEncoder
-from vidar.utils.data import get_from_list
-from vidar.utils.types import is_int
+from knk_vision.vidar.vidar.arch.networks.layers.define.perceiver.encoder_mod import PerceiverEncoder
+from knk_vision.vidar.vidar.utils.data import get_from_list
+from knk_vision.vidar.vidar.utils.types import is_int
 
 
 class PerceiverModel(nn.Module, ABC):
@@ -40,16 +40,16 @@ class PerceiverModel(nn.Module, ABC):
 
         self.latent_mode = config.latent.has('mode', 'single')
         if self.latent_mode == 'single':
-            from vidar.arch.networks.layers.define.perceiver.embeddings import PerceiverEmbeddings
+            from knk_vision.vidar.vidar.arch.networks.layers.define.perceiver.embeddings import PerceiverEmbeddings
             self.embeddings = PerceiverEmbeddings(config.latent)
         elif self.latent_mode == 'multi':
-            from vidar.arch.networks.layers.define.perceiver.multi_embeddings import PerceiverMultiEmbeddings
+            from knk_vision.vidar.vidar.arch.networks.layers.define.perceiver.multi_embeddings import PerceiverMultiEmbeddings
             self.embeddings = PerceiverMultiEmbeddings(config.latent)
         elif self.latent_mode == 'token':
-            from vidar.arch.networks.layers.define.perceiver.token_embeddings import PerceiverTokenEmbeddings
+            from knk_vision.vidar.vidar.arch.networks.layers.define.perceiver.token_embeddings import PerceiverTokenEmbeddings
             self.embeddings = PerceiverTokenEmbeddings(config.latent)
         elif self.latent_mode == 'grid':
-            from vidar.arch.networks.layers.define.perceiver.grid_embeddings import PerceiverGridEmbeddings
+            from knk_vision.vidar.vidar.arch.networks.layers.define.perceiver.grid_embeddings import PerceiverGridEmbeddings
             self.embeddings = PerceiverGridEmbeddings(config.latent)
         else:
             raise ValueError('Invalid latent mode')
@@ -76,8 +76,8 @@ class PerceiverModel(nn.Module, ABC):
 
         self.with_clip = config.has('with_clip', False)
         if self.with_clip:
-            from vidar.arch.networks.language.CLIPNet import CLIPNet
-            from vidar.utils.config import Config
+            from knk_vision.vidar.vidar.arch.networks.language.CLIPNet import CLIPNet
+            from knk_vision.vidar.vidar.utils.config import Config
             clip_cfg = Config(
                 linear_out=config.latent.dim
             )

@@ -3,8 +3,8 @@
 import torch
 import torchvision.transforms as transforms
 
-from vidar.utils.decorators import iterate1
-from vidar.utils.data import remove_nones_dict
+from knk_vision.vidar.vidar.utils.decorators import iterate1
+from knk_vision.vidar.vidar.utils.data import remove_nones_dict
 
 
 @iterate1

@@ -7,11 +7,11 @@ import torch
 import torch.nn as nn
 import wandb
 
-from vidar.utils.config import cfg_has
-from vidar.utils.distributed import world_size
-from vidar.utils.logging import pcolor
-from vidar.utils.types import is_dict, is_tensor, is_seq, is_namespace
-from vidar.utils.viz import viz_depth, viz_inv_depth, viz_normals, viz_optical_flow, viz_camera
+from knk_vision.vidar.vidar.utils.config import cfg_has
+from knk_vision.vidar.vidar.utils.distributed import world_size
+from knk_vision.vidar.vidar.utils.logging import pcolor
+from knk_vision.vidar.vidar.utils.types import is_dict, is_tensor, is_seq, is_namespace
+from knk_vision.vidar.vidar.utils.viz import viz_depth, viz_inv_depth, viz_normals, viz_optical_flow, viz_camera
 
 
 def ctx_str(ctx):

@@ -8,10 +8,10 @@ import pandas as pd
 import seaborn as sns
 import torch
 
-from vidar.arch.networks.extrinsics.ExtGtWrapper import ExtGtLoader
-from vidar.arch.networks.layers.selffsm.implemented_dataset_cfg import CAMERA_NUMERIC2STR_KEY, IGNORE_SCENES
-from vidar.arch.networks.layers.selffsm.metrics import define_metrics
-from vidar.utils.distributed import print0
+from knk_vision.vidar.vidar.arch.networks.extrinsics.ExtGtWrapper import ExtGtLoader
+from knk_vision.vidar.vidar.arch.networks.layers.selffsm.implemented_dataset_cfg import CAMERA_NUMERIC2STR_KEY, IGNORE_SCENES
+from knk_vision.vidar.vidar.arch.networks.layers.selffsm.metrics import define_metrics
+from knk_vision.vidar.vidar.utils.distributed import print0
 
 
 def get_extrinsics_eval_ignore_scenarios(dataset: str) -> list:

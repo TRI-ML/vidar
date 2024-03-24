@@ -2,9 +2,9 @@
 
 from abc import ABC
 
-from vidar.arch.models.BaseModel import BaseModel
-from vidar.utils.decorators import iterate1
-from vidar.utils.tensor import interpolate_image
+from knk_vision.vidar.vidar.arch.models.BaseModel import BaseModel
+from knk_vision.vidar.vidar.utils.decorators import iterate1
+from knk_vision.vidar.vidar.utils.tensor import interpolate_image
 
 
 @iterate1

@@ -8,8 +8,8 @@ from inspect import signature, isfunction
 import numpy as np
 import torch
 
-from vidar.utils.decorators import iterate1, iterate2, iterate12
-from vidar.utils.types import is_list, is_double_list, is_tuple, is_tensor, is_dict, is_seq
+from knk_vision.vidar.vidar.utils.decorators import iterate1, iterate2, iterate12
+from knk_vision.vidar.vidar.utils.types import is_list, is_double_list, is_tuple, is_tensor, is_dict, is_seq
 
 KEYS_IMAGE = [
         'rgb', 'mask',

@@ -3,14 +3,14 @@
 import numpy as np
 import torch
 
-from vidar.metrics.base import BaseEvaluation
-from vidar.metrics.utils import create_crop_mask, scale_output
-from vidar.utils.config import cfg_has
-from vidar.utils.data import remove_nones_dict
-from vidar.utils.depth import post_process_depth, scale_and_shift_pred
-from vidar.utils.distributed import on_rank_0
-from vidar.utils.logging import pcolor
-from vidar.utils.types import is_dict
+from knk_vision.vidar.vidar.metrics.base import BaseEvaluation
+from knk_vision.vidar.vidar.metrics.utils import create_crop_mask, scale_output
+from knk_vision.vidar.vidar.utils.config import cfg_has
+from knk_vision.vidar.vidar.utils.data import remove_nones_dict
+from knk_vision.vidar.vidar.utils.depth import post_process_depth, scale_and_shift_pred
+from knk_vision.vidar.vidar.utils.distributed import on_rank_0
+from knk_vision.vidar.vidar.utils.logging import pcolor
+from knk_vision.vidar.vidar.utils.types import is_dict
 
 
 class DepthEvaluation(BaseEvaluation):

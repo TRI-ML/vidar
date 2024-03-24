@@ -7,15 +7,15 @@ from einops import rearrange
 from camviz import Draw
 from camviz.utils.cmaps import jet
 
-from vidar.utils.data import get_from_list, get_from_dict, interleave_dict
-from vidar.utils.depth import calculate_normals
-from vidar.utils.flow import warp_motion_dict, warp_optflow_dict
-from vidar.utils.viz import viz_depth, viz_optical_flow, viz_scene_flow, viz_normals
-from vidar.utils.types import is_list, is_tuple
-from vidar.utils.data import modrem
+from knk_vision.vidar.vidar.utils.data import get_from_list, get_from_dict, interleave_dict
+from knk_vision.vidar.vidar.utils.depth import calculate_normals
+from knk_vision.vidar.vidar.utils.flow import warp_motion_dict, warp_optflow_dict
+from knk_vision.vidar.vidar.utils.viz import viz_depth, viz_optical_flow, viz_scene_flow, viz_normals
+from knk_vision.vidar.vidar.utils.types import is_list, is_tuple
+from knk_vision.vidar.vidar.utils.data import modrem
 
-from vidar.utils.write import write_pickle
-from vidar.utils.read import read_pickle
+from knk_vision.vidar.vidar.utils.write import write_pickle
+from knk_vision.vidar.vidar.utils.read import read_pickle
 
 
 
