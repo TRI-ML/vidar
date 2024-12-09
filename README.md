@@ -594,6 +594,25 @@ Takayuki Kanai, Igor Vasiljevic, Vitor Guizilini, Adrien Gaidon, Rares Ambrus
 }
 ```
 
+### [Self-Supervised Geometry-Guided Initialization for Robust Monocular Visual Odometry](https://arxiv.org/abs/2406.00929v1) (arXiv 2024)
+Takayuki Kanai, Igor Vasiljevic, Vitor Guizilini, Kazuhiro Shintani
+
+**Abstract:** *Monocular visual odometry is a key technology in a wide variety of autonomous systems. Traditional feature-based methods suffer from failures due to poor lighting, insufficient texture, large motions, etc. In contrast, recent learning-based dense SLAM methods exploit iterative dense bundle adjustment to address such failure cases, and achieve robust and accurate localization in a wide variety of real environments, without depending on domain-specific training data. However, despite its potential, the method still struggles with scenarios involving large motion, object dynamics, etc. In this paper, we diagnose key weaknesses in a popular learning-based dense SLAM model (DROID-SLAM) by analyzing major failure cases on outdoor benchmarks and exposing various shortcomings of its optimization process. We then propose the use of self-supervised priors leveraging a frozen large-scale pre-trained monocular depth estimation to initialize the dense bundle adjustment process, leading to robust visual odometry without the need to fine-tune the SLAM backbone. Despite its simplicity, our proposed method demonstrates significant improvements on KITTI odometry, as well as the challenging DDAD benchmark.* 	Project page: [this https URL](https://toyotafrc.github.io/SGInit-Proj/).
+
+<p align="center">
+  <img src="/media/figs/sginit.gif" width="60%"/>
+</p>
+
+
+```
+@article{frc-tri-sginit,
+        title={Self-Supervised Geometry-Guided Initialization for Robust Monocular Visual Odometry}, 
+        author={Takayuki Kanai and Igor Vasiljevic and Vitor Guizilini and Kazuhiro Shintani},
+        year={2024},
+        journal={arXiv},
+}
+```
+
 ## License
 
 This repository is released under the [CC BY-NC 4.0](LICENSE.md) license.

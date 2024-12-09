@@ -1,0 +1,32 @@
+# Copyright 2024 Toyota Motor Corporation.  All rights reserved. 
+# ---------------------------------------------------------------
+# * Please refer to https://ieeexplore.ieee.org/document/10273446 by Sun et al. for the model training.
+# * Download and set the path to checkpoint correctly as:
+#   ```cd /data/models/papers && wget https://tri-ml-public.s3.amazonaws.com/github/vidar/models/SGInit_MR_selfsup_DDAD.ckpt````
+# ---------------------------------------------------------------
+wrapper:
+    recipe: wrapper|default
+    validate_first: True # MUST
+    flip_lr_prob: 0.0
+    validate_flipped: False
+    find_unused_parameters: True
+    use_tf32: True
+arch:
+    model:
+        file: depth/SelfSupervisedVOModel
+        checkpoint: /data/models/papers/SGInit_MR_selfsup_DDAD.ckpt
+    networks:
+        depth:
+            recipe: networks/mono_depth_net|resnet18
+            depth_range: [ 0.1,200.0 ]
+            num_scales: 1
+        pose:
+            recipe: networks/pose_net|resnet18
+evaluation:
+    depth:
+        recipe: evaluation/depth|ddad_resize
+        only_first: True
+        post_process: False # MUST
+datasets:
+    validation:
+        recipe: datasets/ddad|val_front
