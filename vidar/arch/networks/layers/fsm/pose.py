@@ -2,7 +2,7 @@
 
 import torch
 
-from vidar.geometry.pose_utils import invert_pose, pose_vec2mat
+from knk_vision.vidar.vidar.geometry.pose_utils import invert_pose, pose_vec2mat
 
 
 class Pose:

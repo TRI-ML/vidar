@@ -5,10 +5,10 @@ import math
 import torch
 import torch.nn as nn
 
-from vidar.utils.distributed import print0, rank, dist_mode
-from vidar.utils.logging import pcolor
-from vidar.utils.tensor import same_shape
-from vidar.utils.types import is_list
+from knk_vision.vidar.vidar.utils.distributed import print0, rank, dist_mode
+from knk_vision.vidar.vidar.utils.logging import pcolor
+from knk_vision.vidar.vidar.utils.tensor import same_shape
+from knk_vision.vidar.vidar.utils.types import is_list
 
 
 def freeze_layers(network, layers=('ALL',), flag_freeze=True):

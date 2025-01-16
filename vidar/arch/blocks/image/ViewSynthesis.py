@@ -6,9 +6,9 @@ from functools import partial
 import torch
 import torch.nn as nn
 
-from vidar.utils.flow import coords_from_optical_flow, coords_from_motion
-from vidar.utils.tensor import grid_sample, interpolate
-from vidar.utils.types import is_list, is_dict
+from knk_vision.vidar.vidar.utils.flow import coords_from_optical_flow, coords_from_motion
+from knk_vision.vidar.vidar.utils.tensor import grid_sample, interpolate
+from knk_vision.vidar.vidar.utils.types import is_list, is_dict
 
 
 class ViewSynthesis(nn.Module, ABC):

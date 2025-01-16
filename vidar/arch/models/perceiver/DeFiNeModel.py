@@ -7,23 +7,23 @@ from functools import partial
 import numpy as np
 import torch
 
-from vidar.arch.blocks.image.ViewSynthesis import ViewSynthesis
-from vidar.arch.losses.PhotometricLoss import PhotometricLoss
-from vidar.arch.models.BaseModel import BaseModel
-from vidar.arch.models.utils import make_rgb_scales
-from vidar.geometry.camera import Camera
-from vidar.geometry.pose import Pose
-from vidar.geometry.pose_utils import invert_pose
-from vidar.utils.config import Config
-from vidar.utils.data import expand_batch, break_key
-from vidar.utils.depth import calculate_normals, to_depth
-from vidar.utils.depth import index2depth
-from vidar.utils.tensor import grid_sample, interpolate
-from vidar.utils.types import is_list, is_int, is_dict
-from vidar.utils.viz import viz_photo, viz_depth
-from vidar.utils.volume import compute_depth_bins
-from vidar.utils.write import write_image
-from vidar.utils.networks import freeze_layers_and_norms
+from knk_vision.vidar.vidar.arch.blocks.image.ViewSynthesis import ViewSynthesis
+from knk_vision.vidar.vidar.arch.losses.PhotometricLoss import PhotometricLoss
+from knk_vision.vidar.vidar.arch.models.BaseModel import BaseModel
+from knk_vision.vidar.vidar.arch.models.utils import make_rgb_scales
+from knk_vision.vidar.vidar.geometry.camera import Camera
+from knk_vision.vidar.vidar.geometry.pose import Pose
+from knk_vision.vidar.vidar.geometry.pose_utils import invert_pose
+from knk_vision.vidar.vidar.utils.config import Config
+from knk_vision.vidar.vidar.utils.data import expand_batch, break_key
+from knk_vision.vidar.vidar.utils.depth import calculate_normals, to_depth
+from knk_vision.vidar.vidar.utils.depth import index2depth
+from knk_vision.vidar.vidar.utils.tensor import grid_sample, interpolate
+from knk_vision.vidar.vidar.utils.types import is_list, is_int, is_dict
+from knk_vision.vidar.vidar.utils.viz import viz_photo, viz_depth
+from knk_vision.vidar.vidar.utils.volume import compute_depth_bins
+from knk_vision.vidar.vidar.utils.write import write_image
+from knk_vision.vidar.vidar.utils.networks import freeze_layers_and_norms
 
 
 def augment_canonical(pose):

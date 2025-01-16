@@ -3,8 +3,8 @@
 import numpy as np
 import torch
 import torch.nn.functional as tfunc
-from vidar.utils.tensor import pixel_grid, cat_channel_ones
-from vidar.utils.data import align_corners
+from knk_vision.vidar.vidar.utils.tensor import pixel_grid, cat_channel_ones
+from knk_vision.vidar.vidar.utils.data import align_corners
 
 
 def bearing_grid(rgb, intrinsics):

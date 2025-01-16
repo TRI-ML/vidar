@@ -7,9 +7,9 @@ from abc import ABC
 
 from PIL import Image
 import numpy as np
-from vidar.utils.read import read_image
-from vidar.datasets.BaseDataset import BaseDataset
-from vidar.datasets.utils.misc import stack_sample
+from knk_vision.vidar.vidar.utils.read import read_image
+from knk_vision.vidar.vidar.datasets.BaseDataset import BaseDataset
+from knk_vision.vidar.vidar.datasets.utils.misc import stack_sample
 
 
 def dummy_calibration(image):

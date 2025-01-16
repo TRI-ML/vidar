@@ -2,7 +2,7 @@
 
 import torch
 
-from vidar.arch.networks.layers.define.decoders.utils.base_decoder import BaseDecoder
+from knk_vision.vidar.vidar.arch.networks.layers.define.decoders.utils.base_decoder import BaseDecoder
 
 
 class RGBDecoder(BaseDecoder):

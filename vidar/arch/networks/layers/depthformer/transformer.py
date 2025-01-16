@@ -7,9 +7,9 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
-from vidar.arch.losses.SSIMLoss import SSIMLoss
-from vidar.utils.tensor import grid_sample
-from vidar.utils.volume import compute_depth_bins, compute_depth_bin
+from knk_vision.vidar.vidar.arch.losses.SSIMLoss import SSIMLoss
+from knk_vision.vidar.vidar.utils.tensor import grid_sample
+from knk_vision.vidar.vidar.utils.volume import compute_depth_bins, compute_depth_bin
 
 
 def get_clones(module, N):

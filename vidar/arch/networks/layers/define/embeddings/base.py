@@ -3,9 +3,9 @@
 import torch
 import torch.nn as nn
 
-from vidar.arch.networks.layers.define.embeddings.utils.fourier_position_encoding import \
+from knk_vision.vidar.vidar.arch.networks.layers.define.embeddings.utils.fourier_position_encoding import \
     PerceiverFourierPositionEncoding
-from vidar.utils.types import is_list, is_dict
+from knk_vision.vidar.vidar.utils.types import is_list, is_dict
 
 
 class BaseEmbeddings(nn.Module):

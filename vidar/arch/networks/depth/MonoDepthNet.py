@@ -2,10 +2,10 @@
 
 from abc import ABC
 
-from vidar.arch.networks.BaseNet import BaseNet
-from vidar.arch.networks.decoders.DepthDecoder import DepthDecoder
-from vidar.arch.networks.encoders.ResNetEncoder import ResNetEncoder
-from vidar.utils.config import cfg_has
+from knk_vision.vidar.vidar.arch.networks.BaseNet import BaseNet
+from knk_vision.vidar.vidar.arch.networks.decoders.DepthDecoder import DepthDecoder
+from knk_vision.vidar.vidar.arch.networks.encoders.ResNetEncoder import ResNetEncoder
+from knk_vision.vidar.vidar.utils.config import cfg_has
 
 
 class MonoDepthNet(BaseNet, ABC):

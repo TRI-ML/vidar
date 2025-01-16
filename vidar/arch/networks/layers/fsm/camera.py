@@ -5,10 +5,10 @@ from functools import lru_cache
 import torch
 import torch.nn as nn
 
-from vidar.arch.networks.layers.fsm.camera_utils import scale_intrinsics, invert_intrinsics
-from vidar.arch.networks.layers.fsm.pose import Pose
-from vidar.utils.tensor import pixel_grid
-from vidar.utils.types import is_tensor, is_list
+from knk_vision.vidar.vidar.arch.networks.layers.fsm.camera_utils import scale_intrinsics, invert_intrinsics
+from knk_vision.vidar.vidar.arch.networks.layers.fsm.pose import Pose
+from knk_vision.vidar.vidar.utils.tensor import pixel_grid
+from knk_vision.vidar.vidar.utils.types import is_tensor, is_list
 
 
 class Camera(nn.Module):

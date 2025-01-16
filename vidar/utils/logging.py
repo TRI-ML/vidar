@@ -4,7 +4,7 @@ import os
 from termcolor import colored
 import argparse
 
-from vidar.utils.distributed import on_rank_0
+from knk_vision.vidar.vidar.utils.distributed import on_rank_0
 from functools import partial
 
 

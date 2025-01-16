@@ -5,7 +5,7 @@ from abc import ABC
 import torch
 import torch.nn as nn
 
-from vidar.arch.losses.BaseLoss import BaseLoss
+from knk_vision.vidar.vidar.arch.losses.BaseLoss import BaseLoss
 
 
 class SSIMLoss(BaseLoss, ABC):

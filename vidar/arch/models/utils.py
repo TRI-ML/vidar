@@ -2,10 +2,10 @@
 
 import torch
 
-from vidar.geometry.camera import Camera
-from vidar.utils.decorators import iterate1
-from vidar.utils.tensor import interpolate_image
-from vidar.utils.types import is_dict, is_int
+from knk_vision.vidar.vidar.geometry.camera import Camera
+from knk_vision.vidar.vidar.utils.decorators import iterate1
+from knk_vision.vidar.vidar.utils.tensor import interpolate_image
+from knk_vision.vidar.vidar.utils.types import is_dict, is_int
 
 
 @iterate1

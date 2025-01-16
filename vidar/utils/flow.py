@@ -2,10 +2,10 @@
 
 import torch
 
-from vidar.utils.data import make_list, get_from_dict, update_dict
-from vidar.utils.flow_triangulation_support import bearing_grid, mult_rotation_bearing, triangulation
-from vidar.utils.tensor import pixel_grid, norm_pixel_grid, unnorm_pixel_grid, grid_sample
-from vidar.utils.types import is_dict, is_list
+from knk_vision.vidar.vidar.utils.data import make_list, get_from_dict, update_dict
+from knk_vision.vidar.vidar.utils.flow_triangulation_support import bearing_grid, mult_rotation_bearing, triangulation
+from knk_vision.vidar.vidar.utils.tensor import pixel_grid, norm_pixel_grid, unnorm_pixel_grid, grid_sample
+from knk_vision.vidar.vidar.utils.types import is_dict, is_list
 
 
 def warp_from_coords(tensor, coords, mode='bilinear', padding_mode='zeros'):

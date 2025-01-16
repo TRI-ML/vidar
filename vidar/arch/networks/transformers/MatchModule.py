@@ -4,9 +4,9 @@ from abc import ABC
 
 import torch
 
-from vidar.arch.networks.BaseNet import BaseNet
-from vidar.arch.networks.layers.depthformer.transformer_net import TransformerNet
-from vidar.utils.config import cfg_has
+from knk_vision.vidar.vidar.arch.networks.BaseNet import BaseNet
+from knk_vision.vidar.vidar.arch.networks.layers.depthformer.transformer_net import TransformerNet
+from knk_vision.vidar.vidar.utils.config import cfg_has
 
 
 class MatchModule(BaseNet, ABC):

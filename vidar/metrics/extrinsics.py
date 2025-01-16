@@ -6,11 +6,11 @@ from typing import Dict, Any, List
 import torch
 import wandb
 
-from vidar.arch.networks.extrinsics.ExtEvaluatorModule import ExtComparisonWithPkl
-from vidar.metrics.base import BaseEvaluation
-from vidar.utils.distributed import on_rank_0
-from vidar.utils.logging import pcolor
-from vidar.utils.distributed import print0
+from knk_vision.vidar.vidar.arch.networks.extrinsics.ExtEvaluatorModule import ExtComparisonWithPkl
+from knk_vision.vidar.vidar.metrics.base import BaseEvaluation
+from knk_vision.vidar.vidar.utils.distributed import on_rank_0
+from knk_vision.vidar.vidar.utils.logging import pcolor
+from knk_vision.vidar.vidar.utils.distributed import print0
 
 
 class ExtrinsicsEvaluation(BaseEvaluation):

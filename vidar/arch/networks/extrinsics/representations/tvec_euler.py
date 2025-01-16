@@ -5,10 +5,10 @@ from typing import List
 import torch
 import torch.nn as nn
 
-from vidar.arch.networks.extrinsics.utils import get_noised_init_vec
-from vidar.geometry.pose_utils import pose_vec2mat_homogeneous
-from vidar.utils.config import Config
-from vidar.utils.distributed import print0
+from knk_vision.vidar.vidar.arch.networks.extrinsics.utils import get_noised_init_vec
+from knk_vision.vidar.vidar.geometry.pose_utils import pose_vec2mat_homogeneous
+from knk_vision.vidar.vidar.utils.config import Config
+from knk_vision.vidar.vidar.utils.distributed import print0
 
 
 class TvecEulerRepresentation:

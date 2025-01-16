@@ -2,7 +2,7 @@
 
 import torch
 import torch.nn as nn
-from vidar.utils.networks import freeze_layers_and_norms
+from knk_vision.vidar.vidar.utils.networks import freeze_layers_and_norms
 
 
 class PerceiverEmbeddings(nn.Module):

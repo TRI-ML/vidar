@@ -2,9 +2,9 @@
 
 from abc import ABC
 
-from vidar.arch.models.BaseModel import BaseModel
-from vidar.geometry.camera_nerf import CameraNerf
-from vidar.geometry.pose import Pose
+from knk_vision.vidar.vidar.arch.models.BaseModel import BaseModel
+from knk_vision.vidar.vidar.geometry.camera_nerf import CameraNerf
+from knk_vision.vidar.vidar.geometry.pose import Pose
 
 
 class DefineInferenceModel(BaseModel, ABC):
@@ -18,7 +18,7 @@ class DefineInferenceModel(BaseModel, ABC):
     def __init__(self, cfg):
         super().__init__(cfg)
 
-        from vidar.arch.networks.perceiver.DeFiNeNet import DeFiNeNet
+        from knk_vision.vidar.vidar.arch.networks.perceiver.DeFiNeNet import DeFiNeNet
 
         self.networks["perceiver"] = DeFiNeNet(cfg.model.network)
         self.weights = cfg.model.task_weights

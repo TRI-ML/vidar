@@ -5,9 +5,9 @@ from functools import reduce
 import torch
 import torch.nn.functional as tfn
 
-from vidar.utils.data import align_corners
-from vidar.utils.decorators import iterate1
-from vidar.utils.types import is_tensor, is_dict, is_seq
+from knk_vision.vidar.vidar.utils.data import align_corners
+from knk_vision.vidar.vidar.utils.decorators import iterate1
+from knk_vision.vidar.vidar.utils.types import is_tensor, is_dict, is_seq
 
 
 @iterate1

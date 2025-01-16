@@ -1,6 +1,6 @@
 # Copyright 2023 Toyota Research Institute.  All rights reserved.
 
-from vidar.arch.models.BaseModel import BaseModel
+from knk_vision.vidar.vidar.arch.models.BaseModel import BaseModel
 
 
 class DepthModel(BaseModel):
