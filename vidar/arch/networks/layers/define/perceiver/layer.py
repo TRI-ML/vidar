@@ -2,8 +2,8 @@
 
 import torch.nn as nn
 
-from vidar.arch.networks.layers.define.perceiver.attention import PerceiverAttention
-from vidar.arch.networks.layers.define.perceiver.mlp import PerceiverMLP
+from knk_vision.vidar.vidar.arch.networks.layers.define.perceiver.attention import PerceiverAttention
+from knk_vision.vidar.vidar.arch.networks.layers.define.perceiver.mlp import PerceiverMLP
 
 
 class PerceiverLayer(nn.Module):

@@ -1,7 +1,7 @@
 # Copyright 2023 Toyota Research Institute.  All rights reserved.
 
 from packnet_sfm.geometry.pose import Pose
-from vidar.arch.models.BaseModel import BaseModel
+from knk_vision.vidar.vidar.arch.models.BaseModel import BaseModel
 
 
 class PoseModel(BaseModel):

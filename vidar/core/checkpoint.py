@@ -6,8 +6,8 @@ from datetime import datetime
 import numpy as np
 import torch
 
-from vidar.utils.config import cfg_has
-from vidar.utils.logging import pcolor
+from knk_vision.vidar.vidar.utils.config import cfg_has
+from knk_vision.vidar.vidar.utils.logging import pcolor
 
 
 class ModelCheckpoint:

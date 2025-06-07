@@ -9,17 +9,17 @@ import numpy as np
 import torch
 
 from camviz import Draw
-from vidar.arch.blocks.image.ViewSynthesis import ViewSynthesis
-from vidar.arch.networks.layers.selffsm.metrics import cam_norm
-from vidar.arch.networks.layers.selffsm.dataset_interface_method import \
+from knk_vision.vidar.vidar.arch.blocks.image.ViewSynthesis import ViewSynthesis
+from knk_vision.vidar.vidar.arch.networks.layers.selffsm.metrics import cam_norm
+from knk_vision.vidar.vidar.arch.networks.layers.selffsm.dataset_interface_method import \
     (get_scenario, get_camname, get_cam0_based_extrinsics_from_pose,
      get_scenario_independent_camera, get_ddad_self_occlusion_mask, get_str_from_broken)
-from vidar.arch.models.BaseModel import BaseModel
-from vidar.arch.models.utils import apply_rgb_mask
-from vidar.geometry.pose_utils import get_scaled_translation, pose_vec2mat_homogeneous
-from vidar.utils.config import Config, cfg_has
-from vidar.utils.distributed import print0
-from vidar.utils.flip import flip_lr, flip_pose_lr
+from knk_vision.vidar.vidar.arch.models.BaseModel import BaseModel
+from knk_vision.vidar.vidar.arch.models.utils import apply_rgb_mask
+from knk_vision.vidar.vidar.geometry.pose_utils import get_scaled_translation, pose_vec2mat_homogeneous
+from knk_vision.vidar.vidar.utils.config import Config, cfg_has
+from knk_vision.vidar.vidar.utils.distributed import print0
+from knk_vision.vidar.vidar.utils.flip import flip_lr, flip_pose_lr
 
 
 def t_euler_2t_quat(xyz_rpy=None) -> np.ndarray:

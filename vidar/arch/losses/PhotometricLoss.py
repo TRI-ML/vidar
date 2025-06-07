@@ -5,9 +5,9 @@ from functools import partial
 
 import torch
 
-from vidar.arch.losses.BaseLoss import BaseLoss
-from vidar.arch.losses.SSIMLoss import SSIMLoss
-from vidar.utils.tensor import interpolate
+from knk_vision.vidar.vidar.arch.losses.BaseLoss import BaseLoss
+from knk_vision.vidar.vidar.arch.losses.SSIMLoss import SSIMLoss
+from knk_vision.vidar.vidar.utils.tensor import interpolate
 
 
 class PhotometricLoss(BaseLoss, ABC):

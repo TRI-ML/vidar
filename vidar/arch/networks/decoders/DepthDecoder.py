@@ -7,8 +7,8 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from vidar.arch.networks.layers.convolution import ConvBlock, Conv3x3, upsample
-from vidar.utils.config import cfg_has
+from knk_vision.vidar.vidar.arch.networks.layers.convolution import ConvBlock, Conv3x3, upsample
+from knk_vision.vidar.vidar.utils.config import cfg_has
 
 
 class DepthDecoder(nn.Module, ABC):

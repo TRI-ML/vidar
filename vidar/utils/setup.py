@@ -8,20 +8,20 @@ import numpy as np
 import torch
 from torch.utils.data import ConcatDataset, DataLoader
 
-from vidar.datasets.utils.transforms import get_transforms
-from vidar.metrics.depth import DepthEvaluation
-from vidar.metrics.extrinsics import ExtrinsicsEvaluation
-from vidar.metrics.optical_flow import OpticalFlowEvaluation
-from vidar.metrics.rgb import ImageEvaluation
-from vidar.utils.config import Config, get_folder_name, load_class, \
+from knk_vision.vidar.vidar.datasets.utils.transforms import get_transforms
+from knk_vision.vidar.vidar.metrics.depth import DepthEvaluation
+from knk_vision.vidar.vidar.metrics.extrinsics import ExtrinsicsEvaluation
+from knk_vision.vidar.vidar.metrics.optical_flow import OpticalFlowEvaluation
+from knk_vision.vidar.vidar.metrics.rgb import ImageEvaluation
+from knk_vision.vidar.vidar.utils.config import Config, get_folder_name, load_class, \
     recursive_assignment, cfg_has, cfg_add_to_dict, get_from_cfg_list
-from vidar.utils.config import merge_dict, to_namespace
-from vidar.utils.data import flatten, keys_in
-from vidar.utils.decorators import iterate12
-from vidar.utils.distributed import print0, rank, world_size, dist_mode
-from vidar.utils.logging import pcolor
-from vidar.utils.networks import load_checkpoint
-from vidar.utils.types import is_namespace, is_list
+from knk_vision.vidar.vidar.utils.config import merge_dict, to_namespace
+from knk_vision.vidar.vidar.utils.data import flatten, keys_in
+from knk_vision.vidar.vidar.utils.decorators import iterate12
+from knk_vision.vidar.vidar.utils.distributed import print0, rank, world_size, dist_mode
+from knk_vision.vidar.vidar.utils.logging import pcolor
+from knk_vision.vidar.vidar.utils.networks import load_checkpoint
+from knk_vision.vidar.vidar.utils.types import is_namespace, is_list
 
 
 def setup_arch(cfg, checkpoint=None, verbose=False):

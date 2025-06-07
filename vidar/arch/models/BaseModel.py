@@ -3,8 +3,8 @@
 import torch
 import torch.nn as nn
 
-from vidar.utils.config import cfg_has
-from vidar.utils.types import is_dict
+from knk_vision.vidar.vidar.utils.config import cfg_has
+from knk_vision.vidar.vidar.utils.types import is_dict
 
 
 class BaseModel(nn.Module):

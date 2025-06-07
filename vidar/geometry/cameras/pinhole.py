@@ -3,10 +3,10 @@
 import torch
 from torch_scatter import scatter_min
 
-from vidar.geometry.camera_utils import invert_intrinsics, scale_intrinsics
-from vidar.geometry.cameras.base import CameraBase
-from vidar.utils.tensor import same_shape, cat_channel_ones, unnorm_pixel_grid
-from vidar.utils.types import is_seq
+from knk_vision.vidar.vidar.geometry.camera_utils import invert_intrinsics, scale_intrinsics
+from knk_vision.vidar.vidar.geometry.cameras.base import CameraBase
+from knk_vision.vidar.vidar.utils.tensor import same_shape, cat_channel_ones, unnorm_pixel_grid
+from knk_vision.vidar.vidar.utils.types import is_seq
 
 
 class CameraPinhole(CameraBase):

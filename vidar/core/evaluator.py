@@ -5,11 +5,11 @@ from collections import OrderedDict
 import torch
 from tqdm import tqdm
 
-from vidar.core.checkpoint import ModelCheckpoint
-from vidar.utils.config import cfg_has, dataset_prefix
-from vidar.utils.data import make_list, keys_in
-from vidar.utils.setup import setup_dataloader, reduce
-from vidar.utils.types import is_dict, is_seq, is_numpy, is_tensor, is_list
+from knk_vision.vidar.vidar.core.checkpoint import ModelCheckpoint
+from knk_vision.vidar.vidar.utils.config import cfg_has, dataset_prefix
+from knk_vision.vidar.vidar.utils.data import make_list, keys_in
+from knk_vision.vidar.vidar.utils.setup import setup_dataloader, reduce
+from knk_vision.vidar.vidar.utils.types import is_dict, is_seq, is_numpy, is_tensor, is_list
 
 
 def sample_to_cuda(sample, proc_rank, dtype=None):

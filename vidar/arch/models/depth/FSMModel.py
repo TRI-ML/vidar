@@ -5,14 +5,14 @@ import random
 import numpy as np
 import torch
 
-from vidar.arch.losses.MultiCamPhotometricLoss import MultiCamPhotometricLoss
-from vidar.arch.models.BaseModel import BaseModel
-from vidar.arch.networks.layers.fsm.camera import Camera
-from vidar.arch.networks.layers.fsm.pose import Pose
-from vidar.arch.networks.layers.fsm.utils import \
+from knk_vision.vidar.vidar.arch.losses.MultiCamPhotometricLoss import MultiCamPhotometricLoss
+from knk_vision.vidar.vidar.arch.models.BaseModel import BaseModel
+from knk_vision.vidar.vidar.arch.networks.layers.fsm.camera import Camera
+from knk_vision.vidar.vidar.arch.networks.layers.fsm.pose import Pose
+from knk_vision.vidar.vidar.arch.networks.layers.fsm.utils import \
     CameraNormalizer, flip_batch_input, flip_output, filter_dict, coords_from_motion, mask_from_coords
-from vidar.utils.depth import depth2inv, inv2depth
-from vidar.utils.types import is_list, is_seq
+from knk_vision.vidar.vidar.utils.depth import depth2inv, inv2depth
+from knk_vision.vidar.vidar.utils.types import is_list, is_seq
 
 
 def split_batch(tensor, n=1):

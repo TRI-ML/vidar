@@ -2,11 +2,11 @@
 
 from abc import ABC
 
-from vidar.arch.networks.BaseNet import BaseNet
-from vidar.arch.networks.decoders.DepthDecoder import DepthDecoder
-from vidar.arch.networks.encoders.MultiResNetEncoder import MultiResNetEncoder
-# from vidar.arch.networks.encoders.MultiResNetEncoderStereoTwin import ResnetEncoderMatchingStereo
-from vidar.utils.config import cfg_has
+from knk_vision.vidar.vidar.arch.networks.BaseNet import BaseNet
+from knk_vision.vidar.vidar.arch.networks.decoders.DepthDecoder import DepthDecoder
+from knk_vision.vidar.vidar.arch.networks.encoders.MultiResNetEncoder import MultiResNetEncoder
+# from knk_vision.vidar.vidar.arch.networks.encoders.MultiResNetEncoderStereoTwin import ResnetEncoderMatchingStereo
+from knk_vision.vidar.vidar.utils.config import cfg_has
 
 
 class MultiDepthNet(BaseNet, ABC):

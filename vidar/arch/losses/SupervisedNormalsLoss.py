@@ -4,9 +4,9 @@ from abc import ABC
 
 import torch
 
-from vidar.arch.losses.BaseLoss import BaseLoss
-from vidar.utils.data import get_from_list, get_mask_from_list
-from vidar.utils.depth import calculate_normals
+from knk_vision.vidar.vidar.arch.losses.BaseLoss import BaseLoss
+from knk_vision.vidar.vidar.utils.data import get_from_list, get_mask_from_list
+from knk_vision.vidar.vidar.utils.depth import calculate_normals
 
 
 def grad_mask(mask):

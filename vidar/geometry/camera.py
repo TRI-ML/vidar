@@ -1,7 +1,7 @@
 # Copyright 2023 Toyota Research Institute.  All rights reserved.
 
-from vidar.geometry.cameras.pinhole import CameraPinhole
-from vidar.geometry.cameras.ucm import CameraUCM
+from knk_vision.vidar.vidar.geometry.cameras.pinhole import CameraPinhole
+from knk_vision.vidar.vidar.geometry.cameras.ucm import CameraUCM
 
 
 def Camera(K, hw, Twc=None, Tcw=None, geometry='pinhole'):

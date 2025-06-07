@@ -1,13 +1,13 @@
 import torch
 import torch.nn as nn
 
-from vidar.arch.networks.layers.define.decoders.utils.conv_decoder import ConvDecoder
-from vidar.arch.networks.layers.define.decoders.utils.upsample_tensor import upsample_tensor
-from vidar.arch.networks.layers.define.perceiver.decoder import PerceiverBasicDecoder
-from vidar.utils.config import Config
-from vidar.utils.types import is_list, is_dict
-from vidar.utils.networks import freeze_layers_and_norms
-from vidar.utils.data import get_from_dict
+from knk_vision.vidar.vidar.arch.networks.layers.define.decoders.utils.conv_decoder import ConvDecoder
+from knk_vision.vidar.vidar.arch.networks.layers.define.decoders.utils.upsample_tensor import upsample_tensor
+from knk_vision.vidar.vidar.arch.networks.layers.define.perceiver.decoder import PerceiverBasicDecoder
+from knk_vision.vidar.vidar.utils.config import Config
+from knk_vision.vidar.vidar.utils.types import is_list, is_dict
+from knk_vision.vidar.vidar.utils.networks import freeze_layers_and_norms
+from knk_vision.vidar.vidar.utils.data import get_from_dict
 
 
 def cat_dict_list(data):

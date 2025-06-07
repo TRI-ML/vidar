@@ -7,21 +7,21 @@ import torch.nn as nn
 
 from einops import rearrange
 
-from vidar.arch.networks.layers.define.decoders.depth import DepthDecoder
-from vidar.arch.networks.layers.define.decoders.rgb import RGBDecoder
-from vidar.arch.networks.layers.define.decoders.volumetric import VolumetricDecoder
-from vidar.arch.networks.layers.define.embeddings.camera import CameraEmbeddings
-from vidar.arch.networks.layers.define.embeddings.image import ImageEmbeddings
-from vidar.arch.networks.layers.define.embeddings.volumetric import VolumetricEmbeddings
-from vidar.arch.networks.layers.define.perceiver.model import PerceiverModel
-from vidar.utils.augmentations import augment_define
-from vidar.utils.data import make_list, str_not_in, sum_list, get_from_dict, remove_nones_dict, update_dict_nested, get_random
-from vidar.utils.nerf import apply_idx
-from vidar.utils.networks import freeze_layers_and_norms
-from vidar.utils.tensor import grid_sample, norm_pixel_grid, same_shape
-from vidar.utils.types import is_int, is_dict, is_list
-from vidar.geometry.camera_motion import slerp
-from vidar.geometry.camera import Camera
+from knk_vision.vidar.vidar.arch.networks.layers.define.decoders.depth import DepthDecoder
+from knk_vision.vidar.vidar.arch.networks.layers.define.decoders.rgb import RGBDecoder
+from knk_vision.vidar.vidar.arch.networks.layers.define.decoders.volumetric import VolumetricDecoder
+from knk_vision.vidar.vidar.arch.networks.layers.define.embeddings.camera import CameraEmbeddings
+from knk_vision.vidar.vidar.arch.networks.layers.define.embeddings.image import ImageEmbeddings
+from knk_vision.vidar.vidar.arch.networks.layers.define.embeddings.volumetric import VolumetricEmbeddings
+from knk_vision.vidar.vidar.arch.networks.layers.define.perceiver.model import PerceiverModel
+from knk_vision.vidar.vidar.utils.augmentations import augment_define
+from knk_vision.vidar.vidar.utils.data import make_list, str_not_in, sum_list, get_from_dict, remove_nones_dict, update_dict_nested, get_random
+from knk_vision.vidar.vidar.utils.nerf import apply_idx
+from knk_vision.vidar.vidar.utils.networks import freeze_layers_and_norms
+from knk_vision.vidar.vidar.utils.tensor import grid_sample, norm_pixel_grid, same_shape
+from knk_vision.vidar.vidar.utils.types import is_int, is_dict, is_list
+from knk_vision.vidar.vidar.geometry.camera_motion import slerp
+from knk_vision.vidar.vidar.geometry.camera import Camera
 
 
 def enable_dropout(model):

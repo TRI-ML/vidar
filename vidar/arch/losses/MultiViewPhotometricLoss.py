@@ -6,10 +6,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as tf
 
-from vidar.arch.losses.BaseLoss import BaseLoss
-from vidar.geometry.camera import Camera
-from vidar.utils.depth import inv2depth
-from vidar.utils.tensor import match_scales
+from knk_vision.vidar.vidar.arch.losses.BaseLoss import BaseLoss
+from knk_vision.vidar.vidar.geometry.camera import Camera
+from knk_vision.vidar.vidar.utils.depth import inv2depth
+from knk_vision.vidar.vidar.utils.tensor import match_scales
 
 
 def view_synthesis(ref_image, depth, ref_cam, cam,

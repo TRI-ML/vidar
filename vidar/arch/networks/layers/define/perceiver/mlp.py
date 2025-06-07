@@ -2,7 +2,7 @@
 
 import torch.nn as nn
 
-from vidar.arch.networks.layers.define.perceiver.activations import ACT2FN
+from knk_vision.vidar.vidar.arch.networks.layers.define.perceiver.activations import ACT2FN
 
 
 class PerceiverMLP(nn.Module):

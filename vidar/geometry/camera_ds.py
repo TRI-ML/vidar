@@ -2,8 +2,8 @@ from functools import lru_cache
 import torch
 import torch.nn as nn
 
-from vidar.geometry.pose import Pose
-from vidar.utils.tensor import pixel_grid
+from knk_vision.vidar.vidar.geometry.pose import Pose
+from knk_vision.vidar.vidar.utils.tensor import pixel_grid
 
 
 class DSCamera(nn.Module):

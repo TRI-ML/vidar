@@ -8,10 +8,10 @@ import torch
 import torch.nn as nn
 import torchvision.models as models
 
-from vidar.utils.config import cfg_has
-from vidar.utils.data import flatten
-from vidar.utils.depth import depth2inv
-from vidar.utils.tensor import grid_sample
+from knk_vision.vidar.vidar.utils.config import cfg_has
+from knk_vision.vidar.vidar.utils.data import flatten
+from knk_vision.vidar.vidar.utils.depth import depth2inv
+from knk_vision.vidar.vidar.utils.tensor import grid_sample
 
 RESNET_VERSIONS = {
     18: models.resnet18,

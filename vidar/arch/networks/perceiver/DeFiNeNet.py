@@ -5,14 +5,14 @@ import torch.nn as nn
 from transformers import PerceiverModel, PerceiverConfig
 from transformers.models.perceiver.modeling_perceiver import build_position_encoding
 
-from vidar.arch.networks.perceiver.externals.modeling_perceiver import PerceiverDepthDecoder, PerceiverRGBDecoder, build_position_encoding
-from vidar.arch.blocks.depth.SigmoidToInvDepth import SigmoidToInvDepth
-from vidar.arch.networks.decoders.DepthDecoder import DepthDecoder
-from vidar.arch.networks.encoders.ResNetEncoder import ResNetEncoder
-from vidar.utils.config import Config
-from vidar.utils.networks import freeze_layers_and_norms
-from vidar.utils.tensor import interpolate
-from vidar.utils.types import is_int
+from knk_vision.vidar.vidar.arch.networks.perceiver.externals.modeling_perceiver import PerceiverDepthDecoder, PerceiverRGBDecoder, build_position_encoding
+from knk_vision.vidar.vidar.arch.blocks.depth.SigmoidToInvDepth import SigmoidToInvDepth
+from knk_vision.vidar.vidar.arch.networks.decoders.DepthDecoder import DepthDecoder
+from knk_vision.vidar.vidar.arch.networks.encoders.ResNetEncoder import ResNetEncoder
+from knk_vision.vidar.vidar.utils.config import Config
+from knk_vision.vidar.vidar.utils.networks import freeze_layers_and_norms
+from knk_vision.vidar.vidar.utils.tensor import interpolate
+from knk_vision.vidar.vidar.utils.types import is_int
 
 
 class DownSampleRGB(nn.Module):

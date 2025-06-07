@@ -5,7 +5,7 @@ from abc import ABC
 
 from torch.utils.data import Dataset
 
-from vidar.utils.types import is_list
+from knk_vision.vidar.vidar.utils.types import is_list
 
 
 class BaseDataset(Dataset, ABC):

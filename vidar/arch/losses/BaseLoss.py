@@ -7,8 +7,8 @@ from functools import partial
 import torch
 import torch.nn as nn
 
-from vidar.utils.tensor import same_shape, interpolate
-from vidar.utils.types import is_dict, is_list
+from knk_vision.vidar.vidar.utils.tensor import same_shape, interpolate
+from knk_vision.vidar.vidar.utils.types import is_dict, is_list
 
 
 class BaseLoss(nn.Module, ABC):

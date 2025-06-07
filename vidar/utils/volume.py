@@ -7,11 +7,11 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from vidar.arch.losses.PhotometricLoss import PhotometricLoss
-from vidar.geometry.camera import Camera
-from vidar.utils.config import cfg_from_dict
-from vidar.utils.tensor import grid_sample, interpolate_image
-from vidar.utils.types import is_tensor
+from knk_vision.vidar.vidar.arch.losses.PhotometricLoss import PhotometricLoss
+from knk_vision.vidar.vidar.geometry.camera import Camera
+from knk_vision.vidar.vidar.utils.config import cfg_from_dict
+from knk_vision.vidar.vidar.utils.tensor import grid_sample, interpolate_image
+from knk_vision.vidar.vidar.utils.types import is_tensor
 
 
 def get_depth_bins(mode, min_val, max_val, num_vals):

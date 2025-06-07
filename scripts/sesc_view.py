@@ -9,10 +9,10 @@ import torch
 from camviz import Draw
 from camviz.objects.camera import Camera as CVCam
 
-from vidar.arch.models.releaseSesc.SescInference import SescInference
-from vidar.geometry.camera import Camera
-from vidar.geometry.pose_utils import pose_vec2mat_homogeneous
-from vidar.utils.viz import viz_depth
+from knk_vision.vidar.vidar.arch.models.releaseSesc.SescInference import SescInference
+from knk_vision.vidar.vidar.geometry.camera import Camera
+from knk_vision.vidar.vidar.geometry.pose_utils import pose_vec2mat_homogeneous
+from knk_vision.vidar.vidar.utils.viz import viz_depth
 
 cam_colors = ['red', 'yel', 'gre', 'blu', 'mag', 'cya'] * 100  # Full
 camera_scale = 1.

@@ -2,8 +2,8 @@
 
 import torch
 
-from vidar.arch.networks.layers.define.embeddings.base import BaseEmbeddings
-from vidar.utils.nerf import get_camera_origin, get_camera_rays
+from knk_vision.vidar.vidar.arch.networks.layers.define.embeddings.base import BaseEmbeddings
+from knk_vision.vidar.vidar.utils.nerf import get_camera_origin, get_camera_rays
 
 
 class DepthEmbeddings(BaseEmbeddings):

@@ -3,7 +3,7 @@
 import torch
 import torch.nn.functional as tfunc
 
-from vidar.utils.types import is_list
+from knk_vision.vidar.vidar.utils.types import is_list
 
 
 def coords_from_motion(ref_camera, tgt_depth, tgt_camera, scene_flow=None):

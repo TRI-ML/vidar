@@ -1,7 +1,7 @@
 # TRI-VIDAR - Copyright 2022 Toyota Research Institute.  All rights reserved.
 
 from abc import ABC
-from vidar.arch.models.BaseModel import BaseModel
+from knk_vision.vidar.vidar.arch.models.BaseModel import BaseModel
 
 class SelfSupervisedModelInference(BaseModel, ABC):
     """

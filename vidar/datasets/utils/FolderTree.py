@@ -4,8 +4,8 @@ from glob import glob
 
 import numpy as np
 
-from vidar.utils.data import make_list
-from vidar.utils.types import is_list
+from knk_vision.vidar.vidar.utils.data import make_list
+from knk_vision.vidar.vidar.utils.types import is_list
 
 
 class FolderTree:

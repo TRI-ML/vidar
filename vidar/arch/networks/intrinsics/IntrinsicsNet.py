@@ -8,7 +8,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from vidar.arch.networks.BaseNet import BaseNet
+from knk_vision.vidar.vidar.arch.networks.BaseNet import BaseNet
 
 
 class IntrinsicsNet(BaseNet, ABC):

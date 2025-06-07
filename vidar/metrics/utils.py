@@ -2,7 +2,7 @@
 
 import torch
 
-from vidar.utils.tensor import interpolate_image
+from knk_vision.vidar.vidar.utils.tensor import interpolate_image
 
 
 def scale_output(pred, gt, scale_fn):

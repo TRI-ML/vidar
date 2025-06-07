@@ -5,12 +5,12 @@ from abc import ABC
 import torch
 import random
 
-from vidar.arch.losses.PhotometricLoss import PhotometricLoss
-from vidar.arch.models.BaseModel import BaseModel
-from vidar.geometry.camera import Camera
-from vidar.geometry.pose import Pose
-from vidar.utils.config import Config
-from vidar.utils.data import fold_batch
+from knk_vision.vidar.vidar.arch.losses.PhotometricLoss import PhotometricLoss
+from knk_vision.vidar.vidar.arch.models.BaseModel import BaseModel
+from knk_vision.vidar.vidar.geometry.camera import Camera
+from knk_vision.vidar.vidar.geometry.pose import Pose
+from knk_vision.vidar.vidar.utils.config import Config
+from knk_vision.vidar.vidar.utils.data import fold_batch
 from collections import OrderedDict
 
 

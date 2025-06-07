@@ -2,10 +2,10 @@
 
 import torch
 
-from vidar.arch.blocks.depth.SigmoidToInvDepth import SigmoidToInvDepth
-from vidar.arch.blocks.depth.SigmoidToLogDepth import SigmoidToLogDepth
-from vidar.arch.networks.layers.define.decoders.utils.base_decoder import BaseDecoder
-from vidar.utils.depth import get_depth_bins
+from knk_vision.vidar.vidar.arch.blocks.depth.SigmoidToInvDepth import SigmoidToInvDepth
+from knk_vision.vidar.vidar.arch.blocks.depth.SigmoidToLogDepth import SigmoidToLogDepth
+from knk_vision.vidar.vidar.arch.networks.layers.define.decoders.utils.base_decoder import BaseDecoder
+from knk_vision.vidar.vidar.utils.depth import get_depth_bins
 
 
 class DepthDecoder(BaseDecoder):

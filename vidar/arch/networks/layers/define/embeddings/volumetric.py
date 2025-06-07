@@ -4,13 +4,13 @@ import torch
 import torch.nn as nn
 from einops import rearrange
 
-from vidar.arch.networks.layers.define.embeddings.utils.fourier_position_encoding import \
+from knk_vision.vidar.vidar.arch.networks.layers.define.embeddings.utils.fourier_position_encoding import \
     PerceiverFourierPositionEncoding
-from vidar.utils.data import get_from_dict, get_from_list
-from vidar.utils.nerf import sample_coarse, sample_fine, sample_depth, \
+from knk_vision.vidar.vidar.utils.data import get_from_dict, get_from_list
+from knk_vision.vidar.vidar.utils.nerf import sample_coarse, sample_fine, sample_depth, \
     apply_idx, get_camera_origin, get_camera_rays
-from vidar.utils.types import is_list
-from vidar.arch.networks.layers.define.embeddings.base import BaseEmbeddings
+from knk_vision.vidar.vidar.utils.types import is_list
+from knk_vision.vidar.vidar.arch.networks.layers.define.embeddings.base import BaseEmbeddings
 
 
 def flatten(data):

@@ -8,8 +8,8 @@ import torch
 import torchvision
 import torchvision.transforms as transforms
 
-from vidar.utils.data import keys_in
-from vidar.utils.decorators import iterate1
+from knk_vision.vidar.vidar.utils.data import keys_in
+from knk_vision.vidar.vidar.utils.decorators import iterate1
 
 
 def duplicate_sample(sample, keys):

@@ -6,9 +6,9 @@ from functools import partial
 import numpy as np
 import torch
 
-from vidar.utils.distributed import reduce_value
-from vidar.utils.tensor import same_shape, interpolate
-from vidar.utils.data import make_list
+from knk_vision.vidar.vidar.utils.distributed import reduce_value
+from knk_vision.vidar.vidar.utils.tensor import same_shape, interpolate
+from knk_vision.vidar.vidar.utils.data import make_list
 
 
 class BaseEvaluation:

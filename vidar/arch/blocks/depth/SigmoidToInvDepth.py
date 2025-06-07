@@ -4,8 +4,8 @@ from abc import ABC
 
 import torch.nn as nn
 
-from vidar.utils.decorators import iterate2
-from vidar.utils.depth import inv2depth
+from knk_vision.vidar.vidar.utils.decorators import iterate2
+from knk_vision.vidar.vidar.utils.depth import inv2depth
 
 
 class SigmoidToInvDepth(nn.Module, ABC):

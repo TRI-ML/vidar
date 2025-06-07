@@ -1,12 +1,12 @@
 # Copyright 2023 Toyota Research Institute.  All rights reserved.
 
-from vidar.arch.blocks.image.ViewSynthesis import ViewSynthesis
-from vidar.arch.models.generic.GenericModel_utils import get_if_not_none, apply_masks, dense_batches, \
+from knk_vision.vidar.vidar.arch.blocks.image.ViewSynthesis import ViewSynthesis
+from knk_vision.vidar.vidar.arch.models.generic.GenericModel_utils import get_if_not_none, apply_masks, dense_batches, \
     sum_valid, get_gt, get_mask_valid, apply_loss, update_losses, sample_supervision, valid_batches
-from vidar.utils.config import Config
-from vidar.utils.data import get_from_dict, strs_not_in_key, sum_list, make_list, detach_dict
-from vidar.utils.depth import calculate_normals
-from vidar.utils.types import is_dict, is_list
+from knk_vision.vidar.vidar.utils.config import Config
+from knk_vision.vidar.vidar.utils.data import get_from_dict, strs_not_in_key, sum_list, make_list, detach_dict
+from knk_vision.vidar.vidar.utils.depth import calculate_normals
+from knk_vision.vidar.vidar.utils.types import is_dict, is_list
 
 
 def apply_valid(data, value):
@@ -233,7 +233,7 @@ class GenericModelLosses:
 
             else:
 
-                from vidar.utils.depth import depth2index
+                from knk_vision.vidar.vidar.utils.depth import depth2index
                 gt_bins_tgt = [depth2index(gt_depth_tgt, z_vals_tgt[i]) for i in range(len(z_vals_tgt))]
 
                 depth_bins_supervision_output = loss_fn(
@@ -461,7 +461,7 @@ class GenericModelLosses:
             masks[tgt] = synth['masks']
             photo[tgt] = reprojection_output['photo']
 
-            from vidar.utils.write import write_image
+            from knk_vision.vidar.vidar.utils.write import write_image
             for ctx in ctxs:
                 write_image(f'scene_flow_{tgt}_{ctx}.png', synth['warps'][ctx][0])
             write_image(f'scene_flow_{tgt}.png', rgb_tgt)

@@ -5,9 +5,9 @@ from abc import ABC
 import torch
 import torch.nn as nn
 
-from vidar.arch.losses.BaseLoss import BaseLoss
-from vidar.utils.data import get_mask_from_list, get_from_list
-from vidar.utils.depth import depth2inv
+from knk_vision.vidar.vidar.arch.losses.BaseLoss import BaseLoss
+from knk_vision.vidar.vidar.utils.data import get_mask_from_list, get_from_list
+from knk_vision.vidar.vidar.utils.depth import depth2inv
 
 
 def get_criterion(method):
@@ -65,7 +65,7 @@ class SupervisedOpticalFlowLoss(BaseLoss, ABC):
         mask = self.interp_nearest(mask, gt)
         soft_mask = self.interp_bilinear(soft_mask, gt)
 
-        from vidar.utils.write import write_image
+        from knk_vision.vidar.vidar.utils.write import write_image
         write_image('mask.png', mask[0])
 
         # Flatten tensors

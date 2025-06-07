@@ -7,9 +7,9 @@ import torch
 from torch import nn
 from torch import linalg as LA
 
-from vidar.utils.config import cfg_has
-from vidar.arch.losses.BaseLoss import BaseLoss
-from vidar.geometry.pose_utils import \
+from knk_vision.vidar.vidar.utils.config import cfg_has
+from knk_vision.vidar.vidar.arch.losses.BaseLoss import BaseLoss
+from knk_vision.vidar.vidar.geometry.pose_utils import \
     (invert_multi_pose, pose_tensor2euler_tensor, pose_tensor2transl_vec, pose_tensor2rotmatrix, invert_pose)
 
 
